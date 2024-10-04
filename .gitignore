@@ -5,3 +5,9 @@ SImgProc/SImgProc/Debug
 SImgProc/SImgProc/Release
 SImgProc/ipch
 *.obj
+Release/SImgProc.pdb
+ipch/simgproc-6447530c/simgproc-8ec5ba90.ipch
+Debug/SImgProc.pdb
+Debug/SImgProc.ilk
+Debug/SImgProc.exp
+Release/SImgProc.exp
