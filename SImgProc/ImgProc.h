@@ -143,22 +143,24 @@ struct Object
 
 	BOOL Connection(int iNeighborPolicy)
 	{
-		this->runLength[0].uiLabel=1;
-		ConnectNeighbor(&(this->runLength[0]),0,iNeighborPolicy);
-		int iMaxLabel=1;
-		for(int iID=1; iID<=m_iMaxID; iID++)
-		{
-			if(this->runLength[iID].uiLabel > 0)
-			{
-				if(iMaxLabel<this->runLength[iID].uiLabel)
-				{
-					iMaxLabel=this->runLength[iID].uiLabel;
-				}
-				continue;
-			}
-			
-			ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
+		UINT uiMaxLabel=0;
 
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			if(uiMaxLabel<this->runLength[iID].uiLabel)
+			{
+				uiMaxLabel=this->runLength[iID].uiLabel;
+			}
+		}
+
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			if(this->runLength[iID].uiLabel == 0)
+			{
+				uiMaxLabel++;
+				this->runLength[iID].uiLabel=uiMaxLabel;
+				ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
+			}
 		}
 
 		return TRUE;

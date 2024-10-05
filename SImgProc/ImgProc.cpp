@@ -324,22 +324,39 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut
 	if(imgIn->iChannel != CHANNEL_1_8){return FALSE;}
 
 	ObjOut->Init();
-	/*
+
 	for(int r=0; r<imgIn->iHeight; r++)
 	{
+		int iStartC=-1;
 		for(int c=0; c<imgIn->iWidth; c++)
 		{
-			if(imgIn->byImg[r*imgIn->iWidth+c] >= byThreshMin)
-			{
-				if(imgIn->byImg[r*imgIn->iWidth+c] <= byThreshMax)
-				{
-					imgRegionOut->uiImg[r*imgIn->iWidth+c]=1;
-				}
 
+			if(iStartC>=0)
+			{
+				if((imgIn->byImg[r*imgIn->iWidth+c] < byThreshMin)
+					|| (imgIn->byImg[r*imgIn->iWidth+c] < byThreshMax))
+				{
+					ObjOut->Add(r,iStartC,c-1,0);
+					iStartC=-1;
+				}
+				continue;
 			}
+
+			if((imgIn->byImg[r*imgIn->iWidth+c] >= byThreshMin)
+				&& (imgIn->byImg[r*imgIn->iWidth+c] <= byThreshMax))
+			{
+				iStartC=c;
+			}
+
 		}
+
+		if(iStartC>=0)
+		{
+			ObjOut->Add(r,iStartC,imgIn->iWidth-1,0);
+		}
+
 	}
-	*/
+
 	return TRUE;
 }
 
