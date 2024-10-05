@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ImgProc.h"
+
 BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
 {
 	BITMAPINFOHEADER bmih;
@@ -316,6 +317,32 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, ImgRegion* img
 	}
 	return TRUE;
 }
+
+
+BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut)
+{
+	if(imgIn->iChannel != CHANNEL_1_8){return FALSE;}
+
+	ObjOut->Init();
+	/*
+	for(int r=0; r<imgIn->iHeight; r++)
+	{
+		for(int c=0; c<imgIn->iWidth; c++)
+		{
+			if(imgIn->byImg[r*imgIn->iWidth+c] >= byThreshMin)
+			{
+				if(imgIn->byImg[r*imgIn->iWidth+c] <= byThreshMax)
+				{
+					imgRegionOut->uiImg[r*imgIn->iWidth+c]=1;
+				}
+
+			}
+		}
+	}
+	*/
+	return TRUE;
+}
+
 
 BOOL PaintRegion(ImgRGB* imgIn, ImgRegion* imgRegion, BYTE byR, BYTE byG, BYTE byB, ImgRGB* imgOut)
 {
