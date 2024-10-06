@@ -16,3 +16,17 @@ Debug/SImgProc_d.ilk
 Debug/SImgProc_d.pdb
 SImgProc.opensdf
 SImgProc.sdf
+Debug/SImgProcTest.exe
+Debug/SImgProcTest.exp
+Debug/SImgProcTest.ilk
+Debug/SImgProcTest.lib
+Debug/SImgProcTest.pdb
+Release/SImgProcTest.exe
+Release/SImgProcTest.exp
+Release/SImgProcTest.lib
+Release/SImgProcTest.pdb
+SImgProc.exp
+SImgProc.exp
+/SImgProcTest/Debug
+/SImgProcTest/Release
+SImgProc.pdb

@@ -11,6 +11,7 @@ struct RunLength
 	int iCEnd;
 	UINT uiLabel;
 	BOOL bValid;
+	BOOL bIsConnectionOperated;
 	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn)
 	{
 		iR=iRIn;
@@ -18,6 +19,7 @@ struct RunLength
 		iCEnd=iCEndIn;
 		uiLabel=uiLabelIn;
 		bValid=bValidIn;
+		bIsConnectionOperated=FALSE;
 	}
 	RunLength(){iR=0; iCStart=0; iCEnd=0; uiLabel=0; bValid=FALSE;}
 };
@@ -38,6 +40,7 @@ struct Object
 		if(runLength != NULL){delete [] runLength; runLength=NULL;}
 		m_iMaxID=-1;
 		m_iBufNum=0;
+		return TRUE;
 	}
 
 	BOOL Alloc(int iBuf)
@@ -45,10 +48,18 @@ struct Object
 		Init();
 		runLength=new RunLength[iBuf];
 		m_iBufNum=iBuf;
+		return TRUE;
 	}
 
 	BOOL Expand(int iBuf)
 	{
+		if(iBuf==1)
+		{
+			
+		this->Init();
+		this->Alloc(iBuf);
+		return TRUE;
+		}
 		Object objTemp;
 		objTemp.Alloc(this->m_iMaxID+1);
 		objTemp.Copy(this);
@@ -56,20 +67,25 @@ struct Object
 		this->Init();
 		this->Alloc(iBuf);
 		this->Copy(&objTemp);
+		return TRUE;
+
 	}
 
-	BOOL Copy(Object* objDst)
+	BOOL Copy(Object* objSrc)
 	{
-		if(this->m_iMaxID<0){return FALSE;}
+		if(objSrc->m_iMaxID<0){return FALSE;}
 
-		if(this->m_iMaxID +1 >= objDst->m_iBufNum)
+		if(objSrc->m_iMaxID +1 >= this->m_iBufNum)
 		{
-			objDst->Alloc(this->m_iMaxID +1);
+			this->Alloc(objSrc->m_iMaxID +1);
 		}
-		for(int iID=0; iID<=this->m_iMaxID; iID++)
+		this->m_iMaxID=-1;
+		for(int iID=0; iID<=objSrc->m_iMaxID; iID++)
 		{
-			objDst->runLength[iID].Set(this->runLength[iID].iR, this->runLength[iID].iCStart, this->runLength[iID].iCEnd, this->runLength[iID].uiLabel, this->runLength[iID].bValid);
+			this->runLength[iID].Set(objSrc->runLength[iID].iR, objSrc->runLength[iID].iCStart, objSrc->runLength[iID].iCEnd, objSrc->runLength[iID].uiLabel, objSrc->runLength[iID].bValid);
+			this->m_iMaxID++;
 		}
+		return TRUE;
 
 	}
 
@@ -79,15 +95,17 @@ struct Object
 		{
 			if(m_iBufNum==0)
 			{
-			Expand(1);
+				Expand(1);
 			}
 			else
 			{
-			Expand(m_iBufNum*2);
+				Expand(m_iBufNum*2);
 			}
 		}
 		m_iMaxID++;
 		this->runLength[m_iMaxID].Set(iR, iCStart, iCEnd, uiLabel,TRUE);
+		return TRUE;
+
 	}
 
 
@@ -126,11 +144,14 @@ struct Object
 		for(int i=0; i<=this->m_iMaxID; i++)
 		{
 			if(this->runLength[i].bValid==FALSE){continue;}
-
+			
+			if(this->runLength[i].bIsConnectionOperated==TRUE){continue;}
 			if(i==iID){continue;}
 
 			if(IsNeighbor(runLength, &(this->runLength[i]), iNeighborPolicy)==TRUE)
 			{
+
+				this->runLength[i].bIsConnectionOperated=TRUE;
 				this->runLength[i].uiLabel=runLength->uiLabel;
 				ConnectNeighbor(&(this->runLength[i]), i, iNeighborPolicy);
 				continue;
@@ -150,6 +171,7 @@ struct Object
 			if(uiMaxLabel<this->runLength[iID].uiLabel)
 			{
 				uiMaxLabel=this->runLength[iID].uiLabel;
+				uiMaxLabel=this->runLength[iID].bIsConnectionOperated=FALSE;
 			}
 		}
 
@@ -159,10 +181,47 @@ struct Object
 			{
 				uiMaxLabel++;
 				this->runLength[iID].uiLabel=uiMaxLabel;
+				this->runLength[iID].bIsConnectionOperated=TRUE;
 				ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
 			}
 		}
 
 		return TRUE;
+	}
+
+	BOOL Truncate()
+	{
+		UINT uiMaxLabel=0;
+
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			if(uiMaxLabel<this->runLength[iID].uiLabel)
+			{
+				uiMaxLabel=this->runLength[iID].uiLabel;
+			}
+		}
+		UINT* uiNewLabelTable;
+		uiNewLabelTable = new UINT[uiMaxLabel+1];
+
+		memset(uiNewLabelTable, 0, sizeof(UINT)*(uiMaxLabel+1));
+
+		UINT uiNewMaxLabel=0;
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			if(this->runLength[iID].uiLabel==0){continue;}
+			if(uiNewLabelTable[this->runLength[iID].uiLabel]!=0){continue;}
+			
+			uiNewMaxLabel++;
+			uiNewLabelTable[this->runLength[iID].uiLabel]=uiNewMaxLabel;
+		}
+
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			this->runLength[iID].uiLabel=uiNewLabelTable[this->runLength[iID].uiLabel];
+		}
+
+		delete [] uiNewLabelTable;
+		return TRUE;
+
 	}
 };
