@@ -244,9 +244,27 @@ BOOL Test5()
 	return TRUE;
 }
 
+BOOL TestSort()
+{
+	double a[5]={1,3,2,4,5};
+	int b[5];
+
+	Index(a,5,b);
+	if(b[0] != 0){return FALSE;}
+	if(b[1] != 2){return FALSE;}
+	if(b[2] != 1){return FALSE;}
+	if(b[3] != 3){return FALSE;}
+	if(b[4] != 4){return FALSE;}
+
+	return TRUE;
+}
+
 
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+	if(TestSort() != TRUE){AfxMessageBox(_T("TestSort failed"));}
+
+
 	BOOL bRet;
 	bRet = Test1();
 	if(bRet != TRUE){AfxMessageBox(_T("Test1 failed"));}

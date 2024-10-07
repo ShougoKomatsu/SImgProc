@@ -372,6 +372,234 @@ BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 	}
 	return TRUE;
 }
+inline void SWAP(double* a, double* b)
+{
+	double temp;
+	temp=(*b);
+	*b=(*a);
+	*a=temp;
+}
+
+inline void SWAP(int* a, int* b)
+{
+	int temp;
+	temp=(*b);
+	*b=(*a);
+	*a=temp;
+}
+
+BOOL Sort(double* arr, int iLength, double* brr)
+{
+	double* dOut;
+	dOut = new double [iLength];
+
+	for(int ii=0; ii<iLength; ii++)
+	{
+		dOut[ii]=arr[ii];
+	}
+
+	int m=7;
+	int nstack=64;
+	int i, ir, j, k, jstack=-1, l=0, n=iLength;
+	double a, b;
+	int* istack;
+	istack=new int[nstack];
+	ir=n-1;
+	for(;;)
+	{
+		if(ir-1<m)
+		{
+			for(j=l+1; j<=ir; j++)
+			{
+				a=dOut[j];
+				for(i=j-1;i>=l;i--)
+				{
+					if(dOut[i]<=a){break;}
+					dOut[i+1]=dOut[i];
+				}
+				dOut[i+1]=a;
+			}
+			if(jstack<0){break;}
+			ir=istack[jstack--];
+			l=istack[jstack--];
+		}
+		else
+		{
+			k=(l+ir)>>1;
+			SWAP(&(dOut[l]),&(dOut[ir]));
+		}
+		if(dOut[l] > dOut[ir])
+		{
+			SWAP(&(dOut[l]), &(dOut[ir]));
+		}
+		if(dOut[l+1] > dOut[ir])
+		{
+			SWAP(&(dOut[l+1]), &(dOut[ir]));
+		}
+		if(dOut[l] > dOut[l+1])
+		{
+			SWAP(&(dOut[l]), &(dOut[l+1]));
+		}
+		i=l+1;
+		j=ir;
+		a=dOut[l+1];
+		for(;;)
+		{
+			do
+			{
+				i++;
+			}while(dOut[i]<a);
+
+			do
+			{
+				j--;
+			}while(dOut[j]>a);
+			if(j<i){break;}
+
+			SWAP(&(dOut[i]), &(dOut[j]));
+		}
+		dOut[l+1]=dOut[j];
+		dOut[j]=a;
+		jstack += 2;
+
+		if(jstack>=nstack){return FALSE;}
+		if(ir-i+1 >= j-1)
+		{
+			istack[jstack]=ir;
+			istack[jstack-1]=i;
+			ir=j-1;
+		}
+		else
+		{
+			istack[jstack]=j-1;
+			istack[jstack-1]=l;
+			l=i;
+		}
+	}
+
+	for(int ii=0; ii<iLength; ii++)
+	{
+		brr[ii]=dOut[ii];
+	}
+
+	return TRUE;
+}
+
+
+BOOL Index(double* arr, int iLength, int* brr)
+{
+	int* iIndex;
+	double* dOut;
+	dOut = new double [iLength];
+	iIndex = new int [iLength];
+	
+
+	for(int ii=0; ii<iLength; ii++)
+	{
+		dOut[ii]=arr[ii];
+		iIndex[ii]=ii;
+	}
+
+	int m=7;
+	int nstack=64;
+	int i, ir, j, k, jstack=-1, l=0, n=iLength;
+	double a, b;
+	int* istack;
+	istack=new int[nstack];
+	ir=n-1;
+	for(;;)
+	{
+		if(ir-1<m)
+		{
+			for(j=l+1; j<=ir; j++)
+			{
+				a=dOut[j];
+				b=iIndex[j];
+				for(i=j-1;i>=l;i--)
+				{
+					if(dOut[i]<=a){break;}
+					dOut[i+1]=dOut[i];
+					iIndex[i+1]=iIndex[i];
+				}
+				dOut[i+1]=a;
+				iIndex[i+1]=b;
+			}
+			if(jstack<0){break;}
+			ir=istack[jstack--];
+			l=istack[jstack--];
+		}
+		else
+		{
+			k=(l+ir)>>1;
+			SWAP(&(dOut[l]),&(dOut[ir]));
+			SWAP(&(iIndex[l]),&(iIndex[ir]));
+		}
+		if(dOut[l] > dOut[ir])
+		{
+			SWAP(&(dOut[l]), &(dOut[ir]));
+			SWAP(&(iIndex[l]), &(iIndex[ir]));
+		}
+		if(dOut[l+1] > dOut[ir])
+		{
+			SWAP(&(dOut[l+1]), &(dOut[ir]));
+			SWAP(&(iIndex[l+1]), &(iIndex[ir]));
+		}
+		if(dOut[l] > dOut[l+1])
+		{
+			SWAP(&(dOut[l]), &(dOut[l+1]));
+			SWAP(&(iIndex[l]), &(iIndex[l+1]));
+		}
+		i=l+1;
+		j=ir;
+		a=dOut[l+1];
+		b=iIndex[l+1];
+		for(;;)
+		{
+			do
+			{
+				i++;
+			}while(dOut[i]<a);
+
+			do
+			{
+				j--;
+			}while(dOut[j]>a);
+			if(j<i){break;}
+
+			SWAP(&(dOut[i]), &(dOut[j]));
+			SWAP(&(iIndex[i]), &(iIndex[j]));
+		}
+		dOut[l+1]=dOut[j];
+		dOut[j]=a;
+		iIndex[l+1]=iIndex[j];
+		iIndex[j]=a;
+		jstack += 2;
+
+		if(jstack>=nstack){return FALSE;}
+		if(ir-i+1 >= j-1)
+		{
+			istack[jstack]=ir;
+			istack[jstack-1]=i;
+			ir=j-1;
+		}
+		else
+		{
+			istack[jstack]=j-1;
+			istack[jstack-1]=l;
+			l=i;
+		}
+	}
+
+	for(int ii=0; ii<iLength; ii++)
+	{
+		brr[ii]=iIndex[ii];
+	}
+
+	delete [] iIndex;
+	delete [] dOut;
+	return TRUE;
+}
+
 
 BOOL PaintRegion(ImgRGB* imgIn, ImgRegion* imgRegion, BYTE byR, BYTE byG, BYTE byB, ImgRGB* imgOut)
 {

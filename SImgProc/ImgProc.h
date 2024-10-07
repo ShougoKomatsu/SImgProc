@@ -229,3 +229,5 @@ struct Object
 BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
 BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
 BOOL SelectObj(Object* objIn, int iID, Object* objOut);
+BOOL Sort(double* arr, int iLength, double* brr);
+BOOL Index(double* arr, int iLength, int* brr);
