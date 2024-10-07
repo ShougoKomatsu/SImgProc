@@ -2463,6 +2463,25 @@ BOOL ImgRGB::Assign(CString sFilePath)
 	return TRUE;
 }
 
+
+BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
+{
+	int iArea=0;
+	UINT uiRSum=0;
+	UINT uiCSum=0;
+	for(int i=0; i<=obj->m_iMaxID; i++)
+	{
+		int iAreaTemp;
+		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;;
+		iArea+=iAreaTemp;
+		uiCSum+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
+		uiRSum+=(obj->runLength[i].iR) * iAreaTemp;
+	}
+	*dArea=double(iArea);
+	*dR=uiRSum/(*dArea);
+	*dC=uiCSum/(*dArea);
+	return TRUE;
+}
 /*
 BOOL Search()
 {

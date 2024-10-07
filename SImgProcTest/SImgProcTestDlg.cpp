@@ -197,6 +197,11 @@ BOOL Test3()
 	if(obj.runLength[0].uiLabel != 0){return FALSE;}
 	if(obj.runLength[1].uiLabel != 1){return FALSE;}
 	if(obj.runLength[2].uiLabel != 2){return FALSE;}
+	double dA, dR, dC;
+	AreaCenter(&obj, &dA, &dR, &dC);
+	if(dA != 5){return FALSE;}
+	if(dR != 3/5.0){return FALSE;}
+	if(dC != 1){return FALSE;}
 
 	return TRUE;
 }

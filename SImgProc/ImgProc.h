@@ -227,3 +227,4 @@ struct Object
 };
 
 BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
+BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
