@@ -95,6 +95,7 @@ struct DLL_IE ImgRGB
 		if(iChannel == CHANNEL_1_8)
 		{
 			byImg = new BYTE[iWidth*iHeight];
+		memset(byImg,0,iWidth*iHeight);
 		}
 		if(iChannel == CHANNEL_3_8)
 		{

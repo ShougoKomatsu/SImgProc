@@ -201,6 +201,20 @@ BOOL Test3()
 	return TRUE;
 }
 
+BOOL Test4()
+{
+	ImgRGB imgTest;
+	imgTest.Set(10,10,CHANNEL_1_8);
+	imgTest.byImg[3*10+1]=128;
+	Object obj;
+	Threshold(&imgTest,100,200,&obj);
+
+	if(obj.m_iMaxID != 0){return FALSE;}
+	if(obj.runLength[0].iR != 3){return FALSE;}
+	if(obj.runLength[0].iCStart != 1){return FALSE;}
+	if(obj.runLength[0].iCEnd != 1){return FALSE;}
+	return TRUE;
+}
 
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
@@ -211,4 +225,6 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	if(bRet != TRUE){AfxMessageBox(_T("Test2 failed"));}
 	bRet = Test3();
 	if(bRet != TRUE){AfxMessageBox(_T("Test3 failed"));}
+	bRet = Test4();
+	if(bRet != TRUE){AfxMessageBox(_T("Test4 failed"));}
 }

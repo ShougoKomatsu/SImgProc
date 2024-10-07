@@ -225,3 +225,5 @@ struct Object
 
 	}
 };
+
+BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
