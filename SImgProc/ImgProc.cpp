@@ -528,8 +528,8 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 				iIndex[i+1]=b;
 			}
 			if(jstack<0){break;}
-			iIndexR=istack[jstack--];
-			indexL=istack[jstack--];
+			iIndexR=istack[jstack];jstack--;
+			indexL=istack[jstack];jstack--;
 			continue;
 		}
 
