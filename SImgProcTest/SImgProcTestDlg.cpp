@@ -221,6 +221,30 @@ BOOL Test4()
 	return TRUE;
 }
 
+BOOL Test5()
+{
+	Object obj;
+	obj.Add(0,0,0,0);
+	obj.Add(0,2,2,0);
+	obj.Add(2,0,2,0);
+	obj.Add(3,0,1,0);
+	obj.Connection(4);
+
+
+	Object obj2;
+	SelectObj(&obj,2,&obj2);
+
+	if(obj2.m_iMaxID != 1){return FALSE;}
+	if(obj2.runLength[0].iR != 2){return FALSE;}
+	if(obj2.runLength[0].iCStart != 0){return FALSE;}
+	if(obj2.runLength[0].iCEnd != 2){return FALSE;}
+	if(obj2.runLength[1].iR != 3){return FALSE;}
+	if(obj2.runLength[1].iCStart != 0){return FALSE;}
+	if(obj2.runLength[1].iCEnd != 1){return FALSE;}
+	return TRUE;
+}
+
+
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 	BOOL bRet;
@@ -232,4 +256,6 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	if(bRet != TRUE){AfxMessageBox(_T("Test3 failed"));}
 	bRet = Test4();
 	if(bRet != TRUE){AfxMessageBox(_T("Test4 failed"));}
+	bRet = Test5();
+	if(bRet != TRUE){AfxMessageBox(_T("Test5 failed"));}
 }

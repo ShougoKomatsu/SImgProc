@@ -360,6 +360,18 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut
 	return TRUE;
 }
 
+BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
+{
+	int iRunLengthCount=0;
+	for(int i=0; i<=objIn->m_iMaxID; i++)
+	{
+		if(objIn->runLength[i].uiLabel==iLabel+1)
+		{
+			objOut->Add(objIn->runLength[i].iR,objIn->runLength[i].iCStart,objIn->runLength[i].iCEnd,0);
+		}
+	}
+	return TRUE;
+}
 
 BOOL PaintRegion(ImgRGB* imgIn, ImgRegion* imgRegion, BYTE byR, BYTE byG, BYTE byB, ImgRGB* imgOut)
 {
