@@ -407,7 +407,7 @@ BOOL Sort(double* arr, int iLength, double* brr)
 	int m=7;
 	int nstack=64;
 	int i, ir, j, k, jstack=-1, l=0, n=iLength;
-	double a, b;
+	double a;
 	int* istack;
 	istack=new int[nstack];
 	ir=n-1;
@@ -577,7 +577,7 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 		dALocal[indexL+1]=dALocal[j];
 		dALocal[j]=a;
 		iIndex[indexL+1]=iIndex[j];
-		iIndex[j]=a;
+		iIndex[j]=b;
 		jstack += 2;
 
 		if(jstack>=nstack){return FALSE;}
