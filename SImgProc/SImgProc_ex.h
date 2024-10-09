@@ -171,6 +171,39 @@ struct ImgMap
 };
 
 
+struct RunLength
+{
+	int iR;
+	int iCStart;
+	int iCEnd;
+	UINT uiLabel;
+	BOOL bValid;
+	BOOL bIsConnectionOperated;
+	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn);
+	RunLength();
+};
+
+struct Object
+{
+	UINT m_uiMaxLabel;
+	int m_iMaxID;
+	int m_iBufNum;
+	RunLength* runLength;
+
+	Object();
+	BOOL Init();
+	BOOL Alloc(int iBuf);
+	BOOL Expand(int iBuf);
+	BOOL Copy(Object* objSrc);
+	BOOL Add(int iR, int iCStart, int iCEnd, UINT uiLabel);
+	BOOL IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy);
+	BOOL ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy);
+	BOOL Connection(int iNeighborPolicy);
+
+	BOOL Truncate();
+};
+
+
 BOOL DLL_IE Screenshot(ImgRGB* imgRGB);
 BOOL DLL_IE CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, int iC1);
 
@@ -183,3 +216,8 @@ BOOL DLL_IE GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValue
 BOOL DLL_IE GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, double* dValueR, double* dValueG, double* dValueB);
 
 BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
+
+BOOL DLL_IE SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut);
+BOOL DLL_IE Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
+BOOL DLL_IE AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
+BOOL DLL_IE SelectObj(Object* objIn, int iID, Object* objOut);
