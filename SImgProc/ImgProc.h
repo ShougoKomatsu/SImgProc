@@ -26,6 +26,7 @@ struct RunLength
 
 struct Object
 {
+	UINT m_uiMaxLabel;
 	int m_iMaxID;
 	int m_iBufNum;
 	RunLength* runLength;
@@ -40,6 +41,7 @@ struct Object
 		if(runLength != NULL){delete [] runLength; runLength=NULL;}
 		m_iMaxID=-1;
 		m_iBufNum=0;
+		m_uiMaxLabel=0;
 		return TRUE;
 	}
 
@@ -84,6 +86,7 @@ struct Object
 		{
 			this->runLength[iID].Set(objSrc->runLength[iID].iR, objSrc->runLength[iID].iCStart, objSrc->runLength[iID].iCEnd, objSrc->runLength[iID].uiLabel, objSrc->runLength[iID].bValid);
 			this->m_iMaxID++;
+			this->m_uiMaxLabel=objSrc->m_uiMaxLabel;
 		}
 		return TRUE;
 
@@ -185,7 +188,7 @@ struct Object
 				ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
 			}
 		}
-
+		this->m_uiMaxLabel=uiMaxLabel;
 		return TRUE;
 	}
 
@@ -214,12 +217,12 @@ struct Object
 			uiNewMaxLabel++;
 			uiNewLabelTable[this->runLength[iID].uiLabel]=uiNewMaxLabel;
 		}
-
+		
+		m_uiMaxLabel=uiNewMaxLabel;
 		for(int iID=0; iID<=m_iMaxID; iID++)
 		{
 			this->runLength[iID].uiLabel=uiNewLabelTable[this->runLength[iID].uiLabel];
 		}
-
 		delete [] uiNewLabelTable;
 		return TRUE;
 
@@ -231,3 +234,4 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
 BOOL SelectObj(Object* objIn, int iID, Object* objOut);
 BOOL Sort(double* arr, int iLength, double* brr);
 BOOL Index(double* arr, int iLength, int* brr);
+BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut);

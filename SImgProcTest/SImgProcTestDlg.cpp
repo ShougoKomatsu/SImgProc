@@ -259,9 +259,33 @@ BOOL TestSort()
 	return TRUE;
 }
 
+BOOL TestSortRegion()
+{
+	
+	ImgRGB imgTest;
+	imgTest.Set(10,10,CHANNEL_1_8);
+	imgTest.byImg[3*10+1]=128;
+	imgTest.byImg[5*10+1]=128;
+	imgTest.byImg[5*10+2]=128;
+	imgTest.byImg[7*10+1]=128;
+	Object obj;
+	Threshold(&imgTest,100,200,&obj);
+
+	if(obj.m_iMaxID != 2){return FALSE;}
+	if(obj.runLength[1].iR != 5){return FALSE;}
+	if(obj.runLength[1].iCStart != 1){return FALSE;}
+	if(obj.runLength[1].iCEnd != 2){return FALSE;}
+	obj.Connection(4);
+	if(obj.runLength[1].uiLabel != 2){return FALSE;}
+	Object objOut;
+	SortRegion(&obj,_T("area"), _T("dsc"),&objOut);
+	if(objOut.runLength[1].uiLabel != 1){return FALSE;}
+	return TRUE;
+}
 
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+	if(TestSortRegion() != TRUE){AfxMessageBox(_T("TestSortRegion failed"));}
 	if(TestSort() != TRUE){AfxMessageBox(_T("TestSort failed"));}
 
 
