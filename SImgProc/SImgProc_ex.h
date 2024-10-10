@@ -180,6 +180,7 @@ struct RunLength
 	BOOL bValid;
 	BOOL bIsConnectionOperated;
 	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn);
+	void Copy(RunLength* runLengthIn);
 	RunLength();
 };
 
@@ -203,6 +204,7 @@ struct Object
 	BOOL Truncate();
 
 	BOOL IsInRegion(double dR, double dC);
+	BOOL UnionOverwrappedRunlength();
 };
 
 

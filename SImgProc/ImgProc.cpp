@@ -3090,18 +3090,97 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 			if(this->runLength[iID].iR<dR){continue;}
 			if(this->runLength[iID].iR>dR){return FALSE;}
 
-			if(this->runLength[iID].iR>=dR)
+			if(this->runLength[iID].iCStart<=dC)
 			{
-				if(this->runLength[iID].iCStart<=dC)
+				if(dC<=this->runLength[iID].iCEnd)
 				{
-					if(dC<=this->runLength[iID].iCEnd)
-					{
-						return TRUE;
-					}
+					return TRUE;
 				}
 			}
 		}
 		return FALSE;
+	}
+
+	void RunLength::Copy(RunLength* runLengthIn)
+	{
+		this->Set(runLengthIn->iR,runLengthIn->iCStart, runLengthIn->iCEnd, runLengthIn->uiLabel, runLengthIn->bValid);
+	}
+
+	BOOL IsOverWrapped(RunLength* runLength1, RunLength* runLength2)
+	{
+
+		if(runLength1->bValid != TRUE){return FALSE;}
+		if(runLength2->bValid != TRUE){return FALSE;}
+
+		if(runLength1->uiLabel != runLength2->uiLabel){return FALSE;}
+		if(runLength1->iR != runLength2->iR){return FALSE;}
+
+	if((runLength2->iCStart <= runLength1->iCStart) && (runLength1->iCStart <= runLength2->iCEnd))
+		{
+			return TRUE;
+		}
+		if((runLength2->iCStart  <= runLength1->iCEnd) && (runLength1->iCEnd <= runLength2->iCEnd))
+		{
+			return TRUE;
+		}
+
+		if((runLength1->iCStart < runLength2->iCStart) && (runLength2->iCEnd < runLength1->iCEnd))
+		{
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+	BOOL Object::UnionOverwrappedRunlength()
+	{
+		if(this->m_iMaxID<0){return FALSE;}
+		Object objTemp;
+		objTemp.Alloc(this->m_iMaxID+1);
+
+		objTemp.runLength[0].Copy(&(this->runLength[0]));
+		int iNewID=0;
+
+		for(int iID=1; iID<=this->m_iMaxID; iID++)
+		{
+			
+			if(this->runLength[iID].bValid != TRUE)
+			{
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				continue;
+			}
+
+			if(objTemp.runLength[iNewID].uiLabel != this->runLength[iID].uiLabel)
+			{
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				continue;
+			}
+			if(objTemp.runLength[iNewID].iR != this->runLength[iID].iR)
+			{
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				continue;
+			}
+
+			if(this->runLength[iID].iCStart < objTemp.runLength[iNewID].iCStart)
+			{
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				continue;
+			}
+
+			if(objTemp.runLength[iNewID].iCEnd < this->runLength[iID].iCStart)
+			{
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				continue;
+			}
+
+			objTemp.runLength[iNewID].iCEnd=this->runLength[iID].iCEnd;
+
+		}
+		return TRUE;
 	}
 
 	/*
