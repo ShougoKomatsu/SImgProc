@@ -491,12 +491,11 @@ BOOL Sort(double* arr, int iLength, double* brr)
 	return TRUE;
 }
 
-
 BOOL Index(double* dIn, int iLength, int* iIndexOut)
 {
 	int* iIndex;
 	double* dALocal;
-	dALocal = new double [iLength];
+	dALocal = new double[iLength];
 	iIndex = new int [iLength];
 	
 
@@ -509,8 +508,6 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 	int m=7;
 	int nstack=64;
 	int iIndexR, jstack=-1, indexL=0, n=iLength;
-	double a;
-	int b;
 	int* istack;
 	istack=new int[nstack];
 	iIndexR=n-1;
@@ -521,8 +518,8 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 		{
 			for(int j=indexL+1; j<=iIndexR; j++)
 			{
-				a=dALocal[j];
-				b=iIndex[j];
+				double a=dALocal[j];
+				int b=iIndex[j];
 				int i;
 				for(i=j-1; i>=indexL; i--)
 				{
@@ -562,8 +559,8 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 
 		int i=indexL+1;
 		int j=iIndexR;
-		a=dALocal[indexL+1];
-		b=iIndex[indexL+1];
+		double a=dALocal[indexL+1];
+		int b=iIndex[indexL+1];
 		while(1)
 		{
 			while(1){i++;if(dALocal[i]>=a){break;}}
@@ -619,8 +616,6 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 	int m=7;
 	int nstack=64;
 	int iIndexR, jstack=-1, indexL=0, n=iLength;
-	UINT a;
-	int b;
 	int* istack;
 	istack=new int[nstack];
 	iIndexR=n-1;
@@ -631,8 +626,8 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 		{
 			for(int j=indexL+1; j<=iIndexR; j++)
 			{
-				a=dALocal[j];
-				b=iIndex[j];
+				UINT a=dALocal[j];
+				int b=iIndex[j];
 				int i;
 				for(i=j-1; i>=indexL; i--)
 				{
@@ -672,8 +667,8 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 
 		int i=indexL+1;
 		int j=iIndexR;
-		a=dALocal[indexL+1];
-		b=iIndex[indexL+1];
+		UINT a=dALocal[indexL+1];
+		int b=iIndex[indexL+1];
 		while(1)
 		{
 			while(1){i++;if(dALocal[i]>=a){break;}}
@@ -687,7 +682,7 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 		dALocal[indexL+1]=dALocal[j];
 		dALocal[j]=a;
 		iIndex[indexL+1]=iIndex[j];
-		iIndex[j]=a;
+		iIndex[j]=b;
 		jstack += 2;
 
 		if(jstack>=nstack){return FALSE;}
@@ -711,7 +706,6 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 	delete [] dALocal;
 	return TRUE;
 }
-
 BOOL PaintRegion(ImgRGB* imgIn, ImgRegion* imgRegion, BYTE byR, BYTE byG, BYTE byB, ImgRGB* imgOut)
 {
 	if(imgIn->iHeight != imgRegion->iHeight){return FALSE;}
