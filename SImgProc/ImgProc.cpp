@@ -3083,7 +3083,28 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		return TRUE;
 
 	}
-/*
+	BOOL Object::IsInRegion(double dR, double dC)
+	{
+		for(int iID=0; iID<=this->m_iMaxID; iID++)
+		{
+			if(this->runLength[iID].iR<dR){continue;}
+			if(this->runLength[iID].iR>dR){return FALSE;}
+
+			if(this->runLength[iID].iR>=dR)
+			{
+				if(this->runLength[iID].iCStart<=dC)
+				{
+					if(dC<=this->runLength[iID].iCEnd)
+					{
+						return TRUE;
+					}
+				}
+			}
+		}
+		return FALSE;
+	}
+
+	/*
 BOOL Search()
 {
 int* iMap;

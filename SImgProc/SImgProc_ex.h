@@ -201,6 +201,8 @@ struct Object
 	BOOL Connection(int iNeighborPolicy);
 
 	BOOL Truncate();
+
+	BOOL IsInRegion(double dR, double dC);
 };
 
 
