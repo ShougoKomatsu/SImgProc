@@ -3209,6 +3209,43 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		return TRUE;
 	}
 
+	BOOL ConvertImageChannel_3_8(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
+	{
+		imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_3_8);
+
+		if(imgIn->iChannel==CHANNEL_3_8){imgOut->Assign(imgIn);return TRUE;}
+
+		if(imgIn->iChannel==CHANNEL_1_24BGR)
+		{
+			for(int r=0; r<imgIn->iHeight; r++)
+			{
+				for(int c=0; c<imgIn->iWidth; c++)
+				{
+					imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+0];
+					imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+1];
+					imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+2];
+				}
+			}
+			return TRUE;
+		}
+
+		
+		if(imgIn->iChannel==CHANNEL_1_8)
+		{
+			for(int r=0; r<imgIn->iHeight; r++)
+			{
+				for(int c=0; c<imgIn->iWidth; c++)
+				{
+					imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+					imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+					imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+				}
+			}
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 	/*
 BOOL Search()
 {
