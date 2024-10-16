@@ -282,9 +282,44 @@ BOOL TestSortRegion()
 	if(objOut.runLength[1].uiLabel != 1){return FALSE;}
 	return TRUE;
 }
+BOOL UnionOverwrappedRunlength()
+{
+	Object obj;
+	obj.Alloc(4);
+	obj.runLength[0].Set(1,2,5,1,TRUE);
+	obj.runLength[1].Set(2,2,5,2,TRUE);
+	obj.runLength[2].Set(1,4,7,1,TRUE);
+	obj.runLength[3].Set(2,4,7,3,TRUE);
+	obj.m_iMaxID=3;
+	obj.UnionOverwrappedRunlength();
+
+	if(obj.runLength[0].iCEnd != 7){return FALSE;}
+	if(obj.runLength[1].iCEnd != 5){return FALSE;}
+	if(obj.runLength[2].iCStart != 4){return FALSE;}
+	return TRUE;
+}
+BOOL UnionOverwrappedRunlength2()
+{
+	Object obj;
+	obj.Alloc(4);
+	obj.runLength[0].Set(1,10,15,1,TRUE);
+	obj.runLength[1].Set(2,2,5,2,TRUE);
+	obj.runLength[2].Set(1,2,5,1,TRUE);
+	obj.runLength[3].Set(1,4,12,1,TRUE);
+	obj.m_iMaxID=3;
+	obj.UnionOverwrappedRunlength();
+
+	if(obj.m_iMaxID!=1){return FALSE;}
+	if(obj.runLength[0].iCEnd != 15){return FALSE;}
+	if(obj.runLength[0].iCStart != 2){return FALSE;}
+	if(obj.runLength[1].iCStart != 2){return FALSE;}
+	return TRUE;
+}
 
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+	if(UnionOverwrappedRunlength2() != TRUE){AfxMessageBox(_T("UnionOverwrappedRunlength2 failed"));}
+	if(UnionOverwrappedRunlength() != TRUE){AfxMessageBox(_T("UnionOverwrappedRunlength failed"));}
 	if(TestSortRegion() != TRUE){AfxMessageBox(_T("TestSortRegion failed"));}
 	if(TestSort() != TRUE){AfxMessageBox(_T("TestSort failed"));}
 

@@ -3134,22 +3134,79 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	BOOL Object::UnionOverwrappedRunlength()
 	{
 		if(this->m_iMaxID<0){return FALSE;}
+		
+		while(1)
+		{
 		Object objTemp;
 		objTemp.Alloc(this->m_iMaxID+1);
 
 		objTemp.runLength[0].Copy(&(this->runLength[0]));
 		int iNewID=0;
+		BOOL bTreatedAny;
+		bTreatedAny=FALSE;
 
-		for(int iID=1; iID<=this->m_iMaxID; iID++)
-		{
-			if(IsOverWrapped(&(this->runLength[iID]),  &(objTemp.runLength[iNewID])) == TRUE)
+			for(int iID=1; iID<=this->m_iMaxID; iID++)
 			{
-				objTemp.runLength[iNewID].iCEnd=this->runLength[iID].iCEnd;
-				continue;
+				BOOL bTreated=FALSE;
+				for(int iID2=0; iID2<=iNewID; iID2++)
+				{
+					if(IsOverWrapped(&(this->runLength[iID]),  &(objTemp.runLength[iID2])) == TRUE)
+					{
+
+						objTemp.runLength[iID2].iCStart=min(this->runLength[iID].iCStart,objTemp.runLength[iID2].iCStart);
+						objTemp.runLength[iID2].iCEnd=max(this->runLength[iID].iCEnd,objTemp.runLength[iID2].iCEnd);
+						bTreated=TRUE;
+						bTreatedAny=TRUE;
+						break;
+					}
+				}
+				if(bTreated==FALSE)
+				{
+					iNewID++;
+					objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+				}
 			}
-			iNewID++;
-			objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
+			objTemp.m_iMaxID=iNewID;
+			this->Copy(&objTemp);
+			if(bTreatedAny==FALSE){return TRUE;}
+			bTreatedAny=FALSE;
 		}
+		return FALSE;
+	}
+
+	BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
+	{
+		objOut->Alloc(objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1);
+		int iTotalLength=objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1;
+		UINT* iRs;
+		iRs=new UINT[iTotalLength];
+		int* iIndex;
+		iIndex=new int[iTotalLength];
+
+		int iNewID=0;
+		for(int iID=0; iID<=objIn1->m_iMaxID; iID)
+		{
+			iRs[iNewID]=objIn1->runLength[iID].iR;
+		}
+		for(int iID=0; iID<=objIn1->m_iMaxID; iID)
+		{
+			iRs[iNewID]=objIn2->runLength[iID].iR;
+		}
+
+		Index(iRs,iTotalLength,iIndex);
+
+		for(int iNewID=0; iNewID<iTotalLength; iNewID++)
+		{
+			if(iIndex[iNewID]<=objIn1->m_iMaxID+1)
+			{
+				objOut->runLength[iNewID].Copy(&(objIn1->runLength[iIndex[iNewID]]));
+			}
+			else
+			{
+				objOut->runLength[iNewID].Copy(&(objIn1->runLength[iIndex[iNewID]-objIn1->m_iMaxID+1]));
+			}
+		}
+
 		return TRUE;
 	}
 
