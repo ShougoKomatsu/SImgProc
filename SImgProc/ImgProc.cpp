@@ -3134,17 +3134,16 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	BOOL Object::UnionOverwrappedRunlength()
 	{
 		if(this->m_iMaxID<0){return FALSE;}
-		
+
 		while(1)
 		{
-		Object objTemp;
-		objTemp.Alloc(this->m_iMaxID+1);
+			Object objTemp;
+			objTemp.Alloc(this->m_iMaxID+1);
 
-		objTemp.runLength[0].Copy(&(this->runLength[0]));
-		int iNewID=0;
-		BOOL bTreatedAny;
-		bTreatedAny=FALSE;
+			objTemp.runLength[0].Copy(&(this->runLength[0]));
+			int iNewID=0;
 
+			BOOL bTreatedAny=FALSE;
 			for(int iID=1; iID<=this->m_iMaxID; iID++)
 			{
 				BOOL bTreated=FALSE;
@@ -3160,14 +3159,14 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 						break;
 					}
 				}
-				if(bTreated==FALSE)
-				{
-					iNewID++;
-					objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
-				}
+				if(bTreated==TRUE){continue;}
+
+				iNewID++;
+				objTemp.runLength[iNewID].Copy(&(this->runLength[iID]));
 			}
 			objTemp.m_iMaxID=iNewID;
 			this->Copy(&objTemp);
+
 			if(bTreatedAny==FALSE){return TRUE;}
 			bTreatedAny=FALSE;
 		}
