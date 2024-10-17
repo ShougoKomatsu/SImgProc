@@ -339,8 +339,48 @@ BOOL TestPaintRegion()
 	if(imgOut.byImgB[5*10+3] != 0){return FALSE;}
 	return TRUE;
 }
+BOOL TestPaintRegion2()
+{
+	ImgRGB imgTest;
+	imgTest.Set(10,10,CHANNEL_1_8);
+	imgTest.byImg[3*10+1]=128;
+	imgTest.byImg[5*10+1]=128;
+	imgTest.byImg[5*10+2]=128;
+	imgTest.byImg[7*10+1]=128;
+	Object obj;
+	Threshold(&imgTest,100,200,&obj);
+	obj.Connection(4);
+
+	ImgRGB imgOut;
+	PaintRegion(&imgTest, &obj, &imgOut);
+	if(imgOut.byImgR[3*10+1] != 255){return FALSE;}
+	if(imgOut.byImgG[3*10+1] != 0){return FALSE;}
+	if(imgOut.byImgB[3*10+1] != 0){return FALSE;}
+	if(imgOut.byImgR[5*10+1] != 0){return FALSE;}
+	if(imgOut.byImgG[5*10+1] != 255){return FALSE;}
+	if(imgOut.byImgB[5*10+1] != 0){return FALSE;}
+	if(imgOut.byImgR[5*10+2] != 0){return FALSE;}
+	if(imgOut.byImgG[5*10+2] != 255){return FALSE;}
+	if(imgOut.byImgB[5*10+2] != 0){return FALSE;}
+	if(imgOut.byImgR[7*10+1] != 0){return FALSE;}
+	if(imgOut.byImgG[7*10+1] != 0){return FALSE;}
+	if(imgOut.byImgB[7*10+1] != 255){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+
+	ImgRGB imgTest;
+	imgTest.Assign(_T("d:\\20240718_131406.bmp"));
+	Object obj;
+	ImgRGB imgR, imgG, imgB;
+	Decompose3(&imgTest,&imgR,&imgG,&imgB);
+	Threshold(&imgR,240,255,&obj);
+	obj.Connection(8);
+	ImgRGB imgOut;
+	PaintRegion(&imgTest, &obj, &imgOut);
+	WriteImage(&imgOut,_T("d:\\test.bmp"));
+	if(TestPaintRegion2() != TRUE){AfxMessageBox(_T("TestPaintRegion2 failed"));}
 	if(TestPaintRegion() != TRUE){AfxMessageBox(_T("TestPaintRegion failed"));}
 	if(TestUnionOverwrappedRunlength2() != TRUE){AfxMessageBox(_T("TestUnionOverwrappedRunlength2 failed"));}
 	if(TestUnionOverwrappedRunlength() != TRUE){AfxMessageBox(_T("TestUnionOverwrappedRunlength failed"));}

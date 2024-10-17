@@ -3266,6 +3266,38 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 
 		return TRUE;
 	}
+
+	BYTE g_byR[3]={255, 0, 0};
+	BYTE g_byG[3]={0, 255, 0};
+	BYTE g_byB[3]={0, 0, 255};
+	UINT g_uiColored=3;
+	
+	BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
+	{
+		BOOL bRet;
+		bRet = ConvertImageChannel_3_8(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int i=0; i<= objIn->m_iMaxID; i++)
+		{
+			int r=objIn->runLength[i].iR;
+			for(int c= objIn->runLength[i].iCStart; c<= objIn->runLength[i].iCEnd; c++)
+			{
+				if(objIn->runLength[i].uiLabel==0)
+				{
+				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
+				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
+				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
+					continue;
+				}
+				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[i].uiLabel-1)%g_uiColored];
+				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[(objIn->runLength[i].uiLabel-1)%g_uiColored];
+				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[(objIn->runLength[i].uiLabel-1)%g_uiColored];
+			}
+		}
+
+		return TRUE;
+	}
 	/*
 BOOL Search()
 {

@@ -226,3 +226,5 @@ BOOL DLL_IE Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object*
 BOOL DLL_IE AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
 BOOL DLL_IE SelectObj(Object* objIn, int iID, Object* objOut);
 BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB);
+BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut);
+BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
