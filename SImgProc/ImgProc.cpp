@@ -3209,7 +3209,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		return TRUE;
 	}
 
-	BOOL ConvertImageChannel_3_8(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
+	BOOL ConvertImageChannel_3_8(ImgRGB* imgIn, ImgRGB* imgOut)
 	{
 		imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_3_8);
 
@@ -3245,6 +3245,26 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		}
 
 		return FALSE;
+	}
+
+	BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB)
+	{
+		BOOL bRet;
+		bRet = ConvertImageChannel_3_8(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int i=0; i<= objIn->m_iMaxID; i++)
+		{
+			int r=objIn->runLength[i].iR;
+			for(int c= objIn->runLength[i].iCStart; c<= objIn->runLength[i].iCEnd; c++)
+			{
+				imgOut->byImgR[r*imgOut->iWidth+c]=byR;
+				imgOut->byImgG[r*imgOut->iWidth+c]=byG;
+				imgOut->byImgB[r*imgOut->iWidth+c]=byB;
+			}
+		}
+
+		return TRUE;
 	}
 	/*
 BOOL Search()

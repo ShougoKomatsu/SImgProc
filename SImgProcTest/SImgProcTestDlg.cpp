@@ -282,7 +282,7 @@ BOOL TestSortRegion()
 	if(objOut.runLength[1].uiLabel != 1){return FALSE;}
 	return TRUE;
 }
-BOOL UnionOverwrappedRunlength()
+BOOL TestUnionOverwrappedRunlength()
 {
 	Object obj;
 	obj.Alloc(4);
@@ -298,7 +298,7 @@ BOOL UnionOverwrappedRunlength()
 	if(obj.runLength[2].iCStart != 4){return FALSE;}
 	return TRUE;
 }
-BOOL UnionOverwrappedRunlength2()
+BOOL TestUnionOverwrappedRunlength2()
 {
 	Object obj;
 	obj.Alloc(4);
@@ -315,11 +315,35 @@ BOOL UnionOverwrappedRunlength2()
 	if(obj.runLength[1].iCStart != 2){return FALSE;}
 	return TRUE;
 }
+BOOL TestPaintRegion()
+{
+	ImgRGB imgTest;
+	imgTest.Set(10,10,CHANNEL_1_8);
+	imgTest.byImg[3*10+1]=128;
+	imgTest.byImg[5*10+1]=128;
+	imgTest.byImg[5*10+2]=128;
+	imgTest.byImg[7*10+1]=128;
+	Object obj;
+	Threshold(&imgTest,100,200,&obj);
 
+	ImgRGB imgOut;
+	PaintRegion(&imgTest, &obj, &imgOut, 255,100,200);
+	if(imgOut.byImgR[3*10+1] != 255){return FALSE;}
+	if(imgOut.byImgG[3*10+1] != 100){return FALSE;}
+	if(imgOut.byImgB[3*10+1] != 200){return FALSE;}
+	if(imgOut.byImgR[5*10+2] != 255){return FALSE;}
+	if(imgOut.byImgG[5*10+2] != 100){return FALSE;}
+	if(imgOut.byImgB[5*10+2] != 200){return FALSE;}
+	if(imgOut.byImgR[5*10+3] != 0){return FALSE;}
+	if(imgOut.byImgG[5*10+3] != 0){return FALSE;}
+	if(imgOut.byImgB[5*10+3] != 0){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
-	if(UnionOverwrappedRunlength2() != TRUE){AfxMessageBox(_T("UnionOverwrappedRunlength2 failed"));}
-	if(UnionOverwrappedRunlength() != TRUE){AfxMessageBox(_T("UnionOverwrappedRunlength failed"));}
+	if(TestPaintRegion() != TRUE){AfxMessageBox(_T("TestPaintRegion failed"));}
+	if(TestUnionOverwrappedRunlength2() != TRUE){AfxMessageBox(_T("TestUnionOverwrappedRunlength2 failed"));}
+	if(TestUnionOverwrappedRunlength() != TRUE){AfxMessageBox(_T("TestUnionOverwrappedRunlength failed"));}
 	if(TestSortRegion() != TRUE){AfxMessageBox(_T("TestSortRegion failed"));}
 	if(TestSort() != TRUE){AfxMessageBox(_T("TestSort failed"));}
 
