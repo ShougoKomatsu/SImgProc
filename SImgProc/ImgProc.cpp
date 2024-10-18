@@ -598,6 +598,113 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 	delete [] dALocal;
 	return TRUE;
 }
+BOOL Index(int* dIn, int iLength, int* iIndexOut)
+{
+	int* iIndex;
+	int* dALocal;
+	dALocal = new int[iLength];
+	iIndex = new int [iLength];
+	
+
+	for(int i=0; i<iLength; i++)
+	{
+		dALocal[i]=dIn[i];
+		iIndex[i]=i;
+	}
+
+	int m=7;
+	int nstack=64;
+	int iIndexR, jstack=-1, indexL=0, n=iLength;
+	int* istack;
+	istack=new int[nstack];
+	iIndexR=n-1;
+
+	while(1)
+	{
+		if(iIndexR-1<m)
+		{
+			for(int j=indexL+1; j<=iIndexR; j++)
+			{
+				int a=dALocal[j];
+				int b=iIndex[j];
+				int i;
+				for(i=j-1; i>=indexL; i--)
+				{
+					if(dALocal[i]<=a){break;}
+					dALocal[i+1]=dALocal[i];
+					iIndex[i+1]=iIndex[i];
+				}
+				dALocal[i+1]=a;
+				iIndex[i+1]=b;
+			}
+			if(jstack<0){break;}
+			iIndexR=istack[jstack];jstack--;
+			indexL=istack[jstack];jstack--;
+			continue;
+		}
+
+		int iIndexTemp=(indexL+iIndexR)>>1;
+		SWAP(&(dALocal[iIndexTemp]),&(dALocal[indexL+1]));
+		SWAP(&(iIndex[iIndexTemp]),&(iIndex[indexL+1]));
+
+		if(dALocal[indexL] > dALocal[iIndexR])
+		{
+			SWAP(&(dALocal[indexL]), &(dALocal[iIndexR]));
+			SWAP(&(iIndex[indexL]), &(iIndex[iIndexR]));
+		}
+		if(dALocal[indexL+1] > dALocal[iIndexR])
+		{
+			SWAP(&(dALocal[indexL+1]), &(dALocal[iIndexR]));
+			SWAP(&(iIndex[indexL+1]), &(iIndex[iIndexR]));
+		}
+		if(dALocal[indexL] > dALocal[indexL+1])
+		{
+			SWAP(&(dALocal[indexL]), &(dALocal[indexL+1]));
+			SWAP(&(iIndex[indexL]), &(iIndex[indexL+1]));
+		}
+
+
+		int i=indexL+1;
+		int j=iIndexR;
+		int a=dALocal[indexL+1];
+		int b=iIndex[indexL+1];
+		while(1)
+		{
+			while(1){i++;if(dALocal[i]>=a){break;}}
+			while(1){j--;if(dALocal[j]<=a){break;}}
+
+			if(j<i){break;}
+
+			SWAP(&(dALocal[i]), &(dALocal[j]));
+			SWAP(&(iIndex[i]), &(iIndex[j]));
+		}
+		dALocal[indexL+1]=dALocal[j];
+		dALocal[j]=a;
+		iIndex[indexL+1]=iIndex[j];
+		iIndex[j]=b;
+		jstack += 2;
+
+		if(jstack>=nstack){return FALSE;}
+		if(iIndexR-i+1 >= j-1)
+		{
+			istack[jstack]=iIndexR;
+			istack[jstack-1]=i;
+			iIndexR=j-1;
+		}
+		else
+		{
+			istack[jstack]=j-1;
+			istack[jstack-1]=indexL;
+			indexL=i;
+		}
+	}
+
+	for(int i=0; i<iLength; i++){iIndexOut[i]=iIndex[i];}
+
+	delete [] iIndex;
+	delete [] dALocal;
+	return TRUE;
+}
 
 BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 {
@@ -3172,7 +3279,33 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		}
 		return FALSE;
 	}
+	BOOL Object::SortR()
+	{
+		int* iRs;
+		int* iIndex;
+		int iLength=this->m_iMaxID+1;
+		iRs=new int[iLength];
+		iIndex=new int[iLength];
+		for(int i=0; i<iLength; i++)
+		{
+			iRs[i]=this->runLength[i].iR;
+		}
 
+		Index(iRs, iLength, iIndex);
+		delete [] iRs;
+
+		Object objTemp;
+		for(int i=0; i<iLength; i++)
+		{
+			RunLength* runLengthTemp=&(this->runLength[iIndex[i]]);
+			objTemp.Add(runLengthTemp->iR, runLengthTemp->iCStart, runLengthTemp->iCEnd, runLengthTemp->uiLabel);
+		}
+		delete [] iIndex;
+
+		this->Copy(&objTemp);
+
+		return TRUE;
+	}
 	BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
 	{
 		objOut->Alloc(objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1);
@@ -3271,7 +3404,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	BYTE g_byG[3]={0, 255, 0};
 	BYTE g_byB[3]={0, 0, 255};
 	UINT g_uiColored=3;
-	
+
 	BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 	{
 		BOOL bRet;
@@ -3285,9 +3418,9 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 			{
 				if(objIn->runLength[i].uiLabel==0)
 				{
-				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
-				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
-				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
+					imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
+					imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
+					imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
 					continue;
 				}
 				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[i].uiLabel-1)%g_uiColored];
@@ -3298,18 +3431,38 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 
 		return TRUE;
 	}
-	/*
-BOOL Search()
-{
-int* iMap;
-iSearchWidth = imgTarget->iWidth - imgModel->iWidth +1;
-iSearchHeight = imgTarget->iHeight - imgModel->iHeight+1;
-if(iSearchWidth<=0){return FALSE;}
-if(iSearchHeight<=0){return FALSE;}
-iMap = new int[iSearchWidth * iSearchHeight];
-for(int r = 0; r<iSearchHeight; r++)
-{
-for(int c=0;c<iSearchWidth;c++){}
-}
-}
-*/
+
+	BOOL SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax)
+	{
+
+		Object objTemp;
+		double dA, dR, dC;
+
+		if(sFeature.CompareNoCase(_T("area"))==0)
+		{
+			for(int i=0; i<=objIn->m_uiMaxLabel; i++)
+			{
+				SelectObj(objIn, i, &objTemp);
+				AreaCenter(&objTemp, &dA, &dR, &dC);
+				if((dA>=dMin)&&(dA<=dMax)){ConcatObj(objOut,&objTemp,objOut);
+				}
+			}
+		}
+			objOut->Truncate();
+			return TRUE;
+		}
+		/*
+		BOOL Search()
+		{
+		int* iMap;
+		iSearchWidth = imgTarget->iWidth - imgModel->iWidth +1;
+		iSearchHeight = imgTarget->iHeight - imgModel->iHeight+1;
+		if(iSearchWidth<=0){return FALSE;}
+		if(iSearchHeight<=0){return FALSE;}
+		iMap = new int[iSearchWidth * iSearchHeight];
+		for(int r = 0; r<iSearchHeight; r++)
+		{
+		for(int c=0;c<iSearchWidth;c++){}
+		}
+		}
+		*/

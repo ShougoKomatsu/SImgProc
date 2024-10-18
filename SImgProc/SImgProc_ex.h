@@ -200,7 +200,7 @@ struct Object
 	BOOL IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy);
 	BOOL ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy);
 	BOOL Connection(int iNeighborPolicy);
-
+	BOOL SortR();
 	BOOL Truncate();
 
 	BOOL IsInRegion(double dR, double dC);

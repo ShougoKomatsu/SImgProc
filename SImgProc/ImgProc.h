@@ -10,3 +10,4 @@ BOOL Sort(double* arr, int iLength, double* brr);
 
 BOOL Index(double* arr, int iLength, int* brr);
 BOOL Index(UINT* arr, int iLength, int* brr);
+BOOL Index(int* arr, int iLength, int* brr);

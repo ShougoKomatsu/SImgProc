@@ -367,9 +367,36 @@ BOOL TestPaintRegion2()
 	if(imgOut.byImgB[7*10+1] != 255){return FALSE;}
 	return TRUE;
 }
+BOOL TestSortR()
+{
+	Object obj;
+	obj.Alloc(4);
+	obj.runLength[0].Set(1,10,15,1,TRUE);
+	obj.runLength[1].Set(2,2,5,2,TRUE);
+	obj.runLength[2].Set(1,2,5,1,TRUE);
+	obj.runLength[3].Set(1,4,12,1,TRUE);
+	obj.m_iMaxID=3;
+
+	obj.SortR();
+	if(obj.runLength[0].iR!=1){return FALSE;}
+	if(obj.runLength[1].iR!=1){return FALSE;}
+	if(obj.runLength[2].iR!=1){return FALSE;}
+	if(obj.runLength[3].iR!=2){return FALSE;}
+
+	if(obj.runLength[0].iCStart!=10){return FALSE;}
+	if(obj.runLength[1].iCStart!=2){return FALSE;}
+	if(obj.runLength[2].iCStart!=4){return FALSE;}
+	if(obj.runLength[3].iCStart!=2){return FALSE;}
+
+	if(obj.runLength[0].iCEnd!=15){return FALSE;}
+	if(obj.runLength[1].iCEnd!=5){return FALSE;}
+	if(obj.runLength[2].iCEnd!=12){return FALSE;}
+	if(obj.runLength[3].iCEnd!=5){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
-
+/*
 	ImgRGB imgTest;
 	imgTest.Assign(_T("d:\\20240718_131406.bmp"));
 	Object obj;
@@ -380,6 +407,8 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	ImgRGB imgOut;
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
+	*/
+	if(TestSortR() != TRUE){AfxMessageBox(_T("TestSortR failed"));}
 	if(TestPaintRegion2() != TRUE){AfxMessageBox(_T("TestPaintRegion2 failed"));}
 	if(TestPaintRegion() != TRUE){AfxMessageBox(_T("TestPaintRegion failed"));}
 	if(TestUnionOverwrappedRunlength2() != TRUE){AfxMessageBox(_T("TestUnionOverwrappedRunlength2 failed"));}
