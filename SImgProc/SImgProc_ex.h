@@ -229,3 +229,5 @@ BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, 
 BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut);
 BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
 BOOL DLL_IE SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax);
+BOOL DLL_IE ConcatObj(Object* objIn1, Object* objIn2, Object* objOut);
+

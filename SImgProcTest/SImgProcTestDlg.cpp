@@ -413,6 +413,30 @@ BOOL TestSelectShape()
 	if(objOut.runLength[0].iCEnd!=5){return FALSE;}
 	return TRUE;
 }
+BOOL TestConcatObj()
+{
+	Object obj1;
+	obj1.Alloc(4);
+	obj1.runLength[0].Set(1,10,15,1,TRUE);
+	obj1.runLength[1].Set(2,2,5,2,TRUE);
+	obj1.runLength[2].Set(1,2,5,1,TRUE);
+	obj1.m_iMaxID=2;
+	obj1.m_uiMaxLabel=2;
+
+	Object obj2;
+	obj2.Alloc(4);
+	obj2.runLength[0].Set(1,10,15,1,TRUE);
+	obj2.runLength[1].Set(2,2,5,2,TRUE);
+	obj2.runLength[2].Set(1,2,5,1,TRUE);
+	obj2.m_iMaxID=2;
+	obj2.m_uiMaxLabel=2;
+
+	Object objOut;
+	ConcatObj(&obj1, &obj2, &objOut);
+	if(objOut.m_iMaxID != 5){return FALSE;}
+	if(objOut.m_uiMaxLabel != 5){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 /*
@@ -427,6 +451,7 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
 	*/
+	if(TestConcatObj() != TRUE){AfxMessageBox(_T("TestConcatObj failed"));}
 	if(TestSelectShape() != TRUE){AfxMessageBox(_T("TestSelectShape failed"));}
 	if(TestSortR() != TRUE){AfxMessageBox(_T("TestSortR failed"));}
 	if(TestPaintRegion2() != TRUE){AfxMessageBox(_T("TestPaintRegion2 failed"));}

@@ -3311,40 +3311,34 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	{
 		if(objIn1->m_iMaxID<0){objOut->Copy(objIn2); return TRUE;}
 		if(objIn2->m_iMaxID<0){objOut->Copy(objIn1); return TRUE;}
+		Object objIn1Local;
+		Object objIn2Local;
 
-		objOut->Alloc(objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1);
-		int iTotalLength=objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1;
-		UINT* iRs;
-		iRs=new UINT[iTotalLength];
-		int* iIndex;
-		iIndex=new int[iTotalLength];
+		objIn1Local.Copy(objIn1);
+		objIn2Local.Copy(objIn2);
+		UINT uiMaxLabel1=objIn1Local.m_uiMaxLabel;
+		for(int iID=0; iID<=objIn2Local.m_iMaxID; iID++)
+		{
+			objIn2Local.runLength[iID].uiLabel+=uiMaxLabel1+1;
+		}
+
+
+		objOut->Alloc(objIn1Local.m_iMaxID+1 + objIn2Local.m_iMaxID+1);
 
 		int iNewID=0;
-		for(int iID=0; iID<=objIn1->m_iMaxID; iID++)
+		for(int iID=0; iID<=objIn1Local.m_iMaxID; iID++)
 		{
-			iRs[iNewID]=objIn1->runLength[iID].iR;
-			iNewID++;
-		}
-		for(int iID=0; iID<=objIn2->m_iMaxID; iID++)
-		{
-			iRs[iNewID]=objIn2->runLength[iID].iR;
+			objOut->runLength[iNewID].Copy(&(objIn1Local.runLength[iID]));
 			iNewID++;
 		}
 
-		Index(iRs,iTotalLength,iIndex);
-
-		for(int iNewID=0; iNewID<iTotalLength; iNewID++)
+		for(int iID=0; iID<=objIn2Local.m_iMaxID; iID++)
 		{
-			if(iIndex[iNewID]<=objIn1->m_iMaxID+1)
-			{
-				objOut->runLength[iNewID].Copy(&(objIn1->runLength[iIndex[iNewID]]));
-			}
-			else
-			{
-				objOut->runLength[iNewID].Copy(&(objIn2->runLength[iIndex[iNewID]-objIn1->m_iMaxID+1]));
-			}
+			objOut->runLength[iNewID].Copy(&(objIn2Local.runLength[iID]));
+			iNewID++;
 		}
 
+		objOut->ReCheckID();
 		return TRUE;
 	}
 
