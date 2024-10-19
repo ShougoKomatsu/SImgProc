@@ -362,7 +362,7 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut
 
 BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 {
-	int iRunLengthCount=0;
+	objOut->Init();
 	for(int i=0; i<=objIn->m_iMaxID; i++)
 	{
 		if(objIn->runLength[i].uiLabel==iLabel+1)
@@ -3216,11 +3216,12 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	BOOL IsOverWrapped(RunLength* runLength1, RunLength* runLength2)
 	{
 
+		if(runLength1->iR != runLength2->iR){return FALSE;}
+
 		if(runLength1->bValid != TRUE){return FALSE;}
 		if(runLength2->bValid != TRUE){return FALSE;}
 
 		if(runLength1->uiLabel != runLength2->uiLabel){return FALSE;}
-		if(runLength1->iR != runLength2->iR){return FALSE;}
 
 		if((runLength2->iCStart <= runLength1->iCStart) && (runLength1->iCStart <= runLength2->iCEnd))
 		{
@@ -3241,7 +3242,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	BOOL Object::UnionOverwrappedRunlength()
 	{
 		if(this->m_iMaxID<0){return FALSE;}
-
+		this->SortR();
 		while(1)
 		{
 			Object objTemp;
@@ -3308,6 +3309,9 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 	}
 	BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
 	{
+		if(objIn1->m_iMaxID<0){objOut->Copy(objIn2); return TRUE;}
+		if(objIn2->m_iMaxID<0){objOut->Copy(objIn1); return TRUE;}
+
 		objOut->Alloc(objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1);
 		int iTotalLength=objIn1->m_iMaxID+1 + objIn2->m_iMaxID+1;
 		UINT* iRs;
@@ -3316,13 +3320,15 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		iIndex=new int[iTotalLength];
 
 		int iNewID=0;
-		for(int iID=0; iID<=objIn1->m_iMaxID; iID)
+		for(int iID=0; iID<=objIn1->m_iMaxID; iID++)
 		{
 			iRs[iNewID]=objIn1->runLength[iID].iR;
+			iNewID++;
 		}
-		for(int iID=0; iID<=objIn1->m_iMaxID; iID)
+		for(int iID=0; iID<=objIn2->m_iMaxID; iID++)
 		{
 			iRs[iNewID]=objIn2->runLength[iID].iR;
+			iNewID++;
 		}
 
 		Index(iRs,iTotalLength,iIndex);
@@ -3335,7 +3341,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 			}
 			else
 			{
-				objOut->runLength[iNewID].Copy(&(objIn1->runLength[iIndex[iNewID]-objIn1->m_iMaxID+1]));
+				objOut->runLength[iNewID].Copy(&(objIn2->runLength[iIndex[iNewID]-objIn1->m_iMaxID+1]));
 			}
 		}
 
@@ -3432,25 +3438,43 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		return TRUE;
 	}
 
+	BOOL Object::ReCheckID()
+	{
+		this->Truncate();
+		this->SortR();
+
+		for(int i=0; i<this->m_iBufNum; i++)
+		{
+			if(this->runLength[i].bValid==FALSE){continue;}
+			if(this->m_uiMaxLabel<this->runLength[i].uiLabel){this->m_uiMaxLabel=this->runLength[i].uiLabel;}
+			this->m_iMaxID=i;
+		}
+
+		return TRUE;
+	}
 	BOOL SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax)
 	{
 
 		Object objTemp;
 		double dA, dR, dC;
 
+		objOut->Init();
 		if(sFeature.CompareNoCase(_T("area"))==0)
 		{
 			for(int i=0; i<=objIn->m_uiMaxLabel; i++)
 			{
 				SelectObj(objIn, i, &objTemp);
 				AreaCenter(&objTemp, &dA, &dR, &dC);
-				if((dA>=dMin)&&(dA<=dMax)){ConcatObj(objOut,&objTemp,objOut);
+				if((dA>=dMin)&&(dA<=dMax))
+				{
+					ConcatObj(objOut,&objTemp,objOut);
 				}
 			}
 		}
-			objOut->Truncate();
-			return TRUE;
-		}
+		objOut->ReCheckID();
+		return TRUE;
+	}
+
 		/*
 		BOOL Search()
 		{

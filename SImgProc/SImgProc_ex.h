@@ -202,7 +202,7 @@ struct Object
 	BOOL Connection(int iNeighborPolicy);
 	BOOL SortR();
 	BOOL Truncate();
-
+	BOOL ReCheckID();
 	BOOL IsInRegion(double dR, double dC);
 	BOOL UnionOverwrappedRunlength();
 };
@@ -228,3 +228,4 @@ BOOL DLL_IE SelectObj(Object* objIn, int iID, Object* objOut);
 BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB);
 BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut);
 BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
+BOOL DLL_IE SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax);

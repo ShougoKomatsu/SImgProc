@@ -394,6 +394,25 @@ BOOL TestSortR()
 	if(obj.runLength[3].iCEnd!=5){return FALSE;}
 	return TRUE;
 }
+BOOL TestSelectShape()
+{
+	Object obj;
+	obj.Alloc(4);
+	obj.runLength[0].Set(1,10,15,1,TRUE);
+	obj.runLength[1].Set(2,2,5,2,TRUE);
+	obj.runLength[2].Set(1,2,5,1,TRUE);
+	obj.runLength[3].Set(1,4,12,1,TRUE);
+	obj.m_iMaxID=3;
+	obj.m_uiMaxLabel=2;
+	Object objOut;
+
+	SelectShape(&obj,&objOut,_T("area"), 3,5);
+	if(objOut.m_iMaxID!=0){return FALSE;}
+	if(objOut.runLength[0].iR!=2){return FALSE;}
+	if(objOut.runLength[0].iCStart!=2){return FALSE;}
+	if(objOut.runLength[0].iCEnd!=5){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 /*
@@ -408,6 +427,7 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
 	*/
+	if(TestSelectShape() != TRUE){AfxMessageBox(_T("TestSelectShape failed"));}
 	if(TestSortR() != TRUE){AfxMessageBox(_T("TestSortR failed"));}
 	if(TestPaintRegion2() != TRUE){AfxMessageBox(_T("TestPaintRegion2 failed"));}
 	if(TestPaintRegion() != TRUE){AfxMessageBox(_T("TestPaintRegion failed"));}
