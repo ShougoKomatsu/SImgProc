@@ -77,55 +77,10 @@ struct DLL_IE ImgRGB
 	double* dImg2;
 	double* dImg3;
 	BYTE* byImg;
-	BOOL Set(int iWidthIn, int iHeightIn, int iChannelIn)
-	{
-		Init();
-		if(iWidthIn<=0){return FALSE;}
-		if(iHeightIn<=0){return FALSE;}
-
-		iWidth = iWidthIn;
-		iHeight = iHeightIn;
-		iChannel = iChannelIn;
-		if(iChannel == CHANNEL_3_FLOAT)
-		{
-			dImg1 = new double[iWidth*iHeight];
-			dImg2 = new double[iWidth*iHeight];
-			dImg3 = new double[iWidth*iHeight];
-		}
-		if(iChannel == CHANNEL_1_8)
-		{
-			byImg = new BYTE[iWidth*iHeight];
-		memset(byImg,0,iWidth*iHeight);
-		}
-		if(iChannel == CHANNEL_3_8)
-		{
-			byImgR = new BYTE[iWidth*iHeight];
-			byImgG = new BYTE[iWidth*iHeight];
-			byImgB = new BYTE[iWidth*iHeight];
-			byImg=NULL;
-		}
-		if(iChannel == CHANNEL_1_24BGR)
-		{
-			byImg = new BYTE[iWidth*iHeight*3];
-		}
-		return TRUE;
-	}
-	BOOL Init()
-	{
-		if(byImg!=NULL){delete [] byImg; byImg=NULL;}
-		if(byImgR!=NULL){delete [] byImgR; byImgR=NULL;}
-		if(byImgG!=NULL){delete [] byImgG; byImgG=NULL;}
-		if(byImgB!=NULL){delete [] byImgB; byImgB=NULL;}
-		if(dImg1!=NULL){delete [] dImg1; dImg1=NULL;}
-		if(dImg2!=NULL){delete [] dImg2; dImg2=NULL;}
-		if(dImg3!=NULL){delete [] dImg3; dImg3=NULL;}
-		iWidth=0;
-		iHeight=0;
-		iChannel=CHANNEL_UNDEFINED;
-		return TRUE;
-	}
-	ImgRGB(){byImg = NULL; byImgR=NULL; byImgG=NULL; byImgB=NULL; dImg1=NULL; dImg2=NULL; dImg3=NULL;Init();}
-	~ImgRGB(){Init();}
+	BOOL Set(int iWidthIn, int iHeightIn, int iChannelIn);
+	BOOL Init();
+	ImgRGB();
+	~ImgRGB();
 	BOOL Assign(CString sFilePath);
 	BOOL Assign(const ImgRGB* imgRGBIn);
 };
@@ -209,6 +164,9 @@ struct Object
 
 BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
 BOOL DLL_IE ReadImage(CString sFilePath, ImgRGB* imgRGB);
+BOOL DLL_IE ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor);
+BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
+BOOL DLL_IE Compose3(ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgOut);
 
 BOOL DLL_IE Screenshot(ImgRGB* imgRGB);
 BOOL DLL_IE CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, int iC1);

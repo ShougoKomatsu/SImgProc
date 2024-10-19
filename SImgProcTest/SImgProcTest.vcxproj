@@ -107,7 +107,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\SImgProc\CommonFunction.cpp" />
     <ClCompile Include="..\SImgProc\ImgProc.cpp" />
+    <ClCompile Include="..\SImgProc\ImgRGB.cpp" />
+    <ClCompile Include="..\SImgProc\Object.cpp" />
+    <ClCompile Include="..\SImgProc\RunLength.cpp" />
     <ClCompile Include="SImgProcTest.cpp" />
     <ClCompile Include="SImgProcTestDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

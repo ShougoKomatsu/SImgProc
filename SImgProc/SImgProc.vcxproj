@@ -113,7 +113,11 @@
     <None Include="SImgProc.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="ImgProc.cpp" />
+    <ClCompile Include="ImgRGB.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="RunLength.cpp" />
     <ClCompile Include="SImgProc.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -121,8 +125,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RunLength.h" />
     <ClInclude Include="SImgProc.h" />
     <ClInclude Include="SImgProc_ex.h" />
     <ClInclude Include="stdafx.h" />
