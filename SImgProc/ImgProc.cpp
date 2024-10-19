@@ -1,109 +1,77 @@
 #include "StdAfx.h"
 #include "ImgProc.h"
 
-BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
+BOOL ImgRGB::Assign(CString sFilePath)
 {
+
+	this->Init();
+
 	BITMAPINFOHEADER bmih;
+	CFileFind cf;
 	BOOL bRet;
 	
 	CFile f;
 	BITMAPFILEHEADER bmfh;
+	ULONGLONG ullSize;
+	ULONG ulSize;
+	BYTE* byData;
 
+	bRet = cf.FindFile(sFilePath);
+	if(bRet != TRUE){cf.Close(); return FALSE;}
+	cf.Close();
 
-	
-	int iFillerSize;
-
-	if(((imgRGB->iWidth*3)%4)==0)
-	{
-		iFillerSize = 0;
-	}
-	else
-	{
-		iFillerSize = (4-((imgRGB->iWidth*3)%4));
-	}
-
-
-	int iBitSize;
-
-	iBitSize = ((imgRGB->iWidth*3)+iFillerSize)*(imgRGB->iHeight);
-
-	bmfh.bfType=0x4d42;
-	bmfh.bfSize =  0x36+iBitSize;
-	bmfh.bfOffBits = 0x36;
-	bmfh.bfReserved1=0;
-	bmfh.bfReserved2 = 0;
-
-	bmih.biSize=0x00000028;
-	bmih.biWidth=imgRGB->iWidth;
-	bmih.biHeight=imgRGB->iHeight;
-	bmih.biPlanes=1;
-	bmih.biBitCount=24;
-	bmih.biCompression=0;
-	bmih.biSizeImage=iBitSize;
-	bmih.biXPelsPerMeter=0;
-	bmih.biYPelsPerMeter=0;
-	bmih.biClrUsed=0;
-	bmih.biClrImportant	=0;
-
-
-	bRet = f.Open(sFilePath, CFile::modeCreate|CFile::modeWrite);
+	bRet = f.Open(sFilePath, CFile::modeRead);
 	if(bRet != TRUE){return FALSE;}
 
-
-	f.Write((BYTE*)&bmfh,sizeof(bmfh));
-	f.Write((BYTE*)&bmih,sizeof(bmih));
-	
-
-	BYTE* byOutBuf;
-
-	byOutBuf = new BYTE[iBitSize];
-	
-	if(imgRGB->iChannel==CHANNEL_3_FLOAT)
-	{
-		for(int r=0; r<imgRGB->iHeight; r++)
-		{
-			for(int c=0; c<imgRGB->iWidth; c++)
-			{
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = CAP_BYTE(imgRGB->dImg1[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]*(256/360.0));
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = CAP_BYTE(imgRGB->dImg2[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]*255);
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = CAP_BYTE(imgRGB->dImg3[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]);
-			}
-		}
-	}
-	if(imgRGB->iChannel==CHANNEL_3_8)
-	{
-		for(int r=0; r<imgRGB->iHeight; r++)
-		{
-			for(int c=0; c<imgRGB->iWidth; c++)
-			{
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImgB[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImgG[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImgR[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
-			}
-		}
-	}
-
-	if(imgRGB->iChannel==CHANNEL_1_24BGR)
-	{
-		for(int r=0; r<imgRGB->iHeight; r++)
-		{
-			for(int c=0; c<imgRGB->iWidth; c++)
-			{
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+0];
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+1];
-				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+2];
-			}
-		}
-	}
-
-
-	f.Write((void*)(byOutBuf),iBitSize);
+	ullSize = f.SeekToEnd();
+	if(ullSize>=ULONG_MAX){f.Close(); return FALSE;}
+	ulSize = (ULONG)ullSize;
+	f.SeekToBegin();
+	byData = new BYTE[ulSize];
+	f.Read(byData, ulSize);
 	f.Close();
-	delete [] byOutBuf;
+
+	for(int i=0; i<sizeof(bmfh); i++)
+	{
+		((BYTE*)&bmfh)[i]=byData[i];
+	}
+	if(bmfh.bfType != 0x4d42){delete [] byData; return FALSE;}
+
+	for(int i=0; i<sizeof(bmih); i++)
+	{
+		((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
+	}
+
+
+	int iWidthLocal;
+	int iHeightLocal;
+
+	iWidthLocal = bmih.biWidth;
+	if(bmih.biHeight<0){iHeightLocal=-1*(bmih.biHeight);}
+	else{iHeightLocal=(bmih.biHeight);}
+
+	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8);
+
+	ULONG ulOffset;
+	ulOffset=bmfh.bfOffBits;
+	int iFiller;
+
+	iFiller = iWidth%4;
+
+	for(int r=0; r<iHeightLocal; r++)
+	{
+		for(int c=0; c< iWidthLocal; c++)
+		{
+			(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+0];
+			(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+1];
+			(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+2];
+		}
+	}
+
+	delete [] byData;
 
 	return TRUE;
 }
-
 BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 {
 	if(imgIn==NULL){return FALSE;}
@@ -2800,6 +2768,7 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 
 	return FALSE;
 }
+
 BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 {
 	this->Set(imgRGBIn->iWidth,imgRGBIn->iHeight,imgRGBIn->iChannel);
@@ -2843,184 +2812,49 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 	}
 	return FALSE;
 }
-BOOL ImgRGB::Assign(CString sFilePath)
-{
-
-	this->Init();
-
-	BITMAPINFOHEADER bmih;
-	CFileFind cf;
-	BOOL bRet;
-	
-	CFile f;
-	BITMAPFILEHEADER bmfh;
-	ULONGLONG ullSize;
-	ULONG ulSize;
-	BYTE* byData;
-
-	bRet = cf.FindFile(sFilePath);
-	if(bRet != TRUE){cf.Close(); return FALSE;}
-	cf.Close();
-
-	bRet = f.Open(sFilePath, CFile::modeRead);
-	if(bRet != TRUE){return FALSE;}
-
-	ullSize = f.SeekToEnd();
-	if(ullSize>=ULONG_MAX){f.Close(); return FALSE;}
-	ulSize = (ULONG)ullSize;
-	f.SeekToBegin();
-	byData = new BYTE[ulSize];
-	f.Read(byData, ulSize);
-	f.Close();
-
-	for(int i=0; i<sizeof(bmfh); i++)
-	{
-		((BYTE*)&bmfh)[i]=byData[i];
-	}
-	if(bmfh.bfType != 0x4d42){delete [] byData; return FALSE;}
-
-	for(int i=0; i<sizeof(bmih); i++)
-	{
-		((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
-	}
 
 
-	int iWidthLocal;
-	int iHeightLocal;
-
-	iWidthLocal = bmih.biWidth;
-	if(bmih.biHeight<0){iHeightLocal=-1*(bmih.biHeight);}
-	else{iHeightLocal=(bmih.biHeight);}
-
-	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8);
-
-	ULONG ulOffset;
-	ulOffset=bmfh.bfOffBits;
-	int iFiller;
-
-	iFiller = iWidth%4;
-
-	for(int r=0; r<iHeightLocal; r++)
-	{
-		for(int c=0; c< iWidthLocal; c++)
-		{
-			(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+0];
-			(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+1];
-			(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+2];
-		}
-	}
-
-	delete [] byData;
-
-	return TRUE;
-}
-
-
-BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
-{
-	int iArea=0;
-	UINT uiRSum=0;
-	UINT uiCSum=0;
-	for(int i=0; i<=obj->m_iMaxID; i++)
-	{
-		int iAreaTemp;
-		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;;
-		iArea+=iAreaTemp;
-		uiCSum+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
-		uiRSum+=(obj->runLength[i].iR) * iAreaTemp;
-	}
-	*dArea=double(iArea);
-	*dR=uiRSum/(*dArea);
-	*dC=uiCSum/(*dArea);
-	return TRUE;
-}
-
-BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
-{
-	if((sAscDsc.CompareNoCase(_T("Asc"))!=0)&&(sAscDsc.CompareNoCase(_T("Dsc"))!=0)){return FALSE;}
-	Object objLocal;
-	objLocal.Copy(objIn);
-	objLocal.Truncate();
-	double* dFeatures;
-	dFeatures = new double[objLocal.m_uiMaxLabel];
-	UINT* uiFeatures;
-	uiFeatures = new UINT[objLocal.m_uiMaxLabel];
-	memset(uiFeatures,0,sizeof(UINT)*objLocal.m_uiMaxLabel);
-	int* iIndex;
-	iIndex = new int[objLocal.m_uiMaxLabel];
-
-	if(sMode.CompareNoCase(_T("area"))==0)
-	{
-		for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
-		{
-			if(objLocal.runLength[iID].uiLabel==0){continue;}
-			uiFeatures[objLocal.runLength[iID].uiLabel-1] += objLocal.runLength[iID].iCEnd-objLocal.runLength[iID].iCStart+1;
-		}
-		Index(uiFeatures,objLocal.m_uiMaxLabel,iIndex);
-
-		if(sAscDsc.CompareNoCase(_T("Asc"))==0)
-		{
-			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
-			{
-				if(objLocal.runLength[iID].uiLabel==0){continue;}
-				objLocal.runLength[iID].uiLabel = iIndex[objLocal.runLength[iID].uiLabel]+1;
-			}
-		}
-		if(sAscDsc.CompareNoCase(_T("Dsc"))==0)
-		{
-			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
-			{
-				if(objLocal.runLength[iID].uiLabel==0){continue;}
-				objLocal.runLength[iID].uiLabel = objLocal.m_iMaxID - iIndex[objLocal.runLength[iID].uiLabel];
-			}
-		}
-	}
-	objOut->Copy(&objLocal);
-	delete [] iIndex;
-	delete [] uiFeatures;
-	delete [] dFeatures;
-	return TRUE;
-}
 
 void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn)
-	{
-		iR=iRIn;
-		iCStart=iCStartIn;
-		iCEnd=iCEndIn;
-		uiLabel=uiLabelIn;
-		bValid=bValidIn;
-		bIsConnectionOperated=FALSE;
-	}
+{
+	iR=iRIn;
+	iCStart=iCStartIn;
+	iCEnd=iCEndIn;
+	uiLabel=uiLabelIn;
+	bValid=bValidIn;
+	bIsConnectionOperated=FALSE;
+}
 
-	RunLength::RunLength(){iR=0; iCStart=0; iCEnd=0; uiLabel=0; bValid=FALSE;}
+RunLength::RunLength(){iR=0; iCStart=0; iCEnd=0; uiLabel=0; bValid=FALSE;}
 
-	Object::Object()
-	{
-		runLength=NULL;
-		Init();
-	}
-	BOOL Object::Init()
-	{
-		if(runLength != NULL){delete [] runLength; runLength=NULL;}
-		m_iMaxID=-1;
-		m_iBufNum=0;
-		m_uiMaxLabel=0;
-		return TRUE;
-	}
 
-	BOOL Object::Alloc(int iBuf)
-	{
-		Init();
-		runLength=new RunLength[iBuf];
-		m_iBufNum=iBuf;
-		return TRUE;
-	}
+Object::Object()
+{
+	runLength=NULL;
+	Init();
+}
+BOOL Object::Init()
+{
+	if(runLength != NULL){delete [] runLength; runLength=NULL;}
+	m_iMaxID=-1;
+	m_iBufNum=0;
+	m_uiMaxLabel=0;
+	return TRUE;
+}
 
-	BOOL Object::Expand(int iBuf)
+BOOL Object::Alloc(int iBuf)
+{
+	Init();
+	runLength=new RunLength[iBuf];
+	m_iBufNum=iBuf;
+	return TRUE;
+}
+
+BOOL Object::Expand(int iBuf)
+{
+	if(iBuf==1)
 	{
-		if(iBuf==1)
-		{
-			
+
 		this->Init();
 		this->Alloc(iBuf);
 		return TRUE;
@@ -3154,6 +2988,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		this->m_uiMaxLabel=uiMaxLabel;
 		return TRUE;
 	}
+	
 
 	BOOL Object::Truncate()
 	{
@@ -3239,6 +3074,7 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 
 		return FALSE;
 	}
+
 	BOOL Object::UnionOverwrappedRunlength()
 	{
 		if(this->m_iMaxID<0){return FALSE;}
@@ -3468,6 +3304,198 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 		objOut->ReCheckID();
 		return TRUE;
 	}
+
+BOOL Connection(Object* objIn, Object* objOut, int iNeighborPolicy)
+{
+	Object objTemp;
+	BOOL bRet;
+
+	bRet = objTemp.Copy(objIn);
+	if(bRet != TRUE){return FALSE;}
+
+	bRet = objTemp.Connection(iNeighborPolicy);
+	if(bRet != TRUE){return FALSE;}
+
+	bRet = objOut->Copy(&objTemp);
+	if(bRet != TRUE){return FALSE;}
+
+	return TRUE;
+}
+
+BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
+{
+	if((sAscDsc.CompareNoCase(_T("Asc"))!=0)&&(sAscDsc.CompareNoCase(_T("Dsc"))!=0)){return FALSE;}
+	Object objLocal;
+	objLocal.Copy(objIn);
+	objLocal.Truncate();
+	double* dFeatures;
+	dFeatures = new double[objLocal.m_uiMaxLabel];
+	UINT* uiFeatures;
+	uiFeatures = new UINT[objLocal.m_uiMaxLabel];
+	memset(uiFeatures,0,sizeof(UINT)*objLocal.m_uiMaxLabel);
+	int* iIndex;
+	iIndex = new int[objLocal.m_uiMaxLabel];
+
+	if(sMode.CompareNoCase(_T("area"))==0)
+	{
+		for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
+		{
+			if(objLocal.runLength[iID].uiLabel==0){continue;}
+			uiFeatures[objLocal.runLength[iID].uiLabel-1] += objLocal.runLength[iID].iCEnd-objLocal.runLength[iID].iCStart+1;
+		}
+		Index(uiFeatures,objLocal.m_uiMaxLabel,iIndex);
+
+		if(sAscDsc.CompareNoCase(_T("Asc"))==0)
+		{
+			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
+			{
+				if(objLocal.runLength[iID].uiLabel==0){continue;}
+				objLocal.runLength[iID].uiLabel = iIndex[objLocal.runLength[iID].uiLabel]+1;
+			}
+		}
+		if(sAscDsc.CompareNoCase(_T("Dsc"))==0)
+		{
+			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
+			{
+				if(objLocal.runLength[iID].uiLabel==0){continue;}
+				objLocal.runLength[iID].uiLabel = objLocal.m_iMaxID - iIndex[objLocal.runLength[iID].uiLabel];
+			}
+		}
+	}
+	objOut->Copy(&objLocal);
+	delete [] iIndex;
+	delete [] uiFeatures;
+	delete [] dFeatures;
+	return TRUE;
+}
+
+BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
+{
+	int iArea=0;
+	UINT uiRSum=0;
+	UINT uiCSum=0;
+	for(int i=0; i<=obj->m_iMaxID; i++)
+	{
+		int iAreaTemp;
+		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;;
+		iArea+=iAreaTemp;
+		uiCSum+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
+		uiRSum+=(obj->runLength[i].iR) * iAreaTemp;
+	}
+	*dArea=double(iArea);
+	*dR=uiRSum/(*dArea);
+	*dC=uiCSum/(*dArea);
+	return TRUE;
+}
+
+BOOL ReadImage(CString sFilePath, ImgRGB* imgRGB)
+{
+	return imgRGB->Assign(sFilePath);
+}
+
+BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
+{
+	BITMAPINFOHEADER bmih;
+	BOOL bRet;
+	
+	CFile f;
+	BITMAPFILEHEADER bmfh;
+
+
+	
+	int iFillerSize;
+
+	if(((imgRGB->iWidth*3)%4)==0)
+	{
+		iFillerSize = 0;
+	}
+	else
+	{
+		iFillerSize = (4-((imgRGB->iWidth*3)%4));
+	}
+
+
+	int iBitSize;
+
+	iBitSize = ((imgRGB->iWidth*3)+iFillerSize)*(imgRGB->iHeight);
+
+	bmfh.bfType=0x4d42;
+	bmfh.bfSize =  0x36+iBitSize;
+	bmfh.bfOffBits = 0x36;
+	bmfh.bfReserved1=0;
+	bmfh.bfReserved2 = 0;
+
+	bmih.biSize=0x00000028;
+	bmih.biWidth=imgRGB->iWidth;
+	bmih.biHeight=imgRGB->iHeight;
+	bmih.biPlanes=1;
+	bmih.biBitCount=24;
+	bmih.biCompression=0;
+	bmih.biSizeImage=iBitSize;
+	bmih.biXPelsPerMeter=0;
+	bmih.biYPelsPerMeter=0;
+	bmih.biClrUsed=0;
+	bmih.biClrImportant	=0;
+
+
+	bRet = f.Open(sFilePath, CFile::modeCreate|CFile::modeWrite);
+	if(bRet != TRUE){return FALSE;}
+
+
+	f.Write((BYTE*)&bmfh,sizeof(bmfh));
+	f.Write((BYTE*)&bmih,sizeof(bmih));
+	
+
+	BYTE* byOutBuf;
+
+	byOutBuf = new BYTE[iBitSize];
+	
+	if(imgRGB->iChannel==CHANNEL_3_FLOAT)
+	{
+		for(int r=0; r<imgRGB->iHeight; r++)
+		{
+			for(int c=0; c<imgRGB->iWidth; c++)
+			{
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = CAP_BYTE(imgRGB->dImg1[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]*(256/360.0));
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = CAP_BYTE(imgRGB->dImg2[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]*255);
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = CAP_BYTE(imgRGB->dImg3[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c]);
+			}
+		}
+	}
+	if(imgRGB->iChannel==CHANNEL_3_8)
+	{
+		for(int r=0; r<imgRGB->iHeight; r++)
+		{
+			for(int c=0; c<imgRGB->iWidth; c++)
+			{
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImgB[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImgG[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImgR[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+			}
+		}
+	}
+
+	if(imgRGB->iChannel==CHANNEL_1_24BGR)
+	{
+		for(int r=0; r<imgRGB->iHeight; r++)
+		{
+			for(int c=0; c<imgRGB->iWidth; c++)
+			{
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+0];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+1];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+2];
+			}
+		}
+	}
+
+
+	f.Write((void*)(byOutBuf),iBitSize);
+	f.Close();
+	delete [] byOutBuf;
+
+	return TRUE;
+}
+
 
 		/*
 		BOOL Search()

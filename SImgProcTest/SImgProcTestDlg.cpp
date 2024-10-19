@@ -11,8 +11,6 @@
 //#pragma comment(lib, "..\\SImgProc.lib")
 
 #include "..\\simgproc\\ImgProc.h"
-
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

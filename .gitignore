@@ -30,3 +30,6 @@ SImgProc.exp
 /SImgProcTest/Debug
 /SImgProcTest/Release
 SImgProc.pdb
+*.pdb
+SImgProc.exp
+*.exp

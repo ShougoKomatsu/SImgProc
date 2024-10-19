@@ -207,6 +207,8 @@ struct Object
 	BOOL UnionOverwrappedRunlength();
 };
 
+BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
+BOOL DLL_IE ReadImage(CString sFilePath, ImgRGB* imgRGB);
 
 BOOL DLL_IE Screenshot(ImgRGB* imgRGB);
 BOOL DLL_IE CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, int iC1);
@@ -219,7 +221,6 @@ BOOL DLL_IE FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int i
 BOOL DLL_IE GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValueG, int* iValueB);
 BOOL DLL_IE GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, double* dValueR, double* dValueG, double* dValueB);
 
-BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
 
 BOOL DLL_IE SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut);
 BOOL DLL_IE Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
@@ -231,3 +232,4 @@ BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
 BOOL DLL_IE SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax);
 BOOL DLL_IE ConcatObj(Object* objIn1, Object* objIn2, Object* objOut);
 
+BOOL DLL_IE Connection(Object* objIn, Object* objOut, int iNeighborPolicy);
