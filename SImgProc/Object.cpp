@@ -234,7 +234,7 @@ BOOL Object::UnionOverwrappedRunlength()
 		for(int iID=1; iID<=this->m_iMaxID; iID++)
 		{
 			BOOL bTreated=FALSE;
-			for(int iID2=0; iID2<=iNewID; iID2++)
+			for(int iID2=iNewID; iID2>=iNewID; iID2--)
 			{
 				if(IsOverWrapped(&(this->runLength[iID]),  &(objTemp.runLength[iID2])) == TRUE)
 				{
