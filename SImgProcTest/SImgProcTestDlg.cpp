@@ -466,6 +466,24 @@ BOOL TestAreaCenter()
 
 	return TRUE;
 }
+
+BOOL TestGenRectangle1()
+{
+	Object obj;
+	GenRectangle1(&obj,2,4,3,6);
+
+	if(obj.m_iMaxID!=1){return FALSE;}
+	if(obj.m_uiMaxLabel!=0){return FALSE;}
+
+	if(obj.runLength[0].iR!=2){return FALSE;}
+	if(obj.runLength[0].iCStart!=4){return FALSE;}
+	if(obj.runLength[0].iCEnd!=6){return FALSE;}
+
+	if(obj.runLength[1].iR!=3){return FALSE;}
+	if(obj.runLength[1].iCStart!=4){return FALSE;}
+	if(obj.runLength[1].iCEnd!=6){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 /*
@@ -480,6 +498,7 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
 	*/
+	if(TestGenRectangle1() != TRUE){AfxMessageBox(_T("TestGenRectangle1failed"));}
 	if(TestAreaCenter() != TRUE){AfxMessageBox(_T("TestAreaCenter failed"));}
 	if(TestConcatObj() != TRUE){AfxMessageBox(_T("TestConcatObj failed"));}
 	if(TestSelectShape() != TRUE){AfxMessageBox(_T("TestSelectShape failed"));}

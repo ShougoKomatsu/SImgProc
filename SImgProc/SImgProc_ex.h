@@ -164,3 +164,5 @@ BOOL DLL_IE SelectShape(Object* objIn, Object* objOut, CString sFeature, double 
 BOOL DLL_IE ConcatObj(Object* objIn1, Object* objIn2, Object* objOut);
 
 BOOL DLL_IE Connection(Object* objIn, Object* objOut, int iNeighborPolicy);
+
+BOOL DLL_IE GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1);

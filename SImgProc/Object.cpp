@@ -301,3 +301,21 @@ BOOL Object::ReCheckID()
 
 	return TRUE;
 }
+
+BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
+{
+	int iR0Local=min(iR0, iR1);
+	int iR1Local=max(iR0, iR1);
+	int iC0Local=min(iC0, iC1);
+	int iC1Local=max(iC0, iC1);
+
+	objOut->Alloc(iR1Local-iR0Local+1);
+
+	for(int i=0; i<iR1Local-iR0Local+1; i++)
+	{
+		int r=i+iR0Local;
+		objOut->runLength[i].Set(r,iC0, iC1,0,TRUE);
+	}
+	objOut->ReCheckID();
+	return TRUE;
+}
