@@ -121,13 +121,14 @@ BOOL ImgRGB::Assign(CString sFilePath)
 	}
 
 	delete [] byData;
-
+	GenRectangle1(&(this->objDomain), 0, 0, iHeightLocal-1, iWidthLocal-1);
 	return TRUE;
 }
 
 
 BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 {
+	GenRectangle1(&(this->objDomain), 0, 0, imgRGBIn->iHeight-1, imgRGBIn->iWidth-1);
 	this->Set(imgRGBIn->iWidth,imgRGBIn->iHeight,imgRGBIn->iChannel);
 
 	if(iChannel==CHANNEL_1_24BGR)

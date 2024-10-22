@@ -427,7 +427,7 @@ BOOL Screenshot(ImgRGB* imgRGB)
 	iHeight = (rect.bottom-rect.top);
 
 	imgRGB->Set(iWidth, iHeight, CHANNEL_1_24BGR);
-
+	GenRectangle1(&(imgRGB->objDomain),0, 0, iHeight-1, iWidth-1);
 	int iFillerSize;
 
 	if((iWidth%4)==0)
