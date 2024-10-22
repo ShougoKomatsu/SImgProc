@@ -2455,7 +2455,7 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 	for(int i=0; i<=obj->m_iMaxID; i++)
 	{
 		int iAreaTemp;
-		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;;
+		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;
 		iArea+=iAreaTemp;
 		uiCSum+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
 		uiRSum+=(obj->runLength[i].iR) * iAreaTemp;
@@ -2466,6 +2466,44 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 	return TRUE;
 }
 
+BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLength)
+{
+	if(iLength<obj->m_uiMaxLabel+1){return FALSE;}
+
+	int* iAreas;
+	UINT* uiRSums;
+	UINT* uiCSums;
+
+	iAreas = new int[obj->m_uiMaxLabel+1];
+	uiRSums = new UINT[obj->m_uiMaxLabel+1];
+	uiCSums = new UINT[obj->m_uiMaxLabel+1];
+	
+	for(int i=0; i<=obj->m_uiMaxLabel; i++)
+	{
+		iAreas[i]=0;
+		uiRSums[i]=0;
+		uiCSums[i]=0;
+	}
+	for(int i=0; i<=obj->m_iMaxID; i++)
+	{
+		int iAreaTemp;
+		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;
+		iAreas[obj->runLength[i].uiLabel]+=iAreaTemp;
+		uiCSums[obj->runLength[i].uiLabel]+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
+		uiRSums[obj->runLength[i].uiLabel]+=(obj->runLength[i].iR) * iAreaTemp;
+	}
+	for(int i=0; i<=obj->m_uiMaxLabel; i++)
+	{
+		if(iAreas[i]==0){dAreas[i]=0; dRs[i]=0; dCs[i]=0; continue;}
+		dAreas[i]=double(iAreas[i]);
+		dRs[i]=uiRSums[i]/(dAreas[i]);
+		dCs[i]=uiCSums[i]/(dAreas[i]);
+	}
+	delete [] uiRSums;
+	delete [] iAreas;
+	delete [] uiCSums;
+	return TRUE;
+}
 BOOL ReadImage(CString sFilePath, ImgRGB* imgRGB)
 {
 	return imgRGB->Assign(sFilePath);

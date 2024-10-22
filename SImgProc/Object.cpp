@@ -229,7 +229,7 @@ BOOL Object::UnionOverwrappedRunlength()
 
 		objTemp.runLength[0].Copy(&(this->runLength[0]));
 		int iNewID=0;
-
+			
 		BOOL bTreatedAny=FALSE;
 		for(int iID=1; iID<=this->m_iMaxID; iID++)
 		{
