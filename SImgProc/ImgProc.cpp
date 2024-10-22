@@ -246,67 +246,7 @@ BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 		}
 	}
 	return TRUE;
-}
-BOOL PaintRegion(ImgRGB* imgIn, ImgRegion* imgRegion, BYTE byR, BYTE byG, BYTE byB, ImgRGB* imgOut)
-{
-	if(imgIn->iHeight != imgRegion->iHeight){return FALSE;}
-	if(imgIn->iWidth != imgRegion->iWidth){return FALSE;}
-	imgOut->Set(imgIn->iWidth,imgIn->iHeight,CHANNEL_3_8);
-
-	if(imgIn->iChannel==CHANNEL_1_24BGR)
-	{
-		for(int r=0; r<imgIn->iHeight; r++)
-		{
-			for(int c=0; c<imgIn->iWidth; c++)
-			{
-				imgOut->byImgB[r*imgOut->iWidth+c]=imgIn->byImg[3*(r*imgOut->iWidth+c)+0];
-				imgOut->byImgG[r*imgOut->iWidth+c]=imgIn->byImg[3*(r*imgOut->iWidth+c)+1];
-				imgOut->byImgR[r*imgOut->iWidth+c]=imgIn->byImg[3*(r*imgOut->iWidth+c)+2];
-			}
-		}
-	}
-
-	if(imgIn->iChannel==CHANNEL_3_8)
-	{
-		for(int r=0; r<imgIn->iHeight; r++)
-		{
-			for(int c=0; c<imgIn->iWidth; c++)
-			{
-				imgOut->byImgB[r*imgOut->iWidth+c]=imgIn->byImgB[r*imgOut->iWidth+c];
-				imgOut->byImgG[r*imgOut->iWidth+c]=imgIn->byImgG[r*imgOut->iWidth+c];
-				imgOut->byImgR[r*imgOut->iWidth+c]=imgIn->byImgR[r*imgOut->iWidth+c];
-			}
-		}
-	}
-	if(imgIn->iChannel==CHANNEL_1_8)
-	{
-		for(int r=0; r<imgIn->iHeight; r++)
-		{
-			for(int c=0; c<imgIn->iWidth; c++)
-			{
-				imgOut->byImgB[r*imgOut->iWidth+c]=imgIn->byImg[r*imgOut->iWidth+c];
-				imgOut->byImgG[r*imgOut->iWidth+c]=imgIn->byImg[r*imgOut->iWidth+c];
-				imgOut->byImgR[r*imgOut->iWidth+c]=imgIn->byImg[r*imgOut->iWidth+c];
-			}
-		}
-	}
-	for(int r=0; r<imgIn->iHeight; r++)
-	{
-		for(int c=0; c<imgIn->iWidth; c++)
-		{
-			if(imgRegion->uiImg[r*imgIn->iWidth+c] >=1)
-			{
-				imgOut->byImgR[r*imgIn->iWidth+c]=byR;
-				imgOut->byImgG[r*imgIn->iWidth+c]=byG;
-				imgOut->byImgB[r*imgIn->iWidth+c]=byB;
-			}
-		}
-	}
-	return TRUE;
-
-}
-
-BOOL GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValueG, int* iValueB)
+}BOOL GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValueG, int* iValueB)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(iR<0){return FALSE;}

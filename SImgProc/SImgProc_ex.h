@@ -32,37 +32,42 @@ struct Rectangle
 };
 
 
-
-
-struct ImgRegion
+struct RunLength
 {
-	UINT* uiImg;
-	int iWidth;
-	int iHeight;
-	int iChannel;//«—ˆg‚¤‚©‚à‚µ‚ê‚È‚¢
-	BOOL Set(int iWidthIn, int iHeightIn)
-	{
-		Init();
-		if(iWidthIn<=0){return FALSE;}
-		if(iHeightIn<=0){return FALSE;}
-
-		iWidth = iWidthIn;
-		iHeight = iHeightIn;
-		iChannel = 0;
-		uiImg= new UINT[iWidth*iHeight*3];
-		return TRUE;
-	}
-	BOOL Init()
-	{
-		if(uiImg!=NULL){delete [] uiImg; uiImg=NULL;}
-		iWidth=0;
-		iHeight=0;
-		iChannel=CHANNEL_UNDEFINED;
-		return TRUE;
-	}
-	ImgRegion(){uiImg = NULL;Init();}
-	~ImgRegion(){Init();}
+	int iR;
+	int iCStart;
+	int iCEnd;
+	UINT uiLabel;
+	BOOL bValid;
+	BOOL bIsConnectionOperated;
+	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn);
+	void Copy(RunLength* runLengthIn);
+	RunLength();
 };
+
+struct Object
+{
+	UINT m_uiMaxLabel;
+	int m_iMaxID;
+	int m_iBufNum;
+	RunLength* runLength;
+
+	Object();
+	BOOL Init();
+	BOOL Alloc(int iBuf);
+	BOOL Expand(int iBuf);
+	BOOL Copy(Object* objSrc);
+	BOOL Add(int iR, int iCStart, int iCEnd, UINT uiLabel);
+	BOOL IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy);
+	BOOL ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy);
+	BOOL Connection(int iNeighborPolicy);
+	BOOL SortR();
+	BOOL Truncate();
+	BOOL ReCheckID();
+	BOOL IsInRegion(double dR, double dC);
+	BOOL UnionOverwrappedRunlength();
+};
+
 
 
 struct DLL_IE ImgRGB
@@ -83,6 +88,8 @@ struct DLL_IE ImgRGB
 	~ImgRGB();
 	BOOL Assign(CString sFilePath);
 	BOOL Assign(const ImgRGB* imgRGBIn);
+
+	Object objDomain;
 };
 
 
@@ -126,41 +133,6 @@ struct ImgMap
 };
 
 
-struct RunLength
-{
-	int iR;
-	int iCStart;
-	int iCEnd;
-	UINT uiLabel;
-	BOOL bValid;
-	BOOL bIsConnectionOperated;
-	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn);
-	void Copy(RunLength* runLengthIn);
-	RunLength();
-};
-
-struct Object
-{
-	UINT m_uiMaxLabel;
-	int m_iMaxID;
-	int m_iBufNum;
-	RunLength* runLength;
-
-	Object();
-	BOOL Init();
-	BOOL Alloc(int iBuf);
-	BOOL Expand(int iBuf);
-	BOOL Copy(Object* objSrc);
-	BOOL Add(int iR, int iCStart, int iCEnd, UINT uiLabel);
-	BOOL IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy);
-	BOOL ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy);
-	BOOL Connection(int iNeighborPolicy);
-	BOOL SortR();
-	BOOL Truncate();
-	BOOL ReCheckID();
-	BOOL IsInRegion(double dR, double dC);
-	BOOL UnionOverwrappedRunlength();
-};
 
 BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
 BOOL DLL_IE ReadImage(CString sFilePath, ImgRGB* imgRGB);
