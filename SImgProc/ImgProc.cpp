@@ -202,6 +202,8 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut
 
 	for(int r=0; r<imgIn->iHeight; r++)
 	{
+		if(imgIn->objDomain.IsRInRegion(r)==FALSE){continue;}
+
 		int iStartC=-1;
 		for(int c=0; c<imgIn->iWidth; c++)
 		{

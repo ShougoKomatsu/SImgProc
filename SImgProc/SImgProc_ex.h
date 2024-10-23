@@ -64,9 +64,11 @@ struct Object
 	BOOL SortR();
 	BOOL Truncate();
 	BOOL ReCheckID();
-	BOOL IsInRegion(double dR, double dC);
+	BOOL IsInRegion(int dR, int dC);
+	BOOL IsRInRegion(int iR);
 	BOOL UnionOverwrappedRunlength();
 	BOOL Union1();
+	BOOL GetRunlengthIDsInR(int iRIn, int* iIDStart, int* iIDEnd);
 };
 
 

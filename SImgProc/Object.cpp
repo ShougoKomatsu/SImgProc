@@ -200,7 +200,7 @@ BOOL Object::Truncate()
 	return TRUE;
 
 }
-BOOL Object::IsInRegion(double dR, double dC)
+BOOL Object::IsInRegion(int dR, int dC)
 {
 	for(int iID=0; iID<=this->m_iMaxID; iID++)
 	{
@@ -213,6 +213,26 @@ BOOL Object::IsInRegion(double dR, double dC)
 			{
 				return TRUE;
 			}
+		}
+	}
+	return FALSE;
+}
+
+BOOL Object::GetRunlengthIDsInR(int iRIn, int* iIDStart, int* iIDEnd)
+{
+	BOOL bStart;
+	bStart=FALSE;
+	for(int i=0; i<=this->m_iMaxID; i++)
+	{
+		if(this->runLength[i].iR<iRIn){continue;}
+		if(this->runLength[i].iR==iRIn)
+		{
+			if(bStart==FALSE){bStart=TRUE; *iIDStart=i;}
+		}
+		if(this->runLength[i].iR>iRIn)
+		{
+			if(bStart==TRUE){*iIDEnd=i-1; return TRUE;}
+			return FALSE;
 		}
 	}
 	return FALSE;
@@ -301,13 +321,13 @@ BOOL Object::ReCheckID()
 
 	return TRUE;
 }
-BOOL IsRInRegion(Object* obj, int iRIn)
+BOOL Object::IsRInRegion(int iRIn)
 {
-	for(int i=0; i<=obj->m_iMaxID; i++)
+	for(int i=0; i<=this->m_iMaxID; i++)
 	{
-		if(obj->runLength[i].iR<iRIn){continue;}
-		if(obj->runLength[i].iR==iRIn){return TRUE;}
-		if(obj->runLength[i].iR>iRIn){return FALSE;}
+		if(this->runLength[i].iR<iRIn){continue;}
+		if(this->runLength[i].iR==iRIn){return TRUE;}
+		if(this->runLength[i].iR>iRIn){return FALSE;}
 	}
 	return FALSE;
 }
