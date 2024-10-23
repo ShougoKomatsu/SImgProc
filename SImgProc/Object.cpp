@@ -301,7 +301,16 @@ BOOL Object::ReCheckID()
 
 	return TRUE;
 }
-
+BOOL IsRInRegion(Object* obj, int iRIn)
+{
+	for(int i=0; i<=obj->m_iMaxID; i++)
+	{
+		if(obj->runLength[i].iR<iRIn){continue;}
+		if(obj->runLength[i].iR==iRIn){return TRUE;}
+		if(obj->runLength[i].iR>iRIn){return FALSE;}
+	}
+	return FALSE;
+}
 BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
 {
 	int iR0Local=min(iR0, iR1);
@@ -317,5 +326,22 @@ BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
 		objOut->runLength[i].Set(r,iC0, iC1,0,TRUE);
 	}
 	objOut->ReCheckID();
+	return TRUE;
+}
+
+BOOL Object::Union1()
+{
+	for(int i=0; i<= this->m_iMaxID; i++)
+	{
+		this->runLength[i].uiLabel=0;
+	}
+	UnionOverwrappedRunlength();
+	this->ReCheckID();
+	return TRUE;
+}
+BOOL Union1(Object* objIn, Object* objOut)
+{
+	objOut->Copy(objIn);
+	objOut->Union1();
 	return TRUE;
 }
