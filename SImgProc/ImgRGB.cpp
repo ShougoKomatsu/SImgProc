@@ -16,6 +16,7 @@ BOOL ImgRGB::Init()
 	iWidth=0;
 	iHeight=0;
 	iChannel=CHANNEL_UNDEFINED;
+	this->objDomain.Init();
 	return TRUE;
 }
 
@@ -50,6 +51,7 @@ BOOL ImgRGB::Set(int iWidthIn, int iHeightIn, int iChannelIn)
 	{
 		byImg = new BYTE[iWidth*iHeight*3];
 	}
+	GenRectangle1(&(this->objDomain), 0, 0, iHeight-1, iWidth-1);
 	return TRUE;
 }
 
