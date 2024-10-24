@@ -140,6 +140,9 @@ BOOL Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
 	imgG->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 	imgB->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 
+	imgR->objDomain.Copy(&(imgIn->objDomain));
+	imgG->objDomain.Copy(&(imgIn->objDomain));
+	imgB->objDomain.Copy(&(imgIn->objDomain));
 	if(imgIn->iChannel==CHANNEL_3_8)
 	{
 		for(int r=0; r<imgIn->iHeight; r++)

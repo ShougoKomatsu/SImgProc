@@ -532,13 +532,16 @@ BOOL TestReduceDomain()
 }
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
-/*
+	/*
 	ImgRGB imgTest;
 	imgTest.Assign(_T("d:\\20240718_131406.bmp"));
 	Object obj;
-	ImgRGB imgR, imgG, imgB;
+	GenRectangle1(&obj,500,500, 1000, 1000);
+
+	ImgRGB imgR, imgG, imgB,imgR2;
 	Decompose3(&imgTest,&imgR,&imgG,&imgB);
-	Threshold(&imgR,240,255,&obj);
+	ReduceDomain(&imgR,&obj,&imgR2);
+	Threshold(&imgR2,240,255,&obj);
 	obj.Connection(8);
 	ImgRGB imgOut;
 	PaintRegion(&imgTest, &obj, &imgOut);
