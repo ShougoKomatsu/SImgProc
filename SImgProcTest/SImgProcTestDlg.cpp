@@ -484,6 +484,52 @@ BOOL TestGenRectangle1()
 	if(obj.runLength[1].iCEnd!=6){return FALSE;}
 	return TRUE;
 }
+BOOL TestGetRunlengthIDsInR()
+{
+		Object obj;
+	obj.Alloc(4);
+	obj.runLength[1].Set(2,2,5,1,TRUE);
+	obj.runLength[2].Set(2,10,15,1,TRUE);
+	obj.runLength[3].Set(3,4,12,1,TRUE);
+	obj.runLength[0].Set(1,10,15,1,TRUE);
+
+	obj.ReCheckID();
+
+	int iIDStart;
+	int iIDEnd;
+	obj.GetRunlengthIDsInR(2,&iIDStart, &iIDEnd);
+	if(iIDStart != 1){return FALSE;}
+	if(iIDEnd != 2){return FALSE;}
+	return TRUE;
+}
+
+BOOL TestReduceDomain()
+{
+	ImgRGB imgTest;
+	imgTest.Set(10,10,CHANNEL_1_8);
+	imgTest.byImg[3*10+1]=128;
+	imgTest.byImg[5*10+3]=128;
+	imgTest.byImg[5*10+4]=128;
+	imgTest.byImg[5*10+5]=128;
+	imgTest.byImg[5*10+6]=128;
+	imgTest.byImg[5*10+7]=128;
+	imgTest.byImg[5*10+8]=128;
+	imgTest.byImg[5*10+9]=128;
+	imgTest.byImg[6*10+6]=128;
+	Object obj;
+	GenRectangle1(&obj, 5,5,7,7);
+	ImgRGB imgTest2;
+	ReduceDomain(&imgTest,&obj,&imgTest2);
+	Threshold(&imgTest2,100,200,&obj);
+	if(obj.m_iMaxID!=1){return FALSE;}
+	if(obj.runLength[0].iR != 5){return FALSE;}
+	if(obj.runLength[0].iCStart != 5){return FALSE;}
+	if(obj.runLength[0].iCEnd != 7){return FALSE;}
+	if(obj.runLength[1].iR != 6){return FALSE;}
+	if(obj.runLength[1].iCStart != 6){return FALSE;}
+	if(obj.runLength[1].iCEnd != 6){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 /*
@@ -498,7 +544,9 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
 	*/
-	if(TestGenRectangle1() != TRUE){AfxMessageBox(_T("TestGenRectangle1failed"));}
+	if(TestReduceDomain() != TRUE){AfxMessageBox(_T("TestReduceDomain failed"));}
+	if(TestGetRunlengthIDsInR() != TRUE){AfxMessageBox(_T("TestGetRunlengthIDsInR failed"));}
+	if(TestGenRectangle1() != TRUE){AfxMessageBox(_T("TestGenRectangle1 failed"));}
 	if(TestAreaCenter() != TRUE){AfxMessageBox(_T("TestAreaCenter failed"));}
 	if(TestConcatObj() != TRUE){AfxMessageBox(_T("TestConcatObj failed"));}
 	if(TestSelectShape() != TRUE){AfxMessageBox(_T("TestSelectShape failed"));}

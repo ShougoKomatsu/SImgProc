@@ -169,4 +169,6 @@ BOOL DLL_IE ConcatObj(Object* objIn1, Object* objIn2, Object* objOut);
 BOOL DLL_IE Connection(Object* objIn, Object* objOut, int iNeighborPolicy);
 BOOL DLL_IE Union1(Object* objIn, Object* objOut);
 
+BOOL DLL_IE ReduceDomain(ImgRGB* imgRGBIn, Object* objIn, ImgRGB* imgRGBOut);
+
 BOOL DLL_IE GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1);

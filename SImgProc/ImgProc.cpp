@@ -204,39 +204,53 @@ BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut
 	{
 		if(imgIn->objDomain.IsRInRegion(r)==FALSE){continue;}
 
-		int iStartC=-1;
-		for(int c=0; c<imgIn->iWidth; c++)
+		int iIDStart;
+		int iIDEnd;
+		imgIn->objDomain.GetRunlengthIDsInR(r,&iIDStart, &iIDEnd);
+
+		for(int iID=iIDStart; iID<=iIDEnd; iID++)
 		{
+			int iStartC=-1;
+			int iCStart=max(imgIn->objDomain.runLength[iID].iCStart,0);
+			int iCEnd=min(imgIn->objDomain.runLength[iID].iCEnd,imgIn->iWidth-1);
+			for(int c=iCStart; c<=iCEnd; c++)
+			{
+
+				if(iStartC>=0)
+				{
+					if((imgIn->byImg[r*imgIn->iWidth+c] < byThreshMin)
+						|| (imgIn->byImg[r*imgIn->iWidth+c] > byThreshMax))
+					{
+						ObjOut->Add(r,iStartC,c-1,0);
+						iStartC=-1;
+					}
+					continue;
+				}
+
+				if((imgIn->byImg[r*imgIn->iWidth+c] >= byThreshMin)
+					&& (imgIn->byImg[r*imgIn->iWidth+c] <= byThreshMax))
+				{
+					iStartC=c;
+				}
+
+			}
 
 			if(iStartC>=0)
 			{
-				if((imgIn->byImg[r*imgIn->iWidth+c] < byThreshMin)
-					|| (imgIn->byImg[r*imgIn->iWidth+c] > byThreshMax))
-				{
-					ObjOut->Add(r,iStartC,c-1,0);
-					iStartC=-1;
-				}
-				continue;
+				ObjOut->Add(r,iStartC,iCEnd,0);
 			}
-
-			if((imgIn->byImg[r*imgIn->iWidth+c] >= byThreshMin)
-				&& (imgIn->byImg[r*imgIn->iWidth+c] <= byThreshMax))
-			{
-				iStartC=c;
-			}
-
-		}
-
-		if(iStartC>=0)
-		{
-			ObjOut->Add(r,iStartC,imgIn->iWidth-1,0);
 		}
 
 	}
 
 	return TRUE;
 }
-
+BOOL ReduceDomain(ImgRGB* imgRGBIn, Object* objIn, ImgRGB* imgRGBOut)
+{
+	imgRGBOut->Assign(imgRGBIn);
+	imgRGBOut->objDomain.Copy(objIn);
+	return TRUE;
+}
 BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 {
 	objOut->Init();
