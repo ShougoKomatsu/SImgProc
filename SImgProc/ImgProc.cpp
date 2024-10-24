@@ -352,7 +352,7 @@ BOOL GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, doub
 			{
 				ullSumB+=imgRGBin->byImg[r*imgRGBin->iWidth+c];
 			}
-		}
+f		}
 		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		*dValueG=(*dValueB);
 		*dValueR=(*dValueB);

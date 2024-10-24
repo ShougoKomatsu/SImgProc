@@ -130,6 +130,8 @@ BOOL ImgRGB::Assign(CString sFilePath)
 
 BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 {
+	if(imgRGBIn==this){return TRUE;}
+
 	GenRectangle1(&(this->objDomain), 0, 0, imgRGBIn->iHeight-1, imgRGBIn->iWidth-1);
 	this->Set(imgRGBIn->iWidth,imgRGBIn->iHeight,imgRGBIn->iChannel);
 
