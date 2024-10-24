@@ -47,6 +47,8 @@ BOOL Object::Expand(int iBuf)
 
 BOOL Object::Copy(Object* objSrc)
 {
+	if(objSrc==this){return TRUE;}
+
 	if(objSrc->m_iMaxID<0){return FALSE;}
 
 	if(objSrc->m_iMaxID +1 >= this->m_iBufNum)

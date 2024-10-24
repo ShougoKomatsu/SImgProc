@@ -16,6 +16,8 @@ RunLength::RunLength(){iR=0; iCStart=0; iCEnd=0; uiLabel=0; bValid=FALSE;}
 
 void RunLength::Copy(RunLength* runLengthIn)
 {
+	if(runLengthIn==this){return;}
+
 	this->Set(runLengthIn->iR,runLengthIn->iCStart, runLengthIn->iCEnd, runLengthIn->uiLabel, runLengthIn->bValid);
 }
 
