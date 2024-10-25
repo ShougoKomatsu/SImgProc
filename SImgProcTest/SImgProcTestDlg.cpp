@@ -279,6 +279,20 @@ BOOL TestSortRegion()
 	Object objOut;
 	SortRegion(&obj,_T("area"), _T("dsc"),&objOut);
 	if(objOut.runLength[1].uiLabel != 1){return FALSE;}
+	
+
+
+
+	SortRegion(&obj,_T("row"), _T("asc"),&objOut);
+	if(objOut.runLength[0].uiLabel != 1){return FALSE;}
+	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
+	if(objOut.runLength[2].uiLabel != 3){return FALSE;}
+	
+	SortRegion(&obj,_T("row"), _T("dsc"),&objOut);
+	if(objOut.runLength[0].uiLabel != 3){return FALSE;}
+	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
+	if(objOut.runLength[2].uiLabel != 1){return FALSE;}
+
 	return TRUE;
 }
 BOOL TestUnionOverwrappedRunlength()

@@ -352,7 +352,7 @@ BOOL GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, doub
 			{
 				ullSumB+=imgRGBin->byImg[r*imgRGBin->iWidth+c];
 			}
-f		}
+		}
 		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		*dValueG=(*dValueB);
 		*dValueR=(*dValueB);
@@ -2365,7 +2365,10 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 	Object objLocal;
 	objLocal.Copy(objIn);
 	objLocal.Truncate();
-	double* dFeatures;
+
+	if(sMode.CompareNoCase(_T("area"))==0)
+	{
+			double* dFeatures;
 	dFeatures = new double[objLocal.m_uiMaxLabel];
 	UINT* uiFeatures;
 	uiFeatures = new UINT[objLocal.m_uiMaxLabel];
@@ -2373,8 +2376,6 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 	int* iIndex;
 	iIndex = new int[objLocal.m_uiMaxLabel];
 
-	if(sMode.CompareNoCase(_T("area"))==0)
-	{
 		for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
 		{
 			if(objLocal.runLength[iID].uiLabel==0){continue;}
@@ -2398,11 +2399,50 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 				objLocal.runLength[iID].uiLabel = objLocal.m_iMaxID - iIndex[objLocal.runLength[iID].uiLabel];
 			}
 		}
-	}
+		
 	objOut->Copy(&objLocal);
 	delete [] iIndex;
 	delete [] uiFeatures;
 	delete [] dFeatures;
+	return TRUE;
+	}
+
+	if(sMode.CompareNoCase(_T("row"))==0)
+	{
+		int* iIndex;
+		iIndex = new int[objLocal.m_uiMaxLabel];
+
+		double* dAs;
+		double* dRs;
+		double* dCs;
+		dAs=new double[objLocal.m_uiMaxLabel+1];
+		dRs=new double[objLocal.m_uiMaxLabel+1];
+		dCs=new double[objLocal.m_uiMaxLabel+1];
+		AreaCenter(&objLocal, dAs,dRs,dCs,objLocal.m_uiMaxLabel+1);
+
+		Index(&(dRs[1]),objLocal.m_uiMaxLabel,iIndex);
+		delete [] dAs;
+		delete [] dRs;
+		delete [] dCs;
+		if(sAscDsc.CompareNoCase(_T("Asc"))==0)
+		{	
+			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
+			{
+				if(objLocal.runLength[iID].uiLabel==0){continue;}
+				objLocal.runLength[iID].uiLabel = iIndex[objLocal.runLength[iID].uiLabel-1]+1;
+			}
+		}
+		if(sAscDsc.CompareNoCase(_T("Dsc"))==0)
+		{	
+			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
+			{
+				if(objLocal.runLength[iID].uiLabel==0){continue;}
+				objLocal.runLength[iID].uiLabel = objLocal.m_uiMaxLabel - iIndex[objLocal.runLength[iID].uiLabel-1];
+			}
+		}
+		delete [] iIndex;
+		objOut->Copy(&objLocal);
+	}
 	return TRUE;
 }
 
