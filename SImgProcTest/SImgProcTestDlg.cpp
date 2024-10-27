@@ -266,7 +266,7 @@ BOOL TestSortRegion()
 	imgTest.byImg[3*10+1]=128;
 	imgTest.byImg[5*10+1]=128;
 	imgTest.byImg[5*10+2]=128;
-	imgTest.byImg[7*10+1]=128;
+	imgTest.byImg[7*10+3]=128;
 	Object obj;
 	Threshold(&imgTest,100,200,&obj);
 
@@ -293,6 +293,17 @@ BOOL TestSortRegion()
 	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
 	if(objOut.runLength[2].uiLabel != 1){return FALSE;}
 
+	
+	SortRegion(&obj,_T("column"), _T("asc"),&objOut);
+	if(objOut.runLength[0].uiLabel != 1){return FALSE;}
+	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
+	if(objOut.runLength[2].uiLabel != 3){return FALSE;}
+	
+	SortRegion(&obj,_T("column"), _T("dsc"),&objOut);
+	if(objOut.runLength[0].uiLabel != 3){return FALSE;}
+	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
+	if(objOut.runLength[2].uiLabel != 1){return FALSE;}
+	
 	return TRUE;
 }
 BOOL TestUnionOverwrappedRunlength()

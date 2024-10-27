@@ -2368,13 +2368,13 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 
 	if(sMode.CompareNoCase(_T("area"))==0)
 	{
-			double* dFeatures;
-	dFeatures = new double[objLocal.m_uiMaxLabel];
-	UINT* uiFeatures;
-	uiFeatures = new UINT[objLocal.m_uiMaxLabel];
-	memset(uiFeatures,0,sizeof(UINT)*objLocal.m_uiMaxLabel);
-	int* iIndex;
-	iIndex = new int[objLocal.m_uiMaxLabel];
+		double* dFeatures;
+		dFeatures = new double[objLocal.m_uiMaxLabel];
+		UINT* uiFeatures;
+		uiFeatures = new UINT[objLocal.m_uiMaxLabel];
+		memset(uiFeatures,0,sizeof(UINT)*objLocal.m_uiMaxLabel);
+		int* iIndex;
+		iIndex = new int[objLocal.m_uiMaxLabel];
 
 		for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
 		{
@@ -2399,15 +2399,15 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 				objLocal.runLength[iID].uiLabel = objLocal.m_iMaxID - iIndex[objLocal.runLength[iID].uiLabel];
 			}
 		}
-		
-	objOut->Copy(&objLocal);
-	delete [] iIndex;
-	delete [] uiFeatures;
-	delete [] dFeatures;
-	return TRUE;
+
+		objOut->Copy(&objLocal);
+		delete [] iIndex;
+		delete [] uiFeatures;
+		delete [] dFeatures;
+		return TRUE;
 	}
 
-	if(sMode.CompareNoCase(_T("row"))==0)
+	if((sMode.CompareNoCase(_T("row"))==0) || (sMode.CompareNoCase(_T("column"))==0))
 	{
 		int* iIndex;
 		iIndex = new int[objLocal.m_uiMaxLabel];
@@ -2419,8 +2419,14 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 		dRs=new double[objLocal.m_uiMaxLabel+1];
 		dCs=new double[objLocal.m_uiMaxLabel+1];
 		AreaCenter(&objLocal, dAs,dRs,dCs,objLocal.m_uiMaxLabel+1);
-
-		Index(&(dRs[1]),objLocal.m_uiMaxLabel,iIndex);
+		if(sMode.CompareNoCase(_T("row"))==0)
+		{
+			Index(&(dRs[1]),objLocal.m_uiMaxLabel,iIndex);
+		}
+		if(sMode.CompareNoCase(_T("column"))==0)
+		{
+			Index(&(dCs[1]),objLocal.m_uiMaxLabel,iIndex);
+		}
 		delete [] dAs;
 		delete [] dRs;
 		delete [] dCs;
