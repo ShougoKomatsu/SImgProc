@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "math.h"
 #include "CommonFunction.h"
 
 inline void SWAP(double* a, double* b)
@@ -23,7 +24,106 @@ inline void SWAP(int* a, int* b)
 	*a=temp;
 }
 
-BOOL Sort(double* arr, int iLength, double* brr)
+long SumVec(const double* dIn, int iLength, double* dOut)
+{
+	double dSum;
+	int* iIndex;
+	iIndex=new int[iLength];
+
+	BOOL bRet;
+	bRet = Index(dIn, iLength, iIndex);
+	if(bRet != TRUE){delete [] iIndex; return -1;}
+
+	dSum=0;
+	for(int i=0; i<iLength; i++)
+	{
+		dSum+=dIn[iIndex[i]];
+	}
+	delete [] iIndex;
+
+	*dOut=dSum;
+	return 0;
+}
+
+long MultVec(const double* d1In,const double* d2In, int iLength, double* dOuts)
+{
+	for(int i=0; i<iLength; i++)
+	{
+		dOuts[i]=d1In[i]*d2In[i];
+	}
+
+	return 0;
+}
+long InnerProduct(const double* d1In,const double* d2In, int iLength, double* dOut)
+{
+	double* dProducts;
+	dProducts=new double[iLength];
+	for(int i=0; i<iLength; i++)
+	{
+		dProducts[i]=d1In[i]*d2In[i];
+	}
+
+	double dSum;
+	int* iIndex;
+	iIndex=new int[iLength];
+
+	BOOL bRet;
+	bRet = Index(dProducts, iLength, iIndex);
+	if(bRet != TRUE){delete [] iIndex; return -1;}
+
+	dSum=0;
+	for(int i=0; i<iLength; i++)
+	{
+		dSum+=dProducts[iIndex[i]];
+	}
+	delete [] iIndex;
+
+	*dOut=dSum;
+	return 0;
+}
+long GetAdjParamSq1(const double* dRas, const double* dCas, const double* dRbs, const double* dCbs, int iLength, double* daPb)
+{
+	if(iLength < 1){return -1;}
+	double dRa;
+	double dCa;
+	double dRb;
+	double dCb;
+	SumVec(dRas,iLength,&dRa);
+	SumVec(dCas,iLength,&dCa);
+	SumVec(dRbs,iLength,&dRb);
+	SumVec(dCbs,iLength,&dCb);
+
+	daPb[0]=1;
+	daPb[1]=0;
+	daPb[2]=(dRb-dRa)/(iLength*1.0);
+	daPb[3]=0;
+	daPb[4]=1;
+	daPb[5]=(dCb-dCa)/(iLength*1.0);
+	daPb[6]=0;
+	daPb[7]=0;
+	return 0;
+}
+/*
+long GetAdjParamSq2(const double* dRas, const double* dCas, const double* dRbs, const double* dCbs, int iLength, double* daPb)
+{
+	long lRet;
+	if(iLength<2{return -1;}
+	double dRb2;
+	double dCb2;
+	InnerProduct(dRbs, dRbs, iLength, dRb2);
+	InnerProduct(dCbs, dCbs, iLength, dCb2);
+	double dRb;
+	double dCb;
+	SumVec(dRbs, iLength, dRb);
+	SumVec(dCbs, iLength, dCb);
+	double dRaRb;
+	InnerProduct(dRas,dRbs,iLength, dRaRb);
+	double dRaCb;
+	InnerProduct(dRas,dCbs,iLength, dRaCb);
+	
+}
+*/
+BOOL Sort(const double* arr, int iLength, double* brr)
 {
 	double* dOut;
 	dOut = new double [iLength];
@@ -120,7 +220,7 @@ BOOL Sort(double* arr, int iLength, double* brr)
 	return TRUE;
 }
 
-BOOL Index(double* dIn, int iLength, int* iIndexOut)
+BOOL Index(const double* dIn, int iLength, int* iIndexOut)
 {
 	int* iIndex;
 	double* dALocal;
@@ -227,7 +327,7 @@ BOOL Index(double* dIn, int iLength, int* iIndexOut)
 	delete [] dALocal;
 	return TRUE;
 }
-BOOL Index(int* dIn, int iLength, int* iIndexOut)
+BOOL Index(const int* dIn, int iLength, int* iIndexOut)
 {
 	int* iIndex;
 	int* dALocal;
@@ -335,7 +435,7 @@ BOOL Index(int* dIn, int iLength, int* iIndexOut)
 	return TRUE;
 }
 
-BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
+BOOL Index(const UINT* dIn, int iLength, int* iIndexOut)
 {
 	int* iIndex;
 	UINT* dALocal;
@@ -442,3 +542,138 @@ BOOL Index(UINT* dIn, int iLength, int* iIndexOut)
 	delete [] dALocal;
 	return TRUE;
 }
+
+BOOL LUDcmp(const double* dA, const int iRC, double* dLU, int* iIndex)
+{
+
+	for(int r=0; r<iRC; r++)
+	{
+		for(int c=0; c<iRC; c++)
+		{
+			dLU[r*iRC+c]=dA[r*iRC+c];
+		}
+	}
+
+	const double TINY=1.0e-40;
+	double* vv;
+	vv=new double[iRC];
+	for(int r=0; r<iRC; r++)
+	{
+		double big=0.0;
+		for(int c=0; c<iRC; c++)
+		{
+			double temp=fabs(dLU[r*iRC+c]);
+			if(temp>big){big=temp;}
+		}
+		if(big==0.0){return FALSE;}
+		vv[r]=1.0/big;
+	}
+	int rMax=0;
+	for(int k=0; k<iRC; k++)
+	{
+		double big=0.0;
+		for(int r=k; r<iRC; r++)
+		{
+			double temp=vv[r]*fabs(dLU[r*iRC+k]);
+			if(temp>big)
+			{
+				big=temp;
+				rMax=r;
+			}
+		}
+		if(k!=rMax)
+		{
+			for(int c=0; c<iRC; c++)
+			{
+				SWAP(&(dLU[rMax*iRC+c]),&(dLU[k*iRC+c]));
+			}
+			vv[rMax]=vv[k];
+		}
+		iIndex[k]=rMax;
+		if(dLU[k*iRC+k]==0.0){dLU[k*iRC+k]=TINY;}
+
+		for(int r=k+1; r<iRC; r++)
+		{
+			dLU[r*iRC+k]/=dLU[k*iRC+k];
+			double temp=dLU[r*iRC+k];
+			for(int c=k+1; c<iRC; c++)
+			{
+				dLU[r*iRC+c]-=temp*dLU[k*iRC+c];
+			}
+		}
+	}
+
+	delete [] vv;
+	return TRUE;
+}
+
+void solve_v(const double* dB, const int iRC, const double* dLU, const int* iIndex, double* dAnsVec)
+{
+	double sum;
+	for(int r=0; r<iRC; r++){dAnsVec[r]=dB[r];}
+	int ii=0;
+	for(int r=0; r<iRC; r++)
+	{
+		int rIndex=iIndex[r];
+		sum=dAnsVec[rIndex];
+		dAnsVec[rIndex]=dAnsVec[r];
+
+		if(ii!=0)
+		{
+			for(int c=ii-1; c<r; c++){sum-=dLU[r*iRC+c]*dAnsVec[c];}
+		}
+		else if(sum != 0.0){ii=r+1;}
+
+		dAnsVec[r]=sum;
+	}
+	for(int r=iRC-1; r>=0; r--)
+	{
+		sum=dAnsVec[r];
+		for(int c=r+1; c<iRC; c++){sum-=dLU[r*iRC+c]*dAnsVec[c];}
+		dAnsVec[r]=sum/dLU[r*iRC+r];
+	}
+}
+
+void solve_m(const double* dB, const int iRC, const double* dLU, const int* iIndex, double* dAnsMat)
+{
+	double* xx;
+	xx=new double[iRC];
+	for(int c=0; c<iRC; c++)
+	{
+		for(int r=0; r<iRC; r++){xx[r]=dB[r*iRC+c];}
+		solve_v(xx,iRC, dLU, iIndex, xx);
+		for(int r=0; r<iRC; r++){dAnsMat[r*iRC+c]=xx[r];}
+	}
+	delete [] xx;
+}
+
+BOOL MatInverse(const double* dMat, const int iRC, double* dInvOut)
+{
+	int* iIndex;
+	double* dLU;
+	dLU=new double[iRC*iRC];
+	iIndex=new int[iRC];
+
+	LUDcmp(dMat,iRC, dLU, iIndex);
+
+	double* dInv;
+	dInv=new double[iRC*iRC];
+	for(int r=0; r<iRC; r++)
+	{
+		for(int c=0; c<iRC; c++){dInv[r*iRC+c]=0;}
+		dInv[r*iRC+r]=1;
+	}
+	solve_m(dInv, iRC, dLU, iIndex, dInv);
+	delete [] dLU;
+	delete [] iIndex;
+
+
+	for(int r=0; r<iRC; r++)
+	{
+		for(int c=0; c<iRC; c++){dInvOut[r*iRC+c]=dInv[r*iRC+c];}
+	}
+	delete [] dInv;
+	return TRUE;
+}
+
+

@@ -15,7 +15,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
 // アプリケーションのバージョン情報に使われる CAboutDlg ダイアログ
 
 class CAboutDlg : public CDialogEx
@@ -303,7 +302,6 @@ BOOL TestSortRegion()
 	if(objOut.runLength[0].uiLabel != 3){return FALSE;}
 	if(objOut.runLength[1].uiLabel != 2){return FALSE;}
 	if(objOut.runLength[2].uiLabel != 1){return FALSE;}
-	
 	return TRUE;
 }
 BOOL TestUnionOverwrappedRunlength()
@@ -555,6 +553,61 @@ BOOL TestReduceDomain()
 	if(obj.runLength[1].iCEnd != 6){return FALSE;}
 	return TRUE;
 }
+BOOL TestArithmetic()
+{
+	if(Round(1)!=1){return FALSE;}
+	if(Round(1.5)!=2){return FALSE;}
+	if(Round(-1.5)!=-2){return FALSE;}
+	if(Round(INT_MAX-0.5)!=INT_MAX){return FALSE;}
+	if(Round(INT_MIN+0.5)!=INT_MIN){return FALSE;}
+	if(Round(LLONG_MAX-1)!=INT_MAX){return FALSE;}
+	if(Round(LLONG_MIN+1)!=INT_MIN){return FALSE;}
+	return TRUE;
+}
+
+BOOL TestAdjust()
+{
+	double dRas[6]={1,2,3,4,5,6};
+	double dCas[6]={21,22,23,24,25,26};
+	double dRbs[6]={11,12,13,14,15,16};
+	double dCbs[6]={41,42,43,44,45,46};
+	double daPb[8];
+	GetAdjParamSq1(dRas, dCas, dRbs, dCbs, 6, daPb);
+
+	if(daPb[0]!=1){return FALSE;}
+	if(daPb[1]!=0){return FALSE;}
+	if(daPb[2]!=10){return FALSE;}
+	if(daPb[3]!=0){return FALSE;}
+	if(daPb[4]!=1){return FALSE;}
+	if(daPb[5]!=20){return FALSE;}
+	if(daPb[6]!=0){return FALSE;}
+	if(daPb[7]!=0){return FALSE;}
+	return TRUE;
+}
+BOOL TestInvert()
+{
+	double dMat[9]={1,2,4,4,8,8,7,9,9};
+	double dInv[9];
+//	LUDcmp a(dMat,3);
+//	a.inverse(dInv);
+ MatInverse(dMat, 3, dInv);
+	if(dInv[0] != 0){return FALSE;}
+	if(dInv[1] <= -0.451){return FALSE;}
+	if(dInv[1] >= -0.449){return FALSE;}
+	if(dInv[2] <= 0.399){return FALSE;}
+	if(dInv[2] >= 0.401){return FALSE;}
+
+	if(dInv[3] != -0.5){return FALSE;}
+	if(dInv[4] <= 0.474){return FALSE;}
+	if(dInv[4] >= 0.476){return FALSE;}
+	if(dInv[5] <= -0.201){return FALSE;}
+	if(dInv[5] >= -0.199){return FALSE;}
+
+	if(dInv[6] != 0.5){return FALSE;}
+	if(dInv[7] != -0.125){return FALSE;}
+	if(dInv[8] != 0){return FALSE;}
+	return TRUE;
+}
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 	/*
@@ -572,6 +625,12 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	PaintRegion(&imgTest, &obj, &imgOut);
 	WriteImage(&imgOut,_T("d:\\test.bmp"));
 	*/
+	
+	
+	if(TestInvert()!=TRUE){AfxMessageBox(_T("TestInvert failed"));}
+	if(TestAdjust()!=TRUE){AfxMessageBox(_T("TestAdjust failed"));}
+	if(TestArithmetic()!=TRUE){AfxMessageBox(_T("TestArithmetic failed"));}
+
 	if(TestReduceDomain() != TRUE){AfxMessageBox(_T("TestReduceDomain failed"));}
 	if(TestGetRunlengthIDsInR() != TRUE){AfxMessageBox(_T("TestGetRunlengthIDsInR failed"));}
 	if(TestGenRectangle1() != TRUE){AfxMessageBox(_T("TestGenRectangle1 failed"));}
