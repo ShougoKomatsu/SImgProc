@@ -40,15 +40,15 @@ long SumVec(const double* dVec, int iLength, double* dOut)
 
 	BOOL bRet;
 	bRet = Index(dVecAbs, iLength, iIndex);
-	if(bRet != TRUE){delete [] dVecAbs; delete [] iIndex; return -1;}
-	delete [] dVecAbs;
+	if(bRet != TRUE){SAFE_DELETE(dVecAbs); SAFE_DELETE(iIndex); return -1;}
+	SAFE_DELETE(dVecAbs);
 
 	dSum=0;
 	for(int i=0; i<iLength; i++)
 	{
 		dSum+=dVec[iIndex[i]];
 	}
-	delete [] iIndex;
+	SAFE_DELETE(iIndex);
 
 	*dOut=dSum;
 	return 0;
@@ -82,15 +82,15 @@ long InnerProduct(const double* d1In,const double* d2In, int iLength, double* dO
 
 	BOOL bRet;
 	bRet = Index(dProductsAbs, iLength, iIndex);
-	if(bRet != TRUE){delete [] dProductsAbs; delete [] dProducts; delete [] iIndex; return -1;}
-	delete [] dProductsAbs;
+	if(bRet != TRUE){SAFE_DELETE(dProductsAbs); SAFE_DELETE(dProducts); SAFE_DELETE(iIndex); return -1;}
+	SAFE_DELETE(dProductsAbs);
 	dSum=0;
 	for(int i=0; i<iLength; i++)
 	{
 		dSum+=dProducts[iIndex[i]];
 	}
-	delete [] dProducts;
-	delete [] iIndex;
+	SAFE_DELETE(dProducts);
+	SAFE_DELETE(iIndex);
 
 	*dOut=dSum;
 	return 0;
@@ -337,8 +337,8 @@ BOOL Index(const double* dIn, int iLength, int* iIndexOut)
 
 	for(int i=0; i<iLength; i++){iIndexOut[i]=iIndex[i];}
 
-	delete [] iIndex;
-	delete [] dALocal;
+	SAFE_DELETE(iIndex);
+	SAFE_DELETE(dALocal);
 	return TRUE;
 }
 BOOL Index(const int* dIn, int iLength, int* iIndexOut)
@@ -444,8 +444,8 @@ BOOL Index(const int* dIn, int iLength, int* iIndexOut)
 
 	for(int i=0; i<iLength; i++){iIndexOut[i]=iIndex[i];}
 
-	delete [] iIndex;
-	delete [] dALocal;
+	SAFE_DELETE(iIndex);
+	SAFE_DELETE(dALocal);
 	return TRUE;
 }
 
@@ -552,8 +552,8 @@ BOOL Index(const UINT* dIn, int iLength, int* iIndexOut)
 
 	for(int i=0; i<iLength; i++){iIndexOut[i]=iIndex[i];}
 
-	delete [] iIndex;
-	delete [] dALocal;
+	SAFE_DELETE(iIndex);
+	SAFE_DELETE(dALocal);
 	return TRUE;
 }
 
@@ -617,7 +617,7 @@ BOOL LUDcmp(const double* dA, const int iRC, double* dLU, int* iIndex)
 		}
 	}
 
-	delete [] vv;
+	SAFE_DELETE(vv);
 	return TRUE;
 }
 
@@ -658,7 +658,7 @@ void solve_m(const double* dB, const int iRC, const double* dLU, const int* iInd
 		solve_v(xx,iRC, dLU, iIndex, xx);
 		for(int r=0; r<iRC; r++){dAnsMat[r*iRC+c]=xx[r];}
 	}
-	delete [] xx;
+	SAFE_DELETE(xx);
 }
 
 BOOL MatInverse(const double* dMat, const int iRC, double* dInvOut)
@@ -678,15 +678,15 @@ BOOL MatInverse(const double* dMat, const int iRC, double* dInvOut)
 		dInv[r*iRC+r]=1;
 	}
 	solve_m(dInv, iRC, dLU, iIndex, dInv);
-	delete [] dLU;
-	delete [] iIndex;
+	SAFE_DELETE(dLU);
+	SAFE_DELETE(iIndex);
 
 
 	for(int r=0; r<iRC; r++)
 	{
 		for(int c=0; c<iRC; c++){dInvOut[r*iRC+c]=dInv[r*iRC+c];}
 	}
-	delete [] dInv;
+	SAFE_DELETE(dInv);
 	return TRUE;
 }
 

@@ -10,7 +10,7 @@ Object::Object()
 }
 BOOL Object::Init()
 {
-	if(runLength != NULL){delete [] runLength; runLength=NULL;}
+	if(runLength != NULL){SAFE_DELETE(runLength); runLength=NULL;}
 	m_iMaxID=-1;
 	m_iBufNum=0;
 	m_uiMaxLabel=0;
@@ -198,7 +198,7 @@ BOOL Object::Truncate()
 	{
 		this->runLength[iID].uiLabel=uiNewLabelTable[this->runLength[iID].uiLabel];
 	}
-	delete [] uiNewLabelTable;
+	SAFE_DELETE(uiNewLabelTable);
 	return TRUE;
 
 }
@@ -294,7 +294,7 @@ BOOL Object::SortR()
 	}
 
 	Index(iRs, iLength, iIndex);
-	delete [] iRs;
+	SAFE_DELETE(iRs);
 
 	Object objTemp;
 	for(int i=0; i<iLength; i++)
@@ -302,7 +302,7 @@ BOOL Object::SortR()
 		RunLength* runLengthTemp=&(this->runLength[iIndex[i]]);
 		objTemp.Add(runLengthTemp->iR, runLengthTemp->iCStart, runLengthTemp->iCEnd, runLengthTemp->uiLabel);
 	}
-	delete [] iIndex;
+	SAFE_DELETE(iIndex);
 
 	this->Copy(&objTemp);
 

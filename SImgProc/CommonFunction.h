@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#define SAFE_DELETE(v) if(v != NULL){delete [] v; v=NULL;}
 #define Round(dX) ((dX>=INT_MAX-0.5)?(INT_MAX):((dX<=INT_MIN+0.5)?(INT_MIN):((dX>=0)?((int)(dX+0.5)):((int)(dX-0.5)))))
 BOOL Sort(const double* arr, int iLength, double* brr);
 BOOL Index(const double* dIn, int iLength, int* iIndexOut);

@@ -1,18 +1,18 @@
 #include "stdafx.h"
 #include "SImgProc_ex.h"
-
+#include "CommonFunction.h"
 ImgRGB::ImgRGB(){byImg = NULL; byImgR=NULL; byImgG=NULL; byImgB=NULL; dImg1=NULL; dImg2=NULL; dImg3=NULL;Init();}
 
 ImgRGB::~ImgRGB(){Init();}
 BOOL ImgRGB::Init()
 {
-	if(byImg!=NULL){delete [] byImg; byImg=NULL;}
-	if(byImgR!=NULL){delete [] byImgR; byImgR=NULL;}
-	if(byImgG!=NULL){delete [] byImgG; byImgG=NULL;}
-	if(byImgB!=NULL){delete [] byImgB; byImgB=NULL;}
-	if(dImg1!=NULL){delete [] dImg1; dImg1=NULL;}
-	if(dImg2!=NULL){delete [] dImg2; dImg2=NULL;}
-	if(dImg3!=NULL){delete [] dImg3; dImg3=NULL;}
+	if(byImg!=NULL){SAFE_DELETE(byImg); byImg=NULL;}
+	if(byImgR!=NULL){SAFE_DELETE(byImgR); byImgR=NULL;}
+	if(byImgG!=NULL){SAFE_DELETE(byImgG); byImgG=NULL;}
+	if(byImgB!=NULL){SAFE_DELETE(byImgB); byImgB=NULL;}
+	if(dImg1!=NULL){SAFE_DELETE(dImg1); dImg1=NULL;}
+	if(dImg2!=NULL){SAFE_DELETE(dImg2); dImg2=NULL;}
+	if(dImg3!=NULL){SAFE_DELETE(dImg3); dImg3=NULL;}
 	iWidth=0;
 	iHeight=0;
 	iChannel=CHANNEL_UNDEFINED;
@@ -89,7 +89,7 @@ BOOL ImgRGB::Assign(CString sFilePath)
 	{
 		((BYTE*)&bmfh)[i]=byData[i];
 	}
-	if(bmfh.bfType != 0x4d42){delete [] byData; return FALSE;}
+	if(bmfh.bfType != 0x4d42){SAFE_DELETE(byData); return FALSE;}
 
 	for(int i=0; i<sizeof(bmih); i++)
 	{
@@ -122,7 +122,7 @@ BOOL ImgRGB::Assign(CString sFilePath)
 		}
 	}
 
-	delete [] byData;
+	SAFE_DELETE(byData);
 	GenRectangle1(&(this->objDomain), 0, 0, iHeightLocal-1, iWidthLocal-1);
 	return TRUE;
 }

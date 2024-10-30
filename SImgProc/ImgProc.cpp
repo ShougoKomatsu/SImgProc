@@ -474,7 +474,7 @@ BOOL Screenshot(ImgRGB* imgRGB)
 			imgRGB->byImg[3*(r*iWidth+c)+2] = byDataTempBGR[3*(r*iWidth+c) + r*iFillerSize +2];
 		}
 	}
-	delete [] byDataTempBGR;
+	SAFE_DELETE(byDataTempBGR);
 
 
 	ReleaseDC(hDesktop, hDC);
@@ -1571,7 +1571,7 @@ BOOL MeanFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFi
 
 	UINT* uiRSumData=NULL;
 	uiRSumData=new UINT[uiImgW*uiImgH];
-	if(uiRSumData==NULL){delete [] uiImgSum; return FALSE;}
+	if(uiRSumData==NULL){SAFE_DELETE(uiImgSum); return FALSE;}
 	VerticalSumR0(byImg, uiRSumData, uiImgW, uiFilterHalfH);
 	SumHorizontalLine(uiRSumData, &(uiImgSum[0*uiImgW]), uiImgW, uiFilterHalfW);
 	for(UINT r=1; r<uiImgH; r++)
@@ -1580,8 +1580,8 @@ BOOL MeanFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFi
 		SumHorizontalLine(uiRSumData, &(uiImgSum[r*uiImgW]), uiImgW, uiFilterHalfW);
 	}
 	MeanDivide(uiImgSum, byResult, uiImgW, uiImgH, uiFilterHalfW, uiFilterHalfH);
-	delete [] uiImgSum;
-	delete [] uiRSumData;
+	SAFE_DELETE(uiImgSum);
+	SAFE_DELETE(uiRSumData);
 	return TRUE;
 }
 
@@ -1745,12 +1745,12 @@ BOOL MaxFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFil
 				byResult[r*uiImgW+c]=byResultLocal[r*uiImgW+c];
 			}
 		}
-		delete [] byResultLocal;
+		SAFE_DELETE(byResultLocal);
 	}
 
-	delete [] uiMaxPositions;
-	delete [] byImgExpanded;
-	delete [] byRMaxData;
+	SAFE_DELETE(uiMaxPositions);
+	SAFE_DELETE(byImgExpanded);
+	SAFE_DELETE(byRMaxData);
 	return TRUE;
 }
 BOOL InvertImage(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH)
@@ -1815,7 +1815,7 @@ BOOL LaplacianFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT
 				byResult[r*uiImgW+c]=byResultLocal[r*uiImgW+c];
 			}
 		}
-		delete [] byResultLocal;
+		SAFE_DELETE(byResultLocal);
 	}
 
 	return TRUE;
@@ -2401,9 +2401,9 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 		}
 
 		objOut->Copy(&objLocal);
-		delete [] iIndex;
-		delete [] uiFeatures;
-		delete [] dFeatures;
+		SAFE_DELETE(iIndex);
+		SAFE_DELETE(uiFeatures);
+		SAFE_DELETE(dFeatures);
 		return TRUE;
 	}
 
@@ -2427,9 +2427,9 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 		{
 			Index(&(dCs[1]),objLocal.m_uiMaxLabel,iIndex);
 		}
-		delete [] dAs;
-		delete [] dRs;
-		delete [] dCs;
+		SAFE_DELETE(dAs);
+		SAFE_DELETE(dRs);
+		SAFE_DELETE(dCs);
 		if(sAscDsc.CompareNoCase(_T("Asc"))==0)
 		{	
 			for(int iID=0; iID<=objLocal.m_iMaxID; iID++)
@@ -2446,7 +2446,7 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 				objLocal.runLength[iID].uiLabel = objLocal.m_uiMaxLabel - iIndex[objLocal.runLength[iID].uiLabel-1];
 			}
 		}
-		delete [] iIndex;
+		SAFE_DELETE(iIndex);
 		objOut->Copy(&objLocal);
 	}
 	return TRUE;
@@ -2504,9 +2504,9 @@ BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLeng
 		dRs[i]=uiRSums[i]/(dAreas[i]);
 		dCs[i]=uiCSums[i]/(dAreas[i]);
 	}
-	delete [] uiRSums;
-	delete [] iAreas;
-	delete [] uiCSums;
+	SAFE_DELETE(uiRSums);
+	SAFE_DELETE(iAreas);
+	SAFE_DELETE(uiCSums);
 	return TRUE;
 }
 BOOL ReadImage(CString sFilePath, ImgRGB* imgRGB)
@@ -2612,7 +2612,7 @@ BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
 
 	f.Write((void*)(byOutBuf),iBitSize);
 	f.Close();
-	delete [] byOutBuf;
+	SAFE_DELETE(byOutBuf);
 
 	return TRUE;
 }
