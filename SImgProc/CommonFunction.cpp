@@ -24,20 +24,29 @@ inline void SWAP(int* a, int* b)
 	*a=temp;
 }
 
-long SumVec(const double* dIn, int iLength, double* dOut)
+long SumVec(const double* dVec, int iLength, double* dOut)
 {
+	double* dVecAbs;
 	double dSum;
 	int* iIndex;
+
+	dVecAbs=new double[iLength];
+	for(int i=0; i<iLength; i++)
+	{
+		dVecAbs[i]=fabs(dVec[i]);
+	}
+
 	iIndex=new int[iLength];
 
 	BOOL bRet;
-	bRet = Index(dIn, iLength, iIndex);
-	if(bRet != TRUE){delete [] iIndex; return -1;}
+	bRet = Index(dVecAbs, iLength, iIndex);
+	if(bRet != TRUE){delete [] dVecAbs; delete [] iIndex; return -1;}
+	delete [] dVecAbs;
 
 	dSum=0;
 	for(int i=0; i<iLength; i++)
 	{
-		dSum+=dIn[iIndex[i]];
+		dSum+=dVec[iIndex[i]];
 	}
 	delete [] iIndex;
 
@@ -56,11 +65,15 @@ long MultVec(const double* d1In,const double* d2In, int iLength, double* dOuts)
 }
 long InnerProduct(const double* d1In,const double* d2In, int iLength, double* dOut)
 {
+	double* dProductsAbs;
+	dProductsAbs=new double[iLength];
+
 	double* dProducts;
 	dProducts=new double[iLength];
 	for(int i=0; i<iLength; i++)
 	{
 		dProducts[i]=d1In[i]*d2In[i];
+		dProductsAbs[i]=fabs(dProducts[i]);
 	}
 
 	double dSum;
@@ -68,14 +81,15 @@ long InnerProduct(const double* d1In,const double* d2In, int iLength, double* dO
 	iIndex=new int[iLength];
 
 	BOOL bRet;
-	bRet = Index(dProducts, iLength, iIndex);
-	if(bRet != TRUE){delete [] iIndex; return -1;}
-
+	bRet = Index(dProductsAbs, iLength, iIndex);
+	if(bRet != TRUE){delete [] dProductsAbs; delete [] dProducts; delete [] iIndex; return -1;}
+	delete [] dProductsAbs;
 	dSum=0;
 	for(int i=0; i<iLength; i++)
 	{
 		dSum+=dProducts[iIndex[i]];
 	}
+	delete [] dProducts;
 	delete [] iIndex;
 
 	*dOut=dSum;
