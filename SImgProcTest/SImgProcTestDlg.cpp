@@ -610,6 +610,14 @@ BOOL TestInvert()
 }
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+	ImgRGB img1, img2, imgR, imgd;
+	Object obj1, obj2, obj3;
+Screenshot(&img1);	
+Decompose3(&img1,&imgR, &imgd, &imgd);
+Threshold(&imgR, 0,128, &obj1);
+Connection(&obj1,&obj2,4);
+SelectShape(&obj2,&obj3,_T("area"), 10, 10000000);
+
 	/*
 	ImgRGB imgTest;
 	imgTest.Assign(_T("d:\\20240718_131406.bmp"));

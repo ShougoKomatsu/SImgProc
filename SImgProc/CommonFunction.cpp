@@ -137,6 +137,7 @@ long GetAdjParamSq2(const double* dRas, const double* dCas, const double* dRbs, 
 	
 }
 */
+/*
 BOOL Sort(const double* arr, int iLength, double* brr)
 {
 	double* dOut;
@@ -233,7 +234,7 @@ BOOL Sort(const double* arr, int iLength, double* brr)
 
 	return TRUE;
 }
-
+*/
 BOOL Index(const double* dIn, int iLength, int* iIndexOut)
 {
 	int* iIndex;
@@ -250,14 +251,14 @@ BOOL Index(const double* dIn, int iLength, int* iIndexOut)
 
 	int m=7;
 	int nstack=64;
-	int iIndexR, jstack=-1, indexL=0, n=iLength;
+	int iIndexR, jstack=-1, indexL=0;
 	int* istack;
 	istack=new int[nstack];
-	iIndexR=n-1;
+	iIndexR=iLength-1;
 
 	while(1)
 	{
-		if(iIndexR-1<m)
+		if(iIndexR-indexL<m)
 		{
 			for(int j=indexL+1; j<=iIndexR; j++)
 			{
@@ -354,17 +355,16 @@ BOOL Index(const int* dIn, int iLength, int* iIndexOut)
 		dALocal[i]=dIn[i];
 		iIndex[i]=i;
 	}
-
-	int m=7;
+	int M=7;
 	int nstack=64;
-	int iIndexR, jstack=-1, indexL=0, n=iLength;
+	int iIndexR, jstack=-1, indexL=0;
 	int* istack;
 	istack=new int[nstack];
-	iIndexR=n-1;
+	iIndexR=iLength-1;
 
 	while(1)
 	{
-		if(iIndexR-1<m)
+		if(iIndexR-indexL<M)
 		{
 			for(int j=indexL+1; j<=iIndexR; j++)
 			{
@@ -472,7 +472,7 @@ BOOL Index(const UINT* dIn, int iLength, int* iIndexOut)
 
 	while(1)
 	{
-		if(iIndexR-1<m)
+		if(iIndexR-indexL<m)
 		{
 			for(int j=indexL+1; j<=iIndexR; j++)
 			{

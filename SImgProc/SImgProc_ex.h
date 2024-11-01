@@ -45,7 +45,7 @@ struct RunLength
 	RunLength();
 };
 
-struct Object
+struct DLL_IE Object
 {
 	UINT m_uiMaxLabel;
 	int m_iMaxID;

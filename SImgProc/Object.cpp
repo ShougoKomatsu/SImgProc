@@ -367,3 +367,14 @@ BOOL Union1(Object* objIn, Object* objOut)
 	objOut->Union1();
 	return TRUE;
 }
+
+
+BOOL SmallestRectange1(Object* obIn, int* iR1, int* iC1, int* iR2, int* iC2)
+{
+	int iCMin;
+	int iCMax;
+
+	*iC1=iCMin;
+	*iC2=iCMax;
+	return TRUE;
+}
