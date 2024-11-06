@@ -2399,7 +2399,8 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 				objLocal.runLength[iID].uiLabel = objLocal.m_iMaxID - iIndex[objLocal.runLength[iID].uiLabel];
 			}
 		}
-
+		
+		objLocal.ReCheckID();
 		objOut->Copy(&objLocal);
 		SAFE_DELETE(iIndex);
 		SAFE_DELETE(uiFeatures);
@@ -2447,6 +2448,7 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 			}
 		}
 		SAFE_DELETE(iIndex);
+		objLocal.ReCheckID();
 		objOut->Copy(&objLocal);
 	}
 	return TRUE;
