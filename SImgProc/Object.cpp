@@ -118,12 +118,11 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 	if(runLength->bValid==FALSE){return FALSE;}
 	int iSelfR=runLength->iR;
 
-	for(int i=0; i<=this->m_iMaxID; i++)
+	for(int i=iID+1; i<=this->m_iMaxID; i++)
 	{
+		if(this->runLength[i].iR>iSelfR+1){break;}
 		if(this->runLength[i].bValid==FALSE){continue;}
-
 		if(this->runLength[i].bIsConnectionOperated==TRUE){continue;}
-		if(i==iID){continue;}
 
 		if(IsNeighbor(runLength, &(this->runLength[i]), iNeighborPolicy)==TRUE)
 		{
@@ -133,8 +132,22 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 			ConnectNeighbor(&(this->runLength[i]), i, iNeighborPolicy);
 			continue;
 		}
+	}
+	
+	for(int i=iID-1; i>=0; i--)
+	{
+		if(this->runLength[i].iR<iSelfR-1){break;}
+		if(this->runLength[i].bValid==FALSE){continue;}
+		if(this->runLength[i].bIsConnectionOperated==TRUE){continue;}
 
-		if(this->runLength[i].iR>iSelfR+1){break;}
+		if(IsNeighbor(runLength, &(this->runLength[i]), iNeighborPolicy)==TRUE)
+		{
+
+			this->runLength[i].bIsConnectionOperated=TRUE;
+			this->runLength[i].uiLabel=runLength->uiLabel;
+			ConnectNeighbor(&(this->runLength[i]), i, iNeighborPolicy);
+			continue;
+		}
 	}
 	return TRUE;
 }
@@ -184,6 +197,19 @@ BOOL Object::Truncate()
 	memset(uiNewLabelTable, 0, sizeof(UINT)*(uiMaxLabel+1));
 
 	UINT uiNewMaxLabel=0;
+	for(UINT uiLabel=1; uiLabel<uiMaxLabel+1; uiLabel++)
+	{
+
+		for(int iID=0; iID<=m_iMaxID; iID++)
+		{
+			if(this->runLength[iID].uiLabel!=uiLabel){continue;}
+			if(uiNewLabelTable[this->runLength[iID].uiLabel]!=0){continue;}
+			uiNewMaxLabel++;
+			uiNewLabelTable[uiLabel]=uiNewMaxLabel;
+			break;
+		}
+	}
+	/*
 	for(int iID=0; iID<=m_iMaxID; iID++)
 	{
 		if(this->runLength[iID].uiLabel==0){continue;}
@@ -192,6 +218,7 @@ BOOL Object::Truncate()
 		uiNewMaxLabel++;
 		uiNewLabelTable[this->runLength[iID].uiLabel]=uiNewMaxLabel;
 	}
+	*/
 
 	m_uiMaxLabel=uiNewMaxLabel;
 	for(int iID=0; iID<=m_iMaxID; iID++)
