@@ -126,7 +126,6 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 
 		if(IsNeighbor(runLength, &(this->runLength[iTargetID]), iNeighborPolicy)==TRUE)
 		{
-
 			this->runLength[iTargetID].bIsConnectionOperated=TRUE;
 			this->runLength[iTargetID].uiLabel=runLength->uiLabel;
 			this->ConnectNeighbor(&(this->runLength[iTargetID]), iTargetID, iNeighborPolicy);
@@ -142,7 +141,6 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 
 		if(IsNeighbor(runLength, &(this->runLength[iTargetID]), iNeighborPolicy)==TRUE)
 		{
-
 			this->runLength[iTargetID].bIsConnectionOperated=TRUE;
 			this->runLength[iTargetID].uiLabel=runLength->uiLabel;
 			this->ConnectNeighbor(&(this->runLength[iTargetID]), iTargetID, iNeighborPolicy);
@@ -172,7 +170,7 @@ BOOL Object::Connection(int iNeighborPolicy)
 			uiMaxLabel++;
 			this->runLength[iID].uiLabel=uiMaxLabel;
 			this->runLength[iID].bIsConnectionOperated=TRUE;
-			ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
+			this->ConnectNeighbor(&(this->runLength[iID]),iID,iNeighborPolicy);
 		}
 	}
 	this->m_uiMaxLabel=uiMaxLabel;
