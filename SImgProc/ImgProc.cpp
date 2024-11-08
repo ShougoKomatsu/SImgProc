@@ -257,11 +257,11 @@ BOOL ReduceDomain(ImgRGB* imgRGBIn, Object* objIn, ImgRGB* imgRGBOut)
 BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 {
 	objOut->Init();
-	for(int i=0; i<=objIn->m_iMaxID; i++)
+	for(int iID=0; iID<=objIn->m_iMaxID; iID++)
 	{
-		if(objIn->runLength[i].uiLabel==iLabel+1)
+		if(objIn->runLength[iID].uiLabel==iLabel+1)
 		{
-			objOut->Add(objIn->runLength[i].iR,objIn->runLength[i].iCStart,objIn->runLength[i].iCEnd,0);
+			objOut->Add(objIn->runLength[iID].iR,objIn->runLength[iID].iCStart,objIn->runLength[iID].iCEnd,0);
 		}
 	}
 	return TRUE;
@@ -2274,10 +2274,10 @@ BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE by
 	bRet = ConvertImageChannel_3_8(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
-	for(int i=0; i<= objIn->m_iMaxID; i++)
+	for(int iID=0; iID<= objIn->m_iMaxID; iID++)
 	{
-		int r=objIn->runLength[i].iR;
-		for(int c= objIn->runLength[i].iCStart; c<= objIn->runLength[i].iCEnd; c++)
+		int r=objIn->runLength[iID].iR;
+		for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
 		{
 			imgOut->byImgR[r*imgOut->iWidth+c]=byR;
 			imgOut->byImgG[r*imgOut->iWidth+c]=byG;
@@ -2299,21 +2299,21 @@ BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 	bRet = ConvertImageChannel_3_8(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
-	for(int i=0; i<= objIn->m_iMaxID; i++)
+	for(int iID=0; iID<= objIn->m_iMaxID; iID++)
 	{
-		int r=objIn->runLength[i].iR;
-		for(int c= objIn->runLength[i].iCStart; c<= objIn->runLength[i].iCEnd; c++)
+		int r=objIn->runLength[iID].iR;
+		for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
 		{
-			if(objIn->runLength[i].uiLabel==0)
+			if(objIn->runLength[iID].uiLabel==0)
 			{
 				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
 				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
 				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
 				continue;
 			}
-			imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[i].uiLabel-1)%g_uiColored];
-			imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[(objIn->runLength[i].uiLabel-1)%g_uiColored];
-			imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[(objIn->runLength[i].uiLabel-1)%g_uiColored];
+			imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+			imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+			imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
 		}
 	}
 
@@ -2459,13 +2459,13 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 	int iArea=0;
 	UINT uiRSum=0;
 	UINT uiCSum=0;
-	for(int i=0; i<=obj->m_iMaxID; i++)
+	for(int iID=0; iID<=obj->m_iMaxID; iID++)
 	{
 		int iAreaTemp;
-		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;
+		iAreaTemp = obj->runLength[iID].iCEnd - obj->runLength[iID].iCStart+1;
 		iArea+=iAreaTemp;
-		uiCSum+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
-		uiRSum+=(obj->runLength[i].iR) * iAreaTemp;
+		uiCSum+=(obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp;
+		uiRSum+=(obj->runLength[iID].iR) * iAreaTemp;
 	}
 	*dArea=double(iArea);
 	*dR=uiRSum/(*dArea);
@@ -2491,13 +2491,13 @@ BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLeng
 		uiRSums[i]=0;
 		uiCSums[i]=0;
 	}
-	for(int i=0; i<=obj->m_iMaxID; i++)
+	for(int iID=0; iID<=obj->m_iMaxID; iID++)
 	{
 		int iAreaTemp;
-		iAreaTemp = obj->runLength[i].iCEnd - obj->runLength[i].iCStart+1;
-		iAreas[obj->runLength[i].uiLabel]+=iAreaTemp;
-		uiCSums[obj->runLength[i].uiLabel]+=(obj->runLength[i].iCEnd + obj->runLength[i].iCStart)/(2.0) * iAreaTemp;
-		uiRSums[obj->runLength[i].uiLabel]+=(obj->runLength[i].iR) * iAreaTemp;
+		iAreaTemp = obj->runLength[iID].iCEnd - obj->runLength[iID].iCStart+1;
+		iAreas[obj->runLength[iID].uiLabel]+=iAreaTemp;
+		uiCSums[obj->runLength[iID].uiLabel]+=(obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp;
+		uiRSums[obj->runLength[iID].uiLabel]+=(obj->runLength[iID].iR) * iAreaTemp;
 	}
 	for(int i=0; i<=obj->m_uiMaxLabel; i++)
 	{

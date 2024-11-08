@@ -118,34 +118,34 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 	if(runLength->bValid==FALSE){return FALSE;}
 	int iSelfR=runLength->iR;
 
-	for(int i=iID+1; i<=this->m_iMaxID; i++)
+	for(int iTargetID=iID+1; iTargetID<=this->m_iMaxID; iTargetID++)
 	{
-		if(this->runLength[i].iR>iSelfR+1){break;}
-		if(this->runLength[i].bValid==FALSE){continue;}
-		if(this->runLength[i].bIsConnectionOperated==TRUE){continue;}
+		if(this->runLength[iTargetID].iR>iSelfR+1){break;}
+		if(this->runLength[iTargetID].bValid==FALSE){continue;}
+		if(this->runLength[iTargetID].bIsConnectionOperated==TRUE){continue;}
 
-		if(IsNeighbor(runLength, &(this->runLength[i]), iNeighborPolicy)==TRUE)
+		if(IsNeighbor(runLength, &(this->runLength[iTargetID]), iNeighborPolicy)==TRUE)
 		{
 
-			this->runLength[i].bIsConnectionOperated=TRUE;
-			this->runLength[i].uiLabel=runLength->uiLabel;
-			ConnectNeighbor(&(this->runLength[i]), i, iNeighborPolicy);
+			this->runLength[iTargetID].bIsConnectionOperated=TRUE;
+			this->runLength[iTargetID].uiLabel=runLength->uiLabel;
+			this->ConnectNeighbor(&(this->runLength[iTargetID]), iTargetID, iNeighborPolicy);
 			continue;
 		}
 	}
 	
-	for(int i=iID-1; i>=0; i--)
+	for(int iTargetID=iID-1; iTargetID>=0; iTargetID--)
 	{
-		if(this->runLength[i].iR<iSelfR-1){break;}
-		if(this->runLength[i].bValid==FALSE){continue;}
-		if(this->runLength[i].bIsConnectionOperated==TRUE){continue;}
+		if(this->runLength[iTargetID].iR<iSelfR-1){break;}
+		if(this->runLength[iTargetID].bValid==FALSE){continue;}
+		if(this->runLength[iTargetID].bIsConnectionOperated==TRUE){continue;}
 
-		if(IsNeighbor(runLength, &(this->runLength[i]), iNeighborPolicy)==TRUE)
+		if(IsNeighbor(runLength, &(this->runLength[iTargetID]), iNeighborPolicy)==TRUE)
 		{
 
-			this->runLength[i].bIsConnectionOperated=TRUE;
-			this->runLength[i].uiLabel=runLength->uiLabel;
-			ConnectNeighbor(&(this->runLength[i]), i, iNeighborPolicy);
+			this->runLength[iTargetID].bIsConnectionOperated=TRUE;
+			this->runLength[iTargetID].uiLabel=runLength->uiLabel;
+			this->ConnectNeighbor(&(this->runLength[iTargetID]), iTargetID, iNeighborPolicy);
 			continue;
 		}
 	}
@@ -199,27 +199,15 @@ BOOL Object::Truncate()
 	UINT uiNewMaxLabel=0;
 	for(UINT uiLabel=1; uiLabel<uiMaxLabel+1; uiLabel++)
 	{
-
 		for(int iID=0; iID<=m_iMaxID; iID++)
 		{
 			if(this->runLength[iID].uiLabel!=uiLabel){continue;}
-			if(uiNewLabelTable[this->runLength[iID].uiLabel]!=0){continue;}
+			if(this->runLength[iID].bValid!=TRUE){continue;}
 			uiNewMaxLabel++;
 			uiNewLabelTable[uiLabel]=uiNewMaxLabel;
 			break;
 		}
 	}
-	/*
-	for(int iID=0; iID<=m_iMaxID; iID++)
-	{
-		if(this->runLength[iID].uiLabel==0){continue;}
-		if(uiNewLabelTable[this->runLength[iID].uiLabel]!=0){continue;}
-
-		uiNewMaxLabel++;
-		uiNewLabelTable[this->runLength[iID].uiLabel]=uiNewMaxLabel;
-	}
-	*/
-
 	m_uiMaxLabel=uiNewMaxLabel;
 	for(int iID=0; iID<=m_iMaxID; iID++)
 	{
@@ -251,16 +239,16 @@ BOOL Object::GetRunlengthIDsInR(int iRIn, int* iIDStart, int* iIDEnd)
 {
 	BOOL bStart;
 	bStart=FALSE;
-	for(int i=0; i<=this->m_iMaxID; i++)
+	for(int iID=0; iID<=this->m_iMaxID; iID++)
 	{
-		if(this->runLength[i].iR<iRIn){continue;}
-		if(this->runLength[i].iR==iRIn)
+		if(this->runLength[iID].iR<iRIn){continue;}
+		if(this->runLength[iID].iR==iRIn)
 		{
-			if(bStart==FALSE){bStart=TRUE; *iIDStart=i;}
+			if(bStart==FALSE){bStart=TRUE; *iIDStart=iID;}
 		}
-		if(this->runLength[i].iR>iRIn)
+		if(this->runLength[iID].iR>iRIn)
 		{
-			if(bStart==TRUE){*iIDEnd=i-1; return TRUE;}
+			if(bStart==TRUE){*iIDEnd=iID-1; return TRUE;}
 			return FALSE;
 		}
 	}
@@ -315,9 +303,9 @@ BOOL Object::SortR()
 	int iLength=this->m_iMaxID+1;
 	iRs=new int[iLength];
 	iIndex=new int[iLength];
-	for(int i=0; i<iLength; i++)
+	for(int iID=0; iID<iLength; iID++)
 	{
-		iRs[i]=this->runLength[i].iR;
+		iRs[iID]=this->runLength[iID].iR;
 	}
 
 	Index(iRs, iLength, iIndex);
@@ -341,22 +329,22 @@ BOOL Object::ReCheckID()
 	this->Truncate();
 	this->SortR();
 
-	for(int i=0; i<this->m_iBufNum; i++)
+	for(int iID=0; iID<this->m_iBufNum; iID++)
 	{
-		if(this->runLength[i].bValid==FALSE){continue;}
-		if(this->m_uiMaxLabel<this->runLength[i].uiLabel){this->m_uiMaxLabel=this->runLength[i].uiLabel;}
-		this->m_iMaxID=i;
+		if(this->runLength[iID].bValid==FALSE){continue;}
+		if(this->m_uiMaxLabel<this->runLength[iID].uiLabel){this->m_uiMaxLabel=this->runLength[iID].uiLabel;}
+		this->m_iMaxID=iID;
 	}
 
 	return TRUE;
 }
 BOOL Object::IsRInRegion(int iRIn)
 {
-	for(int i=0; i<=this->m_iMaxID; i++)
+	for(int iID=0; iID<=this->m_iMaxID; iID++)
 	{
-		if(this->runLength[i].iR<iRIn){continue;}
-		if(this->runLength[i].iR==iRIn){return TRUE;}
-		if(this->runLength[i].iR>iRIn){return FALSE;}
+		if(this->runLength[iID].iR<iRIn){continue;}
+		if(this->runLength[iID].iR==iRIn){return TRUE;}
+		if(this->runLength[iID].iR>iRIn){return FALSE;}
 	}
 	return FALSE;
 }
@@ -369,10 +357,10 @@ BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
 
 	objOut->Alloc(iR1Local-iR0Local+1);
 
-	for(int i=0; i<iR1Local-iR0Local+1; i++)
+	for(int iID=0; iID<iR1Local-iR0Local+1; iID++)
 	{
-		int r=i+iR0Local;
-		objOut->runLength[i].Set(r,iC0, iC1,0,TRUE);
+		int r=iID+iR0Local;
+		objOut->runLength[iID].Set(r,iC0, iC1,0,TRUE);
 	}
 	objOut->ReCheckID();
 	return TRUE;
@@ -380,9 +368,9 @@ BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
 
 BOOL Object::Union1()
 {
-	for(int i=0; i<= this->m_iMaxID; i++)
+	for(int iID=0; iID<= this->m_iMaxID; iID++)
 	{
-		this->runLength[i].uiLabel=0;
+		this->runLength[iID].uiLabel=0;
 	}
 	UnionOverwrappedRunlength();
 	this->ReCheckID();
