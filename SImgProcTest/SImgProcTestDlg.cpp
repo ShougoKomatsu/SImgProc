@@ -610,6 +610,24 @@ BOOL TestInvert()
 }
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
+	
+	ImgRGB imgTest;
+	ImgRGB imgResult;
+	Screenshot(&imgTest);
+	ImgRGB imgG1, imgB1, imgR1;
+	ImgRGB imgG2, imgB2, imgR2;
+	Decompose3(&imgTest,&imgR1,&imgG1,&imgB1);
+	Decompose3(&imgTest,&imgR2,&imgG2,&imgB2);
+
+	MeanImage(imgR1.byImg, imgR2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MeanImage(imgG1.byImg, imgG2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MeanImage(imgB1.byImg, imgB2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+
+	Compose3(&imgR2,&imgG2,&imgB2,&imgResult);
+	WriteImage(&imgResult,_T("d:\\testa.bmp"));
+
+	/*
+
 	ImgRGB img1, img2, imgR, imgd;
 	Object obj1, obj2, obj3;
 Screenshot(&img1);	
@@ -618,7 +636,6 @@ Threshold(&imgR, 0,128, &obj1);
 Connection(&obj1,&obj2,4);
 SelectShape(&obj2,&obj3,_T("area"), 10, 10000000);
 SelectObj(&obj3,0,&obj1);
-	/*
 	ImgRGB imgTest;
 	imgTest.Assign(_T("d:\\20240718_131406.bmp"));
 	Object obj;

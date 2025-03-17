@@ -36,3 +36,5 @@ SImgProc.exp
 *.pdb
 SImgProc.pdb
 SImgProc.pdb
+*.pdb
+SImgProc.pdb
