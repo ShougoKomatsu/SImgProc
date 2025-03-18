@@ -888,8 +888,8 @@ inline BOOL UpdateSumRDirection
 		*iTotalHeight=iHalfHeight+1;
 		return TRUE;
 	}
-	
-	if(r<iHalfHeight)
+
+	if(r<iHalfHeight+1)
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
@@ -903,7 +903,7 @@ inline BOOL UpdateSumRDirection
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
-			uiSumOfEachC[c]-=byImage[(r-iHalfHeight)*iImgWidth+c];
+			uiSumOfEachC[c]-=byImage[(r-iHalfHeight-1)*iImgWidth+c];
 			uiSumOfEachC[c]+=byImage[(r+iHalfHeight)*iImgWidth+c];
 		}
 		*iTotalHeight=iHalfHeight+iHalfHeight+1;
@@ -913,20 +913,90 @@ inline BOOL UpdateSumRDirection
 
 	for(int c=0; c<iImgWidth; c++)
 	{
-		uiSumOfEachC[c]-=byImage[(r-iHalfHeight)*iImgWidth+c];
+		uiSumOfEachC[c] -= byImage[(r-iHalfHeight-1)*iImgWidth+c];
 	}
 	*iTotalHeight=iHalfHeight+iHalfHeight+1;
-
-
 	return TRUE;
-
 }
+/*
+#define MAX(a,b) (a>=b?a:b)
+#define MIN(a,b) (a<=b?a:b)
+inline BOOL UpdateMaxRDirection
+	(
+	BYTE* byImage, int iImgWidth, int iImgHeight,
+	int r, 
+	int iHalfHeight,
+	BYTE* byMaxOfEachC)
+{
+	if(byImage == NULL){return FALSE;}
+	if(byMaxOfEachC == NULL){return FALSE;}
+
+	if(r==0)
+	{
+
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byMaxOfEachC[c]=0;
+			for(int rLocal=0; rLocal<=iHalfHeight; rLocal++)
+			{
+				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+			}
+		}
+		return TRUE;
+	}
+
+	if(r<iHalfHeight)
+	{
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+		}
+		return TRUE;
+	}
+
+	if(r<iImgHeight-iHalfHeight)
+	{
+		for(int c=0; c<iImgWidth; c++)
+		{
+			if(byMaxOfEachC[c]>byImage[(r-iHalfHeight)*iImgWidth+c])
+			{
+				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+			}
+			else
+			{
+				if(byImage[(r-iHalfHeight)*iImgWidth+c]<=byImage[(r+iHalfHeight)*iImgWidth+c])
+				{
+					byMaxOfEachC[c]=byImage[(r+iHalfHeight)*iImgWidth+c];
+				}
+				else
+				{
+					for(int rLocal=-iHalfHeight; rLocal<=iHalfHeight; rLocal++)
+					{
+						for(int rLocal=0; rLocal<=iHalfHeight; rLocal++)
+						{
+							byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+						}
+					}
+				}
+			}
+		}
+		return TRUE;
+	}
+
+	for(int c=0; c<iImgWidth; c++)
+	{
+		uiSumOfEachC[c] -= byImage[(r-iHalfHeight)*iImgWidth+c];
+	}
+	*iTotalHeight=iHalfHeight+iHalfHeight+1;
+	return TRUE;
+}
+*/
 BOOL SumCDirection
 	(
 	UINT* uiSumOfEachC,
 	int iImgWidth,
 	int iHalfWidth,
-	 UINT* uiSumOfRC, int* iTotalCs)
+	UINT* uiSumOfRC, int* iTotalCs)
 {
 	uiSumOfRC[0]=0;
 	for(int c=0; c<iHalfWidth; c++)
@@ -947,7 +1017,7 @@ BOOL SumCDirection
 		uiSumOfRC[c]+=uiSumOfEachC[c+iHalfWidth];
 		iTotalCs[c]=2*iHalfWidth+1;
 	}
-	
+
 	for(int c=iImgWidth-iHalfWidth+1; c+iHalfWidth<iImgWidth; c++)
 	{
 		uiSumOfRC[c]=uiSumOfRC[c]-uiSumOfEachC[c+iHalfWidth];
