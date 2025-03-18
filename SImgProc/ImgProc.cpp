@@ -918,9 +918,9 @@ inline BOOL UpdateSumRDirection
 	*iTotalHeight=iHalfHeight+iHalfHeight+1;
 	return TRUE;
 }
-/*
-#define MAX(a,b) (a>=b?a:b)
-#define MIN(a,b) (a<=b?a:b)
+
+#define MAX(a,b) ((a>=b)?(a):(b))
+#define MIN(a,b) ((a<=b?)(a):(b))
 inline BOOL UpdateMaxRDirection
 	(
 	BYTE* byImage, int iImgWidth, int iImgHeight,
@@ -945,7 +945,7 @@ inline BOOL UpdateMaxRDirection
 		return TRUE;
 	}
 
-	if(r<iHalfHeight)
+	if(r<iHalfHeight+1)
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
@@ -958,24 +958,24 @@ inline BOOL UpdateMaxRDirection
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
-			if(byMaxOfEachC[c]>byImage[(r-iHalfHeight)*iImgWidth+c])
+			
+			if(byMaxOfEachC[c] > byImage[(r-iHalfHeight-1)*iImgWidth+c])
 			{
 				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
 			}
 			else
 			{
-				if(byImage[(r-iHalfHeight)*iImgWidth+c]<=byImage[(r+iHalfHeight)*iImgWidth+c])
+				if(byImage[(r-iHalfHeight-1)*iImgWidth+c] <= byImage[(r+iHalfHeight)*iImgWidth+c])
 				{
 					byMaxOfEachC[c]=byImage[(r+iHalfHeight)*iImgWidth+c];
 				}
 				else
 				{
+				
+					byMaxOfEachC[c]=0;
 					for(int rLocal=-iHalfHeight; rLocal<=iHalfHeight; rLocal++)
 					{
-						for(int rLocal=0; rLocal<=iHalfHeight; rLocal++)
-						{
-							byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
-						}
+						byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
 					}
 				}
 			}
@@ -985,12 +985,18 @@ inline BOOL UpdateMaxRDirection
 
 	for(int c=0; c<iImgWidth; c++)
 	{
-		uiSumOfEachC[c] -= byImage[(r-iHalfHeight)*iImgWidth+c];
+		if(byMaxOfEachC[c] < byImage[(r-iHalfHeight-1)*iImgWidth+c])
+		{
+			byMaxOfEachC[c]=0;
+			for(int rLocal=-iHalfHeight; rLocal< iImgHeight-r; rLocal++)
+			{
+				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+			}
+		}
 	}
-	*iTotalHeight=iHalfHeight+iHalfHeight+1;
 	return TRUE;
 }
-*/
+
 BOOL SumCDirection
 	(
 	UINT* uiSumOfEachC,
@@ -1025,6 +1031,66 @@ BOOL SumCDirection
 	}
 	return TRUE;
 }
+
+BOOL MaxCDirection
+	(
+	BYTE* byMaxOfEachC,
+	int iImgWidth,
+	int iHalfWidth,
+	BYTE* byMaxOfRC)
+{
+	byMaxOfRC[0]=0;
+	for(int c=0; c<iHalfWidth; c++)
+	{
+		byMaxOfRC[0]=MAX(byMaxOfRC[0], byMaxOfEachC[c]);
+	}
+
+	for(int c=1; c<=iHalfWidth; c++)
+	{
+		byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+	}
+
+	for(int c=iHalfWidth+1; c<iImgWidth-iHalfWidth; c++)
+	{
+
+		if(byMaxOfRC[c-1]>byMaxOfEachC[c-iHalfWidth-1])
+		{
+			byMaxOfRC[c]= MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+		}
+		else
+		{
+			if(byMaxOfEachC[c-iHalfWidth-1] < byMaxOfEachC[c+iHalfWidth])
+			{
+				byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+
+			}
+			else
+			{
+
+				byMaxOfRC[c]=0;
+				for(int cLocal=-iHalfWidth; cLocal<= iHalfWidth; cLocal++)
+				{
+					byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
+				}
+			}
+		}
+	}
+
+	for(int c=iImgWidth-iHalfWidth+1; c+iHalfWidth<iImgWidth; c++)
+	{
+		if(byMaxOfRC[c-1]<byMaxOfEachC[c-iHalfWidth-1])
+		{
+			byMaxOfRC[c]=0;
+			for(int cLocal=-iHalfWidth; cLocal< iHalfWidth-c; cLocal++)
+			{
+				byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
+			}
+		}
+
+	}
+	return TRUE;
+}
+
 BOOL DLL_IE MeanImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMeanWidth, int iMeanHeight)
 {
 	UINT* uiSumOfEachC;
@@ -1048,6 +1114,28 @@ BOOL DLL_IE MeanImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iIm
 	delete [] uiSumOfRC;
 	delete [] iTotalCs;
 	delete [] uiSumOfEachC;
+	return TRUE;
+}
+
+BOOL DLL_IE MaxImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMaxWidth, int iMaxHeight)
+{
+	BYTE* byMaxOfEachC;
+	byMaxOfEachC=new BYTE[iImgWidth];
+	BYTE* byMaxOfRC;
+	byMaxOfRC=new BYTE[iImgWidth];
+
+	for(int r=0; r<iImgHeight; r++)
+	{
+		UpdateMaxRDirection(byImage, iImgWidth, iImgHeight, r, (iMaxHeight-1)/2, byMaxOfEachC);
+		
+		MaxCDirection(byMaxOfEachC, iImgWidth, (iMaxWidth-1)/2, byMaxOfRC);
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byImageResult[r*iImgWidth+c]=byMaxOfRC[c];
+		}
+	}
+	delete [] byMaxOfRC;
+	delete [] byMaxOfEachC;
 	return TRUE;
 }
 /*
