@@ -1225,85 +1225,347 @@ BOOL MinCDirection
 	return TRUE;
 }
 
-BOOL DLL_IE MeanImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMeanWidth, int iMeanHeight)
+BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFilterHeight)
 {
-	UINT* uiSumOfEachC;
-	uiSumOfEachC=new UINT[iImgWidth];
-	UINT* uiSumOfRC;
-	uiSumOfRC=new UINT[iImgWidth];
-	int iTotalHeight;
-	int* iTotalCs;
-	iTotalCs=new int [iImgWidth];
-
-	for(int r=0; r<iImgHeight; r++)
+	int iImgWidth=imgIn->iWidth;
+	int iImgHeight=imgIn->iHeight;
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
 	{
-		UpdateSumRDirection(byImage, iImgWidth, iImgHeight, r, (iMeanHeight-1)/2, uiSumOfEachC, &iTotalHeight);
-		
-		SumCDirection(uiSumOfEachC, iImgWidth, (iMeanWidth-1)/2, uiSumOfRC, iTotalCs);
-		for(int c=0; c<iImgWidth; c++)
+		UINT* uiFilteredOfEachC_R;
+		UINT* uiFilteredOfEachC_G;
+		UINT* uiFilteredOfEachC_B;
+
+		uiFilteredOfEachC_R=new UINT[iImgWidth];
+		uiFilteredOfEachC_G=new UINT[iImgWidth];
+		uiFilteredOfEachC_B=new UINT[iImgWidth];
+
+		UINT* uiFilteredOfRC_R;
+		UINT* uiFilteredOfRC_G;
+		UINT* uiFilteredOfRC_B;
+
+		uiFilteredOfRC_R=new UINT[iImgWidth];
+		uiFilteredOfRC_G=new UINT[iImgWidth];
+		uiFilteredOfRC_B=new UINT[iImgWidth];
+
+		int iTotalHeight_R;
+		int iTotalHeight_G;
+		int iTotalHeight_B;
+		int* iTotalCs_R;
+		int* iTotalCs_G;
+		int* iTotalCs_B;
+		iTotalCs_R=new int [iImgWidth];
+		iTotalCs_G=new int [iImgWidth];
+		iTotalCs_B=new int [iImgWidth];
+		ImgRGB imgR1, imgG1, imgB1;
+		ImgRGB imgR2, imgG2, imgB2;
+
+
+		Decompose3(imgIn,&imgR1,&imgG1,&imgB1);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
 		{
-			byImageResult[r*iImgWidth+c]=BYTE(uiSumOfRC[c]/(iTotalCs[c]*iTotalHeight*1.0));
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
+
+			SumCDirection(uiFilteredOfEachC_R, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_R, iTotalCs_R);
+			SumCDirection(uiFilteredOfEachC_G, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_G, iTotalCs_G);
+			SumCDirection(uiFilteredOfEachC_B, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_B, iTotalCs_B);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgR2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_R[c]/(iTotalCs_R[c]*iTotalHeight_R*1.0));
+				imgG2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_G[c]/(iTotalCs_G[c]*iTotalHeight_G*1.0));
+				imgB2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_B[c]/(iTotalCs_B[c]*iTotalHeight_B*1.0));
+			}
 		}
+		Compose3(imgResult,&imgR2,&imgG2,&imgB2);
+		SAFE_DELETE( uiFilteredOfRC_R);
+		SAFE_DELETE( uiFilteredOfRC_G);
+		SAFE_DELETE( uiFilteredOfRC_B);
+
+		SAFE_DELETE( iTotalCs_R);
+		SAFE_DELETE( iTotalCs_G);
+		SAFE_DELETE( iTotalCs_B);
+
+		SAFE_DELETE( uiFilteredOfEachC_R);
+		SAFE_DELETE( uiFilteredOfEachC_G);
+		SAFE_DELETE( uiFilteredOfEachC_B);
+		return TRUE;
 	}
-	delete [] uiSumOfRC;
-	delete [] iTotalCs;
-	delete [] uiSumOfEachC;
-	return TRUE;
+
+	if(imgIn->iChannel == CHANNEL_1_8)
+	{
+		UINT* uiFilteredOfEachC;
+
+		uiFilteredOfEachC=new UINT[iImgWidth];;
+
+		UINT* uiFilteredOfRC;
+
+		uiFilteredOfRC=new UINT[iImgWidth];
+
+		int iTotalHeight;
+		int* iTotalCs;
+		iTotalCs=new int [iImgWidth];
+		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
+		{
+			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC, &iTotalHeight);
+
+			SumCDirection(uiFilteredOfEachC, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC, iTotalCs);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgResult->byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC[c]/(iTotalCs[c]*iTotalHeight*1.0));
+			}
+		}
+		SAFE_DELETE( uiFilteredOfRC);
+		SAFE_DELETE( iTotalCs);
+		SAFE_DELETE( uiFilteredOfEachC);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
-BOOL DLL_IE MaxImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMaxWidth, int iMaxHeight)
+BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFilterHeight)
 {
-	BYTE* byMaxOfEachC;
-	byMaxOfEachC=new BYTE[iImgWidth];
-	BYTE* byMaxOfRC;
-	byMaxOfRC=new BYTE[iImgWidth];
-
-	for(int r=0; r<iImgHeight; r++)
+	int iImgWidth=imgIn->iWidth;
+	int iImgHeight=imgIn->iHeight;
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
 	{
-		UpdateMaxRDirection(byImage, iImgWidth, iImgHeight, r, (iMaxHeight-1)/2, byMaxOfEachC);
-		
-		MaxCDirection(byMaxOfEachC, iImgWidth, (iMaxWidth-1)/2, byMaxOfRC);
-		for(int c=0; c<iImgWidth; c++)
+		BYTE* uiFilteredOfEachC_R;
+		BYTE* uiFilteredOfEachC_G;
+		BYTE* uiFilteredOfEachC_B;
+
+		uiFilteredOfEachC_R=new BYTE[iImgWidth];
+		uiFilteredOfEachC_G=new BYTE[iImgWidth];
+		uiFilteredOfEachC_B=new BYTE[iImgWidth];
+
+		BYTE* uiFilteredOfRC_R;
+		BYTE* uiFilteredOfRC_G;
+		BYTE* uiFilteredOfRC_B;
+
+		uiFilteredOfRC_R=new BYTE[iImgWidth];
+		uiFilteredOfRC_G=new BYTE[iImgWidth];
+		uiFilteredOfRC_B=new BYTE[iImgWidth];
+
+		ImgRGB imgR1, imgG1, imgB1;
+		ImgRGB imgR2, imgG2, imgB2;
+
+
+		Decompose3(imgIn,&imgR1,&imgG1,&imgB1);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
 		{
-			byImageResult[r*iImgWidth+c]=byMaxOfRC[c];
+			UpdateMaxRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_R);
+			UpdateMaxRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_G);
+			UpdateMaxRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_B);
+
+			MaxCDirection(uiFilteredOfEachC_R, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_R);
+			MaxCDirection(uiFilteredOfEachC_G, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_G);
+			MaxCDirection(uiFilteredOfEachC_B, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_B);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgR2.byImg[r*iImgWidth+c]=uiFilteredOfRC_R[c];
+				imgG2.byImg[r*iImgWidth+c]=uiFilteredOfRC_G[c];
+				imgB2.byImg[r*iImgWidth+c]=uiFilteredOfRC_B[c];
+			}
 		}
+		Compose3(imgResult,&imgR2,&imgG2,&imgB2);
+		SAFE_DELETE( uiFilteredOfEachC_R);
+		SAFE_DELETE( uiFilteredOfEachC_G);
+		SAFE_DELETE( uiFilteredOfEachC_B);
+
+		SAFE_DELETE( uiFilteredOfRC_R);
+		SAFE_DELETE( uiFilteredOfRC_G);
+		SAFE_DELETE( uiFilteredOfRC_B);
+
+		return TRUE;
 	}
-	delete [] byMaxOfRC;
-	delete [] byMaxOfEachC;
-	return TRUE;
+
+	if(imgIn->iChannel == CHANNEL_1_8)
+	{
+		BYTE* uiFilteredOfEachC;
+
+		uiFilteredOfEachC=new BYTE[iImgWidth];;
+
+		BYTE* uiFilteredOfRC;
+
+		uiFilteredOfRC=new BYTE[iImgWidth];
+
+		int iTotalHeight;
+		int* iTotalCs;
+		iTotalCs=new int [iImgWidth];
+		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
+		{
+			UpdateMaxRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC);
+
+			MaxCDirection(uiFilteredOfEachC, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgResult->byImg[r*iImgWidth+c]=uiFilteredOfRC[c];
+			}
+		}
+		SAFE_DELETE( uiFilteredOfRC);
+		SAFE_DELETE( iTotalCs);
+		SAFE_DELETE( uiFilteredOfEachC);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
-BOOL DLL_IE MinImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMinWidth, int iMinHeight)
+BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFilterHeight)
 {
-	BYTE* byMinOfEachC;
-	byMinOfEachC=new BYTE[iImgWidth];
-	BYTE* byMinOfRC;
-	byMinOfRC=new BYTE[iImgWidth];
+	int iImgWidth=imgIn->iWidth;
+	int iImgHeight=imgIn->iHeight;
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
+	{
+		BYTE* uiFilteredOfEachC_R;
+		BYTE* uiFilteredOfEachC_G;
+		BYTE* uiFilteredOfEachC_B;
 
-	for(int r=0; r<iImgHeight; r++)
-	{
-		UpdateMinRDirection(byImage, iImgWidth, iImgHeight, r, (iMinHeight-1)/2, byMinOfEachC);
-		
-		MinCDirection(byMinOfEachC, iImgWidth, (iMinWidth-1)/2, byMinOfRC);
-		for(int c=0; c<iImgWidth; c++)
+		uiFilteredOfEachC_R=new BYTE[iImgWidth];
+		uiFilteredOfEachC_G=new BYTE[iImgWidth];
+		uiFilteredOfEachC_B=new BYTE[iImgWidth];
+
+		BYTE* uiFilteredOfRC_R;
+		BYTE* uiFilteredOfRC_G;
+		BYTE* uiFilteredOfRC_B;
+
+		uiFilteredOfRC_R=new BYTE[iImgWidth];
+		uiFilteredOfRC_G=new BYTE[iImgWidth];
+		uiFilteredOfRC_B=new BYTE[iImgWidth];
+
+		ImgRGB imgR1, imgG1, imgB1;
+		ImgRGB imgR2, imgG2, imgB2;
+
+
+		Decompose3(imgIn,&imgR1,&imgG1,&imgB1);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
 		{
-			byImageResult[r*iImgWidth+c]=byMinOfRC[c];
+			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_R);
+			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_G);
+			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_B);
+
+			MinCDirection(uiFilteredOfEachC_R, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_R);
+			MinCDirection(uiFilteredOfEachC_G, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_G);
+			MinCDirection(uiFilteredOfEachC_B, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_B);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgR2.byImg[r*iImgWidth+c]=uiFilteredOfRC_R[c];
+				imgG2.byImg[r*iImgWidth+c]=uiFilteredOfRC_G[c];
+				imgB2.byImg[r*iImgWidth+c]=uiFilteredOfRC_B[c];
+			}
 		}
+		Compose3(imgResult,&imgR2,&imgG2,&imgB2);
+		SAFE_DELETE( uiFilteredOfEachC_R);
+		SAFE_DELETE( uiFilteredOfEachC_G);
+		SAFE_DELETE( uiFilteredOfEachC_B);
+
+		SAFE_DELETE( uiFilteredOfRC_R);
+		SAFE_DELETE( uiFilteredOfRC_G);
+		SAFE_DELETE( uiFilteredOfRC_B);
+
+		return TRUE;
 	}
-	delete [] byMinOfRC;
-	delete [] byMinOfEachC;
-	return TRUE;
+
+	if(imgIn->iChannel == CHANNEL_1_8)
+	{
+		BYTE* uiFilteredOfEachC;
+
+		uiFilteredOfEachC=new BYTE[iImgWidth];;
+
+		BYTE* uiFilteredOfRC;
+
+		uiFilteredOfRC=new BYTE[iImgWidth];
+
+		int iTotalHeight;
+		int* iTotalCs;
+		iTotalCs=new int [iImgWidth];
+		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		for(int r=0; r<iImgHeight; r++)
+		{
+			UpdateMinRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC);
+
+			MinCDirection(uiFilteredOfEachC, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC);
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgResult->byImg[r*iImgWidth+c]=uiFilteredOfRC[c];
+			}
+		}
+		SAFE_DELETE( uiFilteredOfRC);
+		SAFE_DELETE( iTotalCs);
+		SAFE_DELETE( uiFilteredOfEachC);
+		return TRUE;
+	}
+
+	return FALSE;
 }
-BOOL DLL_IE SubImage(BYTE* byImage1, BYTE* byImage2, BYTE* byImageResult, int iImgWidth, int iImgHeight, double dMult, double dAdd)
+BOOL DLL_IE SubImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult, double dMult, double dAdd)
 {
-	for(int r=0; r<iImgHeight; r++)
+	if(Image1->iWidth != Image2->iWidth){return FALSE;}
+	if(Image1->iHeight != Image2->iHeight){return FALSE;}
+
+	int iImgHeight = Image1->iHeight;
+	int iImgWidth = Image1->iWidth;
+	if(Image1->iChannel == CHANNEL_1_8)
 	{
-		for(int c=0; c<iImgWidth; c++)
+		if(Image1->iChannel == CHANNEL_1_8)
+		{
+			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_1_8);
+
+			for(int r=0; r<iImgHeight; r++)
+			{
+				for(int c=0; c<iImgWidth; c++)
+				{
+					int iSub=int(Image1->byImg[r*iImgWidth+c])-int(Image1->byImg[r*iImgWidth+c]);
+					double dResult=iSub*dMult+dAdd;
+					ImageResult->byImg[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+				}
+			}
+		return TRUE;
+		}
+		return FALSE;
+	}
+
+	if(Image1->iChannel == CHANNEL_3_8)
 	{
-	byImageResult[r*iImgWidth+c]=MAX(MIN(int(byImage1[r*iImgWidth+c])-int(byImage2[r*iImgWidth+c])*dMult+dAdd,255),0);
+		if(Image1->iChannel == CHANNEL_3_8)
+		{
+			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8);
+
+			for(int r=0; r<iImgHeight; r++)
+			{
+				for(int c=0; c<iImgWidth; c++)
+				{
+					int iSub;
+					double dResult;
+					iSub=int(Image1->byImgR[r*iImgWidth+c])-int(Image1->byImgR[r*iImgWidth+c]);
+					dResult=iSub*dMult+dAdd;
+					ImageResult->byImgR[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+					
+					iSub=int(Image1->byImgG[r*iImgWidth+c])-int(Image1->byImgG[r*iImgWidth+c]);
+					dResult=iSub*dMult+dAdd;
+					ImageResult->byImgG[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+					
+					iSub=int(Image1->byImgB[r*iImgWidth+c])-int(Image1->byImgB[r*iImgWidth+c]);
+					dResult=iSub*dMult+dAdd;
+					ImageResult->byImgB[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+				}
+			}
+			return TRUE;
+		}
+		return FALSE;
 	}
-	}
-	return TRUE;
+	return FALSE;
 }
 
 
