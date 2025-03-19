@@ -616,15 +616,25 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	Screenshot(&imgTest);
 	ImgRGB imgG1, imgB1, imgR1;
 	ImgRGB imgG2, imgB2, imgR2;
+	ImgRGB imgG3, imgB3, imgR3;
 	Decompose3(&imgTest,&imgR1,&imgG1,&imgB1);
 	Decompose3(&imgTest,&imgR2,&imgG2,&imgB2);
+	Decompose3(&imgTest,&imgR3,&imgG3,&imgB3);
 
 	MinImage(imgR1.byImg, imgR2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
 	MinImage(imgG1.byImg, imgG2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
 	MinImage(imgB1.byImg, imgB2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
 
+	MaxImage(imgR2.byImg, imgR3.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MaxImage(imgG2.byImg, imgG3.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MaxImage(imgB2.byImg, imgB3.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+
+	SubImage(imgR1.byImg, imgR3.byImg, imgR2.byImg, imgTest.iWidth, imgTest.iHeight,1,0);
+	SubImage(imgG1.byImg, imgG3.byImg, imgG2.byImg, imgTest.iWidth, imgTest.iHeight,1,0);
+	SubImage(imgB1.byImg, imgB3.byImg, imgB2.byImg, imgTest.iWidth, imgTest.iHeight,1,0);
 	Compose3(&imgR2,&imgG2,&imgB2,&imgResult);
 	WriteImage(&imgResult,_T("d:\\testa.bmp"));
+	WriteImage(&imgTest,_T("d:\\testb.bmp"));
 
 	/*
 

@@ -1294,6 +1294,19 @@ BOOL DLL_IE MinImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImg
 	delete [] byMinOfEachC;
 	return TRUE;
 }
+BOOL DLL_IE SubImage(BYTE* byImage1, BYTE* byImage2, BYTE* byImageResult, int iImgWidth, int iImgHeight, double dMult, double dAdd)
+{
+	for(int r=0; r<iImgHeight; r++)
+	{
+		for(int c=0; c<iImgWidth; c++)
+	{
+	byImageResult[r*iImgWidth+c]=MAX(MIN(int(byImage1[r*iImgWidth+c])-int(byImage2[r*iImgWidth+c])*dMult+dAdd,255),0);
+	}
+	}
+	return TRUE;
+}
+
+
 
 /*
 inline BOOL SumRDirection

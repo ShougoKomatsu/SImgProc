@@ -175,3 +175,4 @@ BOOL DLL_IE GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1);
 BOOL DLL_IE MeanImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMeanWidth, int iMeanHeight);
 BOOL DLL_IE MaxImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMaxWidth, int iMaxHeight);
 BOOL DLL_IE MinImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMinWidth, int iMinHeight);
+BOOL DLL_IE SubImage(BYTE* byImage1, BYTE* byImage2, BYTE* byImageResult, int iImgWidth, int iImgHeight, double dMult, double dAdd);
