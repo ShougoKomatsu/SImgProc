@@ -920,7 +920,7 @@ inline BOOL UpdateSumRDirection
 }
 
 #define MAX(a,b) ((a>=b)?(a):(b))
-#define MIN(a,b) ((a<=b?)(a):(b))
+#define MIN(a,b) ((a<=b)?(a):(b))
 inline BOOL UpdateMaxRDirection
 	(
 	BYTE* byImage, int iImgWidth, int iImgHeight,
@@ -991,6 +991,81 @@ inline BOOL UpdateMaxRDirection
 			for(int rLocal=-iHalfHeight; rLocal< iImgHeight-r; rLocal++)
 			{
 				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+			}
+		}
+	}
+	return TRUE;
+}
+inline BOOL UpdateMinRDirection
+	(
+	BYTE* byImage, int iImgWidth, int iImgHeight,
+	int r, 
+	int iHalfHeight,
+	BYTE* byMinOfEachC)
+{
+	if(byImage == NULL){return FALSE;}
+	if(byMinOfEachC == NULL){return FALSE;}
+
+	if(r==0)
+	{
+
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byMinOfEachC[c]=255;
+			for(int rLocal=0; rLocal<=iHalfHeight; rLocal++)
+			{
+				byMinOfEachC[c]=MIN(byMinOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+			}
+		}
+		return TRUE;
+	}
+
+	if(r<iHalfHeight+1)
+	{
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byMinOfEachC[c]=MIN(byMinOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+		}
+		return TRUE;
+	}
+
+	if(r<iImgHeight-iHalfHeight)
+	{
+		for(int c=0; c<iImgWidth; c++)
+		{
+			
+			if(byMinOfEachC[c] < byImage[(r-iHalfHeight-1)*iImgWidth+c])
+			{
+				byMinOfEachC[c]=MIN(byMinOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+			}
+			else
+			{
+				if(byImage[(r-iHalfHeight-1)*iImgWidth+c] >= byImage[(r+iHalfHeight)*iImgWidth+c])
+				{
+					byMinOfEachC[c]=byImage[(r+iHalfHeight)*iImgWidth+c];
+				}
+				else
+				{
+				
+					byMinOfEachC[c]=255;
+					for(int rLocal=-iHalfHeight; rLocal<=iHalfHeight; rLocal++)
+					{
+						byMinOfEachC[c]=MIN(byMinOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+					}
+				}
+			}
+		}
+		return TRUE;
+	}
+
+	for(int c=0; c<iImgWidth; c++)
+	{
+		if(byMinOfEachC[c] > byImage[(r-iHalfHeight-1)*iImgWidth+c])
+		{
+			byMinOfEachC[c]=255;
+			for(int rLocal=-iHalfHeight; rLocal< iImgHeight-r; rLocal++)
+			{
+				byMinOfEachC[c]=MIN(byMinOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
 			}
 		}
 	}
@@ -1091,6 +1166,65 @@ BOOL MaxCDirection
 	return TRUE;
 }
 
+BOOL MinCDirection
+	(
+	BYTE* byMinOfEachC,
+	int iImgWidth,
+	int iHalfWidth,
+	BYTE* byMinOfRC)
+{
+	byMinOfRC[0]=0;
+	for(int c=0; c<iHalfWidth; c++)
+	{
+		byMinOfRC[0]=MIN(byMinOfRC[0], byMinOfEachC[c]);
+	}
+
+	for(int c=1; c<=iHalfWidth; c++)
+	{
+		byMinOfRC[c]=MIN(byMinOfRC[c-1], byMinOfEachC[c+iHalfWidth]);
+	}
+
+	for(int c=iHalfWidth+1; c<iImgWidth-iHalfWidth; c++)
+	{
+
+		if(byMinOfRC[c-1]<byMinOfEachC[c-iHalfWidth-1])
+		{
+			byMinOfRC[c]= MIN(byMinOfRC[c-1], byMinOfEachC[c+iHalfWidth]);
+		}
+		else
+		{
+			if(byMinOfEachC[c-iHalfWidth-1] > byMinOfEachC[c+iHalfWidth])
+			{
+				byMinOfRC[c]=MIN(byMinOfRC[c-1], byMinOfEachC[c+iHalfWidth]);
+
+			}
+			else
+			{
+
+				byMinOfRC[c]=255;
+				for(int cLocal=-iHalfWidth; cLocal<= iHalfWidth; cLocal++)
+				{
+					byMinOfRC[c]=MIN(byMinOfRC[c], byMinOfEachC[c+cLocal]);
+				}
+			}
+		}
+	}
+
+	for(int c=iImgWidth-iHalfWidth+1; c+iHalfWidth<iImgWidth; c++)
+	{
+		if(byMinOfRC[c-1]>byMinOfEachC[c-iHalfWidth-1])
+		{
+			byMinOfRC[c]=255;
+			for(int cLocal=-iHalfWidth; cLocal< iHalfWidth-c; cLocal++)
+			{
+				byMinOfRC[c]=MIN(byMinOfRC[c], byMinOfEachC[c+cLocal]);
+			}
+		}
+
+	}
+	return TRUE;
+}
+
 BOOL DLL_IE MeanImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMeanWidth, int iMeanHeight)
 {
 	UINT* uiSumOfEachC;
@@ -1138,6 +1272,29 @@ BOOL DLL_IE MaxImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImg
 	delete [] byMaxOfEachC;
 	return TRUE;
 }
+
+BOOL DLL_IE MinImage(BYTE* byImage, BYTE* byImageResult, int iImgWidth, int iImgHeight, int iMinWidth, int iMinHeight)
+{
+	BYTE* byMinOfEachC;
+	byMinOfEachC=new BYTE[iImgWidth];
+	BYTE* byMinOfRC;
+	byMinOfRC=new BYTE[iImgWidth];
+
+	for(int r=0; r<iImgHeight; r++)
+	{
+		UpdateMinRDirection(byImage, iImgWidth, iImgHeight, r, (iMinHeight-1)/2, byMinOfEachC);
+		
+		MinCDirection(byMinOfEachC, iImgWidth, (iMinWidth-1)/2, byMinOfRC);
+		for(int c=0; c<iImgWidth; c++)
+		{
+			byImageResult[r*iImgWidth+c]=byMinOfRC[c];
+		}
+	}
+	delete [] byMinOfRC;
+	delete [] byMinOfEachC;
+	return TRUE;
+}
+
 /*
 inline BOOL SumRDirection
 	(

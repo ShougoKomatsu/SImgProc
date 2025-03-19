@@ -619,9 +619,9 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	Decompose3(&imgTest,&imgR1,&imgG1,&imgB1);
 	Decompose3(&imgTest,&imgR2,&imgG2,&imgB2);
 
-	MaxImage(imgR1.byImg, imgR2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
-	MaxImage(imgG1.byImg, imgG2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
-	MaxImage(imgB1.byImg, imgB2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MinImage(imgR1.byImg, imgR2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MinImage(imgG1.byImg, imgG2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
+	MinImage(imgB1.byImg, imgB2.byImg, imgTest.iWidth, imgTest.iHeight,9,9);
 
 	Compose3(&imgR2,&imgG2,&imgB2,&imgResult);
 	WriteImage(&imgResult,_T("d:\\testa.bmp"));
