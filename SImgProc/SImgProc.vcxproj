@@ -113,6 +113,7 @@
     <None Include="SImgProc.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="ImgProc.cpp" />
     <ClCompile Include="ImgRGB.cpp" />
@@ -125,6 +126,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="Resource.h" />

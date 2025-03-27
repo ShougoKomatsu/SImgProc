@@ -608,9 +608,18 @@ BOOL TestInvert()
 	if(dInv[8] != 0){return FALSE;}
 	return TRUE;
 }
+
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
-	
+	OpenCamera(_T("Camera0327"));
+	Sleep(1000);
+	ImgRGB imgTest;
+	GrabImage(_T("Camera"),&imgTest);
+	WriteImage(&imgTest,_T("d:\\cameratest.bmp"));
+
+	CloseCamera(_T("Camera"));
+	return;
+	/*
 	ImgRGB imgTest;
 	ImgRGB imgResult;
 	ImgRGB imgResult2;
@@ -623,7 +632,6 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	WriteImage(&imgResult,_T("d:\\testa.bmp"));
 	WriteImage(&imgTest,_T("d:\\testb.bmp"));
 
-	/*
 
 	ImgRGB img1, img2, imgR, imgd;
 	Object obj1, obj2, obj3;

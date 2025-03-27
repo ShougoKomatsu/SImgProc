@@ -107,6 +107,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\SImgProc\Camera.cpp" />
     <ClCompile Include="..\SImgProc\CommonFunction.cpp" />
     <ClCompile Include="..\SImgProc\ImgProc.cpp" />
     <ClCompile Include="..\SImgProc\ImgRGB.cpp" />

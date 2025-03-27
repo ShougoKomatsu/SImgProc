@@ -3,7 +3,7 @@
 #include "CommonFunction.h"
 
 #include "runlength.h"
-
+#include "Camera.h"
 
 BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 {
@@ -3349,3 +3349,4 @@ for(int c=0;c<iSearchWidth;c++){}
 }
 }
 */
+
