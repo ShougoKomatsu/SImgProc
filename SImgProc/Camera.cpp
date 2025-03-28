@@ -3,198 +3,129 @@
 #include "camera.h"
 #include "CommonFunction.h"
 
-	HANDLE hPipe = INVALID_HANDLE_VALUE;
 
-int SendRecive(CString sPipeName, CString sSend, CString* sReceive)
+int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 {
-	
+
 	BOOL bRet;
 
 	CString sPipeFullName;
 	sPipeFullName.Format(_T("\\\\.\\pipe\\%s"), sPipeName);
-	
 
-	if(hPipe==INVALID_HANDLE_VALUE)
+
+	if(m_hPipe==INVALID_HANDLE_VALUE)
 	{
-	hPipe = CreateFile(sPipeFullName,
-		PIPE_ACCESS_DUPLEX,
-		0, 
-		NULL, 
-		OPEN_EXISTING, 
-		FILE_ATTRIBUTE_NORMAL, 
-		NULL);
+		m_hPipe = CreateFile(sPipeFullName, PIPE_ACCESS_DUPLEX, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	}
-	if (INVALID_HANDLE_VALUE == hPipe) 
-	{
-		CloseHandle(hPipe);
-		return -1;
-	}
+	if (m_hPipe == INVALID_HANDLE_VALUE) {CloseHandle(m_hPipe); return -1;}
 
 
-	TCHAR buffer[256];
-	ZeroMemory(buffer, sizeof(buffer));
-	_stprintf(buffer, _T("%s"), sSend);
-	DWORD writtenWordSize = 0;
-	DWORD numberOfByteToWrite = _tcslen(buffer) * sizeof(TCHAR);
-	BOOL writeRes = WriteFile(hPipe, buffer, numberOfByteToWrite, (LPDWORD)&writtenWordSize, NULL);
+	TCHAR tchBuffer[256];
+	ZeroMemory(tchBuffer, sizeof(tchBuffer));
+	_stprintf(tchBuffer, _T("%s"), sSend);
+	DWORD dwNumberOfBytesWritten = 0;
+	DWORD dwNumberOfByteToWrite = _tcslen(tchBuffer) * sizeof(TCHAR);
+	bRet = WriteFile(m_hPipe, tchBuffer, dwNumberOfByteToWrite, (LPDWORD)&dwNumberOfBytesWritten, NULL);
 
-	ZeroMemory(buffer, 256);
-	DWORD readDataSize = 0;
-	BOOL readRes = ReadFile(hPipe, buffer, sizeof(buffer), (LPDWORD)&readDataSize, NULL);
-	CString sReadBuffer;
-	sReadBuffer.Format(_T("%s"), buffer);
+	ZeroMemory(tchBuffer, sizeof(tchBuffer));
+	DWORD dwNumberOfBytesRead = 0;
+	bRet = ReadFile(m_hPipe, tchBuffer, sizeof(tchBuffer), (LPDWORD)&dwNumberOfBytesRead, NULL);
 
-	sReceive->Format(_T("read: %d\n%s"),readDataSize,buffer);
+	sReceive->Format(_T("%s"), tchBuffer);
 
-//	CloseHandle(hPipe);
 	return 0;
 }
 
-int DLL_IE OpenCamera(CString sPipeName)
+int CameraLocal::OpenCamera(CString sPipeName)
 {
 	CString sReceive;
-	SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
-	return 0;
+	BOOL bRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
+	if(bRet != TRUE){return -1;}
 
-	HANDLE hPipe = INVALID_HANDLE_VALUE;
-	BOOL bRet;
+	CString sOut;
+	CString sRemin;
+	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
 
-	CString sPipeFullName;
-	sPipeFullName.Format(_T("\\\\.\\pipe\\%s"), sPipeName);
+	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
+	if(sOut.Compare(_T("CHANNEL_3_8"))==0){m_iChannel=CHANNEL_3_8;}
+	if(sOut.Compare(_T("CHANNEL_1_8"))==0){m_iChannel=CHANNEL_1_8;}
+
+	bRet = ExtractData(sRemin, _T(","), &sOut, &sRemin);
+	m_iWidht=_ttoi(sOut);
+	m_iHeight=_ttoi(sRemin);
 	
-
-
-	hPipe = CreateFile(sPipeFullName,
-		PIPE_ACCESS_DUPLEX,
-		0, 
-		NULL, 
-		OPEN_EXISTING, 
-		FILE_ATTRIBUTE_NORMAL, 
-		NULL);
-
-	if (INVALID_HANDLE_VALUE == hPipe) 
+	int iColorsPerPixel;
+	switch(m_iChannel)
 	{
-		AfxMessageBox(_T("Can not create file, as PIPE"));
-		CloseHandle(hPipe);
-		return -1;
+	case CHANNEL_1_8:{iColorsPerPixel=1; break;}
+	case CHANNEL_3_8:{iColorsPerPixel=3; break;}
+	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
-	AfxMessageBox(_T("Can create file, as PIPE"));
-
-	TCHAR buffer[256];
-	ZeroMemory(buffer, sizeof(buffer));
-	_stprintf(buffer, _T("OpenCamera"));
-	DWORD writtenWordSize = 0;
-	DWORD numberOfByteToWrite = _tcslen(buffer) * sizeof(TCHAR);
-	BOOL writeRes = WriteFile(hPipe, buffer, numberOfByteToWrite, (LPDWORD)&writtenWordSize, NULL);
-
-	ZeroMemory(buffer, 256);
-	DWORD readDataSize = 0;
-	BOOL readRes = ReadFile(hPipe, buffer, sizeof(buffer), (LPDWORD)&readDataSize, NULL);
-	CString sReadBuffer;
-	sReadBuffer.Format(_T("%s"), buffer);
-	CString sss;
-	sss.Format(_T("read: %d\n%s"),readDataSize,buffer);
-	AfxMessageBox(sss);
-
-
-
-	CloseHandle(hPipe);
-	return 0;
-}
-
-int DLL_IE GrabImage(CString sPipeName, ImgRGB* imgOut)
-{
-	imgOut->Set(640, 480, CHANNEL_3_8);
-
-	  HANDLE hSharedMemory2 ;
-	BYTE* pMemory2;
-
-	CString sReceive;
-	SendRecive(sPipeName, _T("GrabImage"), &sReceive);
-
-//	if(sReceive.Compare(_T("Camera1")) != 0){return -1;}
-
-	hSharedMemory2 = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, 640*480*3, _T("Camera1"));
-  pMemory2 = (BYTE*)MapViewOfFile(hSharedMemory2, FILE_MAP_ALL_ACCESS, NULL, NULL, 640*480*3);
-
-  for(int r=0; r<480; r++)
-  {
-	  for(int c=0; c<640; c++)
-	  {
-		  imgOut->byImgR[r*640+c]=pMemory2[r*640+c];
-		  imgOut->byImgG[r*640+c]=pMemory2[r*640+c+640*480];
-		  imgOut->byImgB[r*640+c]=pMemory2[r*640+c+640*480*2];
-	  }
-  }
+	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, 640*480*3, _T("Camera1"));
+	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iWidht*iColorsPerPixel);
 
 	return 0;
 }
-int DLL_IE CloseCamera(CString sPipeName)
+
+int CameraLocal::GrabImage(ImgRGB* imgOut)
 {
-	
+	if(m_hSharedMemory == INVALID_HANDLE_VALUE){return -1;}
+	if(m_pbyMemory == NULL){return -1;}
+
+
+	imgOut->Set(m_iWidht, m_iHeight, m_iChannel);
+
 	CString sReceive;
-	SendRecive(sPipeName, _T("CloseCamera"), &sReceive);
-	return 0;
+	int iRet = SendRecive(m_sPipeName, _T("GrabImage"), &sReceive);
+	if(iRet != 0){return iRet;}
+	//	if(sReceive.Compare(_T("Camera1")) != 0){return -1;}
 
-	/*
-	HANDLE hPipe = INVALID_HANDLE_VALUE;
-	BOOL bRet;
-
-	CString sPipeFullName;
-	sPipeFullName.Format(_T("\\\\.\\pipe\\%s"), sPipeName);
-	
-
-
-	hPipe = CreateFile(sPipeFullName,
-		PIPE_ACCESS_DUPLEX,
-		0, 
-		NULL, 
-		OPEN_EXISTING, 
-		FILE_ATTRIBUTE_NORMAL, 
-		NULL);
-
-	if (INVALID_HANDLE_VALUE == hPipe) 
+	switch(m_iChannel)
 	{
-		AfxMessageBox(_T("Can not create file, as PIPE"));
-		CloseHandle(hPipe);
-		return -1;
+	case CHANNEL_1_8:{ break;}
+	case CHANNEL_3_8:
+		{
+			for(int r=0; r<480; r++)
+			{
+				for(int c=0; c<640; c++)
+				{
+					imgOut->byImgR[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+0 + r*m_iWidht+c];
+					imgOut->byImgG[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+1 + r*m_iWidht+c];
+					imgOut->byImgB[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight*2 + r*m_iWidht+c];
+				}
+			}
+			break;
+		}
+	case CHANNEL_1_24BGR:{break;}
 	}
 
-	AfxMessageBox(_T("Can create file, as PIPE"));
-
-	char buffer[256];
-	ZeroMemory(buffer, sizeof(buffer));
-	sprintf(buffer, "CloseCamera");
-	DWORD writtenWordSize = 0;
-	DWORD numberOfByteToWrite = strlen(buffer) * sizeof(TCHAR);
-	BOOL writeRes = WriteFile(hPipe, buffer, numberOfByteToWrite, (LPDWORD)&writtenWordSize, NULL);
-
-
-//	AfxMessageBox(_T("Can create file, as PIPE"));
-*/
-	/*
-	TCHAR buffer[256];
-	ZeroMemory(buffer, sizeof(buffer));
-	_stprintf_s(buffer, _T("OpenCamera"));
-	DWORD writtenWordSize = 0;
-	DWORD numberOfByteToWrite = _tcsclen(buffer) * sizeof(TCHAR);
-	BOOL writeRes = WriteFile(hPipe, buffer, numberOfByteToWrite, (LPDWORD)&writtenWordSize, NULL);
-	*/
-	/*
-	buffer[256];
-	ZeroMemory(buffer, 256);
-	DWORD readDataSize = 0;
-	BOOL readRes = ReadFile(hPipe, buffer, sizeof(buffer), (LPDWORD)&readDataSize, NULL);
-	CString sReadBuffer;
-	sReadBuffer.Format(_T("%s"), buffer);
-	CString sss;
-	sss.Format(_T("read: %d\n%s"),readDataSize,buffer);
-//	AfxMessageBox(sss);
-
-
-
-	CloseHandle(hPipe);
-	*/
 	return 0;
 }
+
+int CameraLocal::CloseCamera()
+{
+	if(m_hPipe==INVALID_HANDLE_VALUE){return 0;}
+
+
+	CString sReceive;
+	int iRet = SendRecive(m_sPipeName, _T("CloseCamera"), &sReceive);
+	if(iRet != 0){return iRet;}
+
+	
+	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory);}
+	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory);}
+	CloseHandle(m_hPipe);
+
+	m_iChannel=CHANNEL_UNDEFINED;
+	m_iWidht=0;
+	m_iHeight=0;
+	m_sPipeName.Format(_T(""));
+
+	return 0;
+}
+
+static CameraLocal s_cameraLocal;
+int DLL_IE Camera::OpenCamera(CString sPipeName){return s_cameraLocal.OpenCamera(sPipeName);}
+int DLL_IE Camera::CloseCamera(){return s_cameraLocal.CloseCamera();}
+int DLL_IE Camera::GrabImage(ImgRGB* imgOut){return s_cameraLocal.GrabImage(imgOut);}

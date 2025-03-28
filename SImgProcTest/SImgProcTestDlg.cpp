@@ -611,13 +611,14 @@ BOOL TestInvert()
 
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
-	OpenCamera(_T("Camera0327"));
+	Camera camera;
+	camera.OpenCamera(_T("Camera0327"));
 	Sleep(1000);
 	ImgRGB imgTest;
-	GrabImage(_T("Camera"),&imgTest);
+	camera.GrabImage(&imgTest);
 	WriteImage(&imgTest,_T("d:\\cameratest.bmp"));
 
-	CloseCamera(_T("Camera"));
+	camera.CloseCamera();
 	return;
 	/*
 	ImgRGB imgTest;

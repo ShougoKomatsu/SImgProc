@@ -691,3 +691,23 @@ BOOL MatInverse(const double* dMat, const int iRC, double* dInvOut)
 }
 
 
+
+
+BOOL ExtractData(const CString sInput, const CString sDelim, CString* sOut, CString* sRemin)
+{
+	int iIndex;
+	CString sInputLocal;
+	sInputLocal.Format(_T("%s"), sInput);
+	iIndex=sInputLocal.Find(sDelim);
+	if(iIndex<0)
+	{
+		sOut->Format(_T("%s"),sInputLocal.Trim(_T(" \t")));
+		sRemin->Format(_T(""));
+	}
+	else
+	{
+		sOut->Format(_T("%s"),sInputLocal.Left(iIndex).Trim(_T(" \t")));
+		sRemin->Format(_T("%s"),sInputLocal.Right(sInputLocal.GetLength()-iIndex-1).Trim(_T(" \t")));
+	}
+	return TRUE;
+}

@@ -12,3 +12,4 @@ BOOL Index(const UINT* dIn, int iLength, int* iIndexOut);
 long GetAdjParamSq1(const double* dRas, const double* dCas, const double* dRbs, const double* dCbs, int iLength, double* daPb);
 
 BOOL MatInverse(const double* dMat, const int iRC, double* dInvOut);
+BOOL ExtractData(const CString sInput, const CString sDelim, CString* sOut, CString* sRemin);
