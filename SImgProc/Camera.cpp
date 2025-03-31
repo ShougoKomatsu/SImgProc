@@ -39,9 +39,9 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 int CameraLocal::OpenCamera(CString sPipeName)
 {
 	CString sReceive;
-	BOOL bRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
-	if(bRet != TRUE){return -1;}
-
+	int iRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
+	if(iRet != 0){return -1;}
+	BOOL bRet;
 	CString sOut;
 	CString sRemin;
 	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
@@ -62,14 +62,30 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
-	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, 640*480*3, _T("Camera1"));
-	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iWidht*iColorsPerPixel);
+	CString sss;
+	sss.Format(_T("%d, %d, %d"), m_iChannel, m_iWidht, m_iHeight);
+	AfxMessageBox(sss);
+	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, m_iWidht*m_iHeight*iColorsPerPixel, _T("Camera1"));
+	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
+	AfxMessageBox(sss);
+
+	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iHeight*iColorsPerPixel);
+	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
+	AfxMessageBox(sss);
 
 	return 0;
 }
 
 int CameraLocal::GrabImage(ImgRGB* imgOut)
 {
+	CString sss;
+	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
+	AfxMessageBox(sss);
+
+	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
+	AfxMessageBox(sss);
+
+
 	if(m_hSharedMemory == INVALID_HANDLE_VALUE){return -1;}
 	if(m_pbyMemory == NULL){return -1;}
 
