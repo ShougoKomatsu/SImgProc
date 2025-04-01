@@ -47,7 +47,7 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
 
 	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
-	if(sOut.Compare(_T("CHANNEL_3_8"))==0){m_iChannel=CHANNEL_3_8;}
+	if(sOut.Compare(_T("CHANNEL_3_8RGB"))==0){m_iChannel=CHANNEL_3_8RGB;}
 	if(sOut.Compare(_T("CHANNEL_1_8"))==0){m_iChannel=CHANNEL_1_8;}
 
 	bRet = ExtractData(sRemin, _T(","), &sOut, &sRemin);
@@ -58,7 +58,7 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	switch(m_iChannel)
 	{
 	case CHANNEL_1_8:{iColorsPerPixel=1; break;}
-	case CHANNEL_3_8:{iColorsPerPixel=3; break;}
+	case CHANNEL_3_8RGB:{iColorsPerPixel=3; break;}
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
@@ -110,7 +110,7 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 			}
 			break;
 		}
-	case CHANNEL_3_8:
+	case CHANNEL_3_8RGB:
 		{
 			for(int r=0; r<m_iHeight; r++)
 			{

@@ -11,7 +11,7 @@
 
 #define CHANNEL_UNDEFINED (0)
 #define CHANNEL_1_8 (1)
-#define CHANNEL_3_8 (3)
+#define CHANNEL_3_8RGB (3)
 #define CHANNEL_1_24BGR (24)
 #define CHANNEL_3_FLOAT (103)
 
