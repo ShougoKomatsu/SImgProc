@@ -39,7 +39,7 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 int CameraLocal::OpenCamera(CString sPipeName)
 {
 	CString sReceive;
-	int iRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
+	int iRet = SendRecive(sPipeName, _T("OpenCamera,1"), &sReceive);
 	if(iRet != 0){return -1;}
 	BOOL bRet;
 	CString sOut;
@@ -63,15 +63,15 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	}
 
 	CString sss;
-	sss.Format(_T("%d, %d, %d"), m_iChannel, m_iWidht, m_iHeight);
-	AfxMessageBox(sss);
+//	sss.Format(_T("%d, %d, %d"), m_iChannel, m_iWidht, m_iHeight);
+//	AfxMessageBox(sss);
 	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, m_iWidht*m_iHeight*iColorsPerPixel, _T("Camera1"));
-	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
-	AfxMessageBox(sss);
+//	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
+//	AfxMessageBox(sss);
 
 	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iHeight*iColorsPerPixel);
-	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
-	AfxMessageBox(sss);
+//	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
+//	AfxMessageBox(sss);
 
 	return 0;
 }
@@ -79,11 +79,11 @@ int CameraLocal::OpenCamera(CString sPipeName)
 int CameraLocal::GrabImage(ImgRGB* imgOut)
 {
 	CString sss;
-	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
-	AfxMessageBox(sss);
+//	sss.Format(_T("m_hSharedMemory = %d"), m_hSharedMemory);
+//	AfxMessageBox(sss);
 
-	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
-	AfxMessageBox(sss);
+//	sss.Format(_T("m_pbyMemory = %d"), m_pbyMemory);
+//	AfxMessageBox(sss);
 
 
 	if(m_hSharedMemory == INVALID_HANDLE_VALUE){return -1;}
@@ -99,12 +99,22 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 
 	switch(m_iChannel)
 	{
-	case CHANNEL_1_8:{ break;}
+	case CHANNEL_1_8:
+		{
+			for(int r=0; r<m_iHeight; r++)
+			{
+				for(int c=0; c<m_iWidht; c++)
+				{
+					imgOut->byImg[r*m_iWidht+c]=m_pbyMemory[r*m_iWidht+c];
+				}
+			}
+			break;
+		}
 	case CHANNEL_3_8:
 		{
-			for(int r=0; r<480; r++)
+			for(int r=0; r<m_iHeight; r++)
 			{
-				for(int c=0; c<640; c++)
+				for(int c=0; c<m_iWidht; c++)
 				{
 					imgOut->byImgR[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+0 + r*m_iWidht+c];
 					imgOut->byImgG[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+1 + r*m_iWidht+c];
@@ -113,7 +123,19 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 			}
 			break;
 		}
-	case CHANNEL_1_24BGR:{break;}
+	case CHANNEL_1_24BGR:
+		{
+			for(int r=0; r<m_iHeight; r++)
+			{
+				for(int c=0; c<m_iWidht; c++)
+				{
+					imgOut->byImg[(r*m_iWidht+c)*3+0]=m_pbyMemory[m_iWidht*m_iHeight+0 + r*m_iWidht+c];
+					imgOut->byImg[(r*m_iWidht+c)*3+1]=m_pbyMemory[m_iWidht*m_iHeight+1 + r*m_iWidht+c];
+					imgOut->byImg[(r*m_iWidht+c)*3+2]=m_pbyMemory[m_iWidht*m_iHeight+2 + r*m_iWidht+c];
+				}
+			}
+			break;
+		}
 	}
 
 	return 0;
