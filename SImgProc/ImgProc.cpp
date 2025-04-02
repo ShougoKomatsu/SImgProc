@@ -79,7 +79,7 @@ BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 	{
 		if(imgIn->iChannel!=CHANNEL_3_FLOAT){return FALSE;}
 
-		imgOut->Set(imgIn->iWidth, imgIn->iWidth, CHANNEL_3_8);
+		imgOut->Set(imgIn->iWidth, imgIn->iWidth, CHANNEL_3_8RGB);
 
 		for(int r=0; r<imgIn->iHeight; r++)
 		{
@@ -135,7 +135,7 @@ BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 
 BOOL Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
 {
-	if((imgIn->iChannel != CHANNEL_3_8) && (imgIn->iChannel != CHANNEL_1_24BGR)){return FALSE;}
+	if((imgIn->iChannel != CHANNEL_3_8RGB) && (imgIn->iChannel != CHANNEL_1_24BGR)){return FALSE;}
 	imgR->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 	imgG->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 	imgB->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
@@ -143,7 +143,7 @@ BOOL Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
 	imgR->objDomain.Copy(&(imgIn->objDomain));
 	imgG->objDomain.Copy(&(imgIn->objDomain));
 	imgB->objDomain.Copy(&(imgIn->objDomain));
-	if(imgIn->iChannel==CHANNEL_3_8)
+	if(imgIn->iChannel==CHANNEL_3_8RGB)
 	{
 		for(int r=0; r<imgIn->iHeight; r++)
 		{
@@ -183,7 +183,7 @@ BOOL Compose3(ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgOut)
 	if(imgR->iWidth != imgG->iWidth){return FALSE;}
 	if(imgR->iWidth != imgB->iWidth){return FALSE;}
 
-	imgOut->Set(imgR->iWidth, imgR->iHeight, CHANNEL_3_8);
+	imgOut->Set(imgR->iWidth, imgR->iHeight, CHANNEL_3_8RGB);
 
 	for(int r=0; r<imgR->iHeight; r++)
 	{
@@ -280,7 +280,7 @@ BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 		*iValueR=imgRGBin->byImg[3*(iR*imgRGBin->iWidth+iC)+2];
 		return TRUE;
 	}
-	if(imgRGBin->iChannel==CHANNEL_3_8)
+	if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 	{
 		*iValueB=imgRGBin->byImgB[iR*imgRGBin->iWidth+iC];
 		*iValueG=imgRGBin->byImgG[iR*imgRGBin->iWidth+iC];
@@ -327,7 +327,7 @@ BOOL GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, doub
 		return TRUE;
 	}
 
-	if(imgRGBin->iChannel==CHANNEL_3_8)
+	if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 	{
 		for(int r=iR0; r<=iR1; r++)
 		{
@@ -391,7 +391,7 @@ BOOL CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, i
 				imgRGBout->byImg[3*((r-iR0)*imgRGBout->iWidth+(c-iC0))+2]=imgRGBin->byImg[3*(r*imgRGBin->iWidth+c)+2];
 			}}
 		}
-		if(imgRGBin->iChannel==CHANNEL_3_8)
+		if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 		{
 			for(int r=iR0; r<=iR1; r++)
 			{for(int c=iC0; c<=iC1; c++)
@@ -523,7 +523,7 @@ BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, 
 	int iPtrTarget;
 	int iPtrModel;
 
-	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8))
+	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iTargetR = iR0; iTargetR<iREnd; iTargetR++)
 		{
@@ -547,7 +547,7 @@ BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, 
 		}
 	}
 
-	if((imgTarget->iChannel==CHANNEL_3_8) && (imgModel->iChannel == CHANNEL_3_8))
+	if((imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iTargetR=iR0; iTargetR<iREnd; iTargetR++)
 		{
@@ -669,7 +669,7 @@ BOOL CropImage2(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, 
 				}
 			}
 		}
-		if(imgRGBin->iChannel==CHANNEL_3_8)
+		if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 		{
 			for(int r=iR0; r<=iR1; r++)
 			{
@@ -767,7 +767,7 @@ int GetLevelSize(int iHW, int iLevel)
 }
 BOOL ImgRGBPyramid::SetPyramid(ImgRGB* imgRGBIn)
 {
-	this->imgRGB.Set(imgRGBIn->iWidth, imgRGBIn->iHeight*2,CHANNEL_3_8);
+	this->imgRGB.Set(imgRGBIn->iWidth, imgRGBIn->iHeight*2,CHANNEL_3_8RGB);
 
 	BYTE* byR;
 	BYTE* byG;
@@ -781,7 +781,7 @@ BOOL ImgRGBPyramid::SetPyramid(ImgRGB* imgRGBIn)
 	int iParentLevelH=imgRGBIn->iHeight;
 	int iParentLevelW=imgRGBIn->iWidth;
 
-	if(imgRGBIn->iChannel==CHANNEL_3_8)
+	if(imgRGBIn->iChannel==CHANNEL_3_8RGB)
 	{
 		for(int r=0; r<iParentLevelH; r++)
 		{for(int c=0; c<iParentLevelW; c++)
@@ -1229,7 +1229,7 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iF
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;
-	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8RGB))
 	{
 		UINT* uiFilteredOfEachC_R;
 		UINT* uiFilteredOfEachC_G;
@@ -1332,7 +1332,7 @@ BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFi
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;
-	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8RGB))
 	{
 		BYTE* uiFilteredOfEachC_R;
 		BYTE* uiFilteredOfEachC_G;
@@ -1423,7 +1423,7 @@ BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFi
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;
-	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8))
+	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8RGB))
 	{
 		BYTE* uiFilteredOfEachC_R;
 		BYTE* uiFilteredOfEachC_G;
@@ -1536,11 +1536,11 @@ BOOL DLL_IE SubImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult, double
 		return FALSE;
 	}
 
-	if(Image1->iChannel == CHANNEL_3_8)
+	if(Image1->iChannel == CHANNEL_3_8RGB)
 	{
-		if(Image1->iChannel == CHANNEL_3_8)
+		if(Image1->iChannel == CHANNEL_3_8RGB)
 		{
-			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8);
+			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
 
 			for(int r=0; r<iImgHeight; r++)
 			{
@@ -1742,7 +1742,7 @@ byDataB[r*iCropW+c] = imgTarget->byImg[3*(iTargetR*imgTarget->iWidth+(iTargetC))
 }
 }
 
-if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8))
+if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 {
 for(int c=0; c<iModelWidth; c++)
 {
@@ -1984,7 +1984,7 @@ int iPtrTarget;
 int iPtrModel;
 
 memset(uiMap,0,iMapW*iMapH);
-if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8))
+if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 {
 for(int iMapR=0; iMapR<iMapH; iMapR++)
 {
@@ -2136,7 +2136,7 @@ BOOL CorrelMap(ImgRGB* imgTarget, ImgRGB* imgModel, ImgMap* imgMap, int iR0, int
 	imgMap->Set((iC1Local-iC0Local+1)-imgModel->iWidth+1,(iR1Local-iR0Local+1)-imgModel->iHeight+1);
 
 
-	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8))
+	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iMapR=0; iMapR<imgMap->iHeight; iMapR++)
 		{
@@ -2832,7 +2832,7 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 	int iPtrTarget;
 	int iPtrModel;
 
-	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8))
+	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iTargetR = iR0; iTargetR<iREnd; iTargetR++)
 		{
@@ -2856,7 +2856,7 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 		}
 	}
 
-	if((imgTarget->iChannel==CHANNEL_3_8) && (imgModel->iChannel == CHANNEL_3_8))
+	if((imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iTargetR=iR0; iTargetR<iREnd; iTargetR++)
 		{
@@ -2944,11 +2944,11 @@ BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
 	return TRUE;
 }
 
-BOOL ConvertImageChannel_3_8(ImgRGB* imgIn, ImgRGB* imgOut)
+BOOL ConvertImageCHANNEL_3_8RGB(ImgRGB* imgIn, ImgRGB* imgOut)
 {
-	imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_3_8);
+	imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_3_8RGB);
 
-	if(imgIn->iChannel==CHANNEL_3_8){imgOut->Assign(imgIn);return TRUE;}
+	if(imgIn->iChannel==CHANNEL_3_8RGB){imgOut->Assign(imgIn);return TRUE;}
 
 	if(imgIn->iChannel==CHANNEL_1_24BGR)
 	{
@@ -2985,7 +2985,7 @@ BOOL ConvertImageChannel_3_8(ImgRGB* imgIn, ImgRGB* imgOut)
 BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB)
 {
 	BOOL bRet;
-	bRet = ConvertImageChannel_3_8(imgIn, imgOut);
+	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
 	for(int iID=0; iID<= objIn->m_iMaxID; iID++)
@@ -3010,7 +3010,7 @@ UINT g_uiColored=3;
 BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 {
 	BOOL bRet;
-	bRet = ConvertImageChannel_3_8(imgIn, imgOut);
+	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
 	for(int iID=0; iID<= objIn->m_iMaxID; iID++)
@@ -3299,7 +3299,7 @@ BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
 			}
 		}
 	}
-	if(imgRGB->iChannel==CHANNEL_3_8)
+	if(imgRGB->iChannel==CHANNEL_3_8RGB)
 	{
 		for(int r=0; r<imgRGB->iHeight; r++)
 		{

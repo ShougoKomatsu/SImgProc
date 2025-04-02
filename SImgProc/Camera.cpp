@@ -39,7 +39,7 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 int CameraLocal::OpenCamera(CString sPipeName)
 {
 	CString sReceive;
-	int iRet = SendRecive(sPipeName, _T("OpenCamera,1"), &sReceive);
+	int iRet = SendRecive(sPipeName, _T("OpenCamera,0"), &sReceive);
 	if(iRet != 0){return -1;}
 	BOOL bRet;
 	CString sOut;
@@ -152,8 +152,11 @@ int CameraLocal::CloseCamera()
 
 	
 	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory);}
+	m_pbyMemory=NULL;
 	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory);}
+	m_hSharedMemory = INVALID_HANDLE_VALUE;
 	CloseHandle(m_hPipe);
+	m_hPipe=INVALID_HANDLE_VALUE;
 
 	m_iChannel=CHANNEL_UNDEFINED;
 	m_iWidht=0;
