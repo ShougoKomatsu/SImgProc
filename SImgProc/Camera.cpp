@@ -24,7 +24,7 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
 	_stprintf(tchBuffer, _T("%s"), sSend);
 	DWORD dwNumberOfBytesWritten = 0;
-	DWORD dwNumberOfByteToWrite = _tcslen(tchBuffer) * sizeof(TCHAR);
+	DWORD dwNumberOfByteToWrite = (_tcslen(tchBuffer)+1) * sizeof(TCHAR);
 	bRet = WriteFile(m_hPipe, tchBuffer, dwNumberOfByteToWrite, (LPDWORD)&dwNumberOfBytesWritten, NULL);
 
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
@@ -32,7 +32,8 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 	bRet = ReadFile(m_hPipe, tchBuffer, sizeof(tchBuffer), (LPDWORD)&dwNumberOfBytesRead, NULL);
 
 	sReceive->Format(_T("%s"), tchBuffer);
-
+	FlushFileBuffers(m_hPipe);
+//	AfxMessageBox(*sReceive);
 	return 0;
 }
 
@@ -46,9 +47,21 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	CString sRemin;
 	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
 
-	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
-	if(sOut.Compare(_T("CHANNEL_3_8RGB"))==0){m_iChannel=CHANNEL_3_8RGB;}
-	if(sOut.Compare(_T("CHANNEL_1_8"))==0){m_iChannel=CHANNEL_1_8;}
+	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0)
+	{
+		m_iChannel=CHANNEL_1_24BGR;
+	}
+	if(sOut.Compare(_T("CHANNEL_3_8RGB"))==0)
+	{
+		m_iChannel=CHANNEL_3_8RGB;
+	}
+	if(sOut.Compare(_T("CHANNEL_1_8"))==0)
+	{
+		m_iChannel=CHANNEL_1_8;
+	}
+//	CString sss;
+//	sss.Format(_T("%s, %d"), sReceive, m_iChannel);
+//	AfxMessageBox(sss);
 
 	bRet = ExtractData(sRemin, _T(","), &sOut, &sRemin);
 	m_iWidht=_ttoi(sOut);
@@ -62,7 +75,6 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
-	CString sss;
 //	sss.Format(_T("%d, %d, %d"), m_iChannel, m_iWidht, m_iHeight);
 //	AfxMessageBox(sss);
 	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, m_iWidht*m_iHeight*iColorsPerPixel, _T("Camera1"));
