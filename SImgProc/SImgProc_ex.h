@@ -178,9 +178,11 @@ BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFi
 BOOL DLL_IE SubImage(ImgRGB* img1, ImgRGB* img2, ImgRGB* imgResult, double dMult, double dAdd);
 
 
-struct Camera
+struct DLL_IE Camera
 {
-	int DLL_IE OpenCamera(CString sPipeName);
-	int DLL_IE CloseCamera();
-	int DLL_IE GrabImage(ImgRGB* imgOut);
+	Camera(){}
+	~Camera(){}
+	int OpenCamera(CString sPipeName);
+	int CloseCamera();
+	int GrabImage(ImgRGB* imgOut);
 };
