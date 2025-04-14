@@ -17,15 +17,16 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 	{
 		m_hPipe = CreateFile(sPipeFullName, PIPE_ACCESS_DUPLEX, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	}
-	if (m_hPipe == INVALID_HANDLE_VALUE) {CloseHandle(m_hPipe); return -1;}
+	if (m_hPipe == INVALID_HANDLE_VALUE) {CloseHandle(m_hPipe); m_hPipe=INVALID_HANDLE_VALUE; return -1;}
 
 
 	TCHAR tchBuffer[256];
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
 	_stprintf(tchBuffer, _T("%s"), sSend);
 	DWORD dwNumberOfBytesWritten = 0;
-	DWORD dwNumberOfByteToWrite = _tcslen(tchBuffer) * sizeof(TCHAR);
+	DWORD dwNumberOfByteToWrite = (_tcslen(tchBuffer)+1) * sizeof(TCHAR);
 	bRet = WriteFile(m_hPipe, tchBuffer, dwNumberOfByteToWrite, (LPDWORD)&dwNumberOfBytesWritten, NULL);
+	if(bRet != TRUE){CloseHandle(m_hPipe); m_hPipe=INVALID_HANDLE_VALUE; return -1;}
 
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
 	DWORD dwNumberOfBytesRead = 0;
@@ -62,8 +63,13 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
+	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory); m_hSharedMemory == INVALID_HANDLE_VALUE;}
 	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, 640*480*3, _T("Camera1"));
+	if(m_hSharedMemory == INVALID_HANDLE_VALUE){CloseCamera(); return -1;}
+
+	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory); m_pbyMemory = NULL;}
 	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iWidht*iColorsPerPixel);
+	if(m_pbyMemory == NULL){CloseCamera(); return -1;}
 
 	return 0;
 }
@@ -78,6 +84,7 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 
 	CString sReceive;
 	int iRet = SendRecive(m_sPipeName, _T("GrabImage"), &sReceive);
+	AfxMessageBox(sReceive);
 	if(iRet != 0){return iRet;}
 	//	if(sReceive.Compare(_T("Camera1")) != 0){return -1;}
 
@@ -116,6 +123,7 @@ int CameraLocal::CloseCamera()
 	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory);}
 	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory);}
 	CloseHandle(m_hPipe);
+	m_hPipe=INVALID_HANDLE_VALUE;
 
 	m_iChannel=CHANNEL_UNDEFINED;
 	m_iWidht=0;
