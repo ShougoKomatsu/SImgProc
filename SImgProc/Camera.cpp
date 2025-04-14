@@ -24,7 +24,7 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
 	_stprintf(tchBuffer, _T("%s"), sSend);
 	DWORD dwNumberOfBytesWritten = 0;
-	DWORD dwNumberOfByteToWrite = _tcslen(tchBuffer) * sizeof(TCHAR);
+	DWORD dwNumberOfByteToWrite = (_tcslen(tchBuffer)+1) * sizeof(TCHAR);
 	bRet = WriteFile(m_hPipe, tchBuffer, dwNumberOfByteToWrite, (LPDWORD)&dwNumberOfBytesWritten, NULL);
 	if(bRet != TRUE){CloseHandle(m_hPipe); m_hPipe=INVALID_HANDLE_VALUE; return -1;}
 
@@ -48,27 +48,27 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
 
 	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
-	if(sOut.Compare(_T("CHANNEL_3_8"))==0){m_iChannel=CHANNEL_3_8;}
+	if(sOut.Compare(_T("CHANNEL_3_8RGB"))==0){m_iChannel=CHANNEL_3_8RGB;}
 	if(sOut.Compare(_T("CHANNEL_1_8"))==0){m_iChannel=CHANNEL_1_8;}
 
 	bRet = ExtractData(sRemin, _T(","), &sOut, &sRemin);
-	m_iWidht=_ttoi(sOut);
+	m_iWidth=_ttoi(sOut);
 	m_iHeight=_ttoi(sRemin);
 	
 	int iColorsPerPixel;
 	switch(m_iChannel)
 	{
 	case CHANNEL_1_8:{iColorsPerPixel=1; break;}
-	case CHANNEL_3_8:{iColorsPerPixel=3; break;}
+	case CHANNEL_3_8RGB:{iColorsPerPixel=3; break;}
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
 	}
 
-	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory); m_hSharedMemory == INVALID_HANDLE_VALUE;}
-	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, 640*480*3, _T("Camera1"));
+	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory); m_hSharedMemory = INVALID_HANDLE_VALUE;}
+	m_hSharedMemory = CreateFileMapping(NULL, NULL, PAGE_READWRITE, NULL, m_iWidth*m_iHeight*iColorsPerPixel, _T("Camera1"));
 	if(m_hSharedMemory == INVALID_HANDLE_VALUE){CloseCamera(); return -1;}
 
 	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory); m_pbyMemory = NULL;}
-	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidht*m_iWidht*iColorsPerPixel);
+	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidth*m_iWidth*iColorsPerPixel);
 	if(m_pbyMemory == NULL){CloseCamera(); return -1;}
 
 	return 0;
@@ -80,7 +80,7 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 	if(m_pbyMemory == NULL){return -1;}
 
 
-	imgOut->Set(m_iWidht, m_iHeight, m_iChannel);
+	imgOut->Set(m_iWidth, m_iHeight, m_iChannel);
 
 	CString sReceive;
 	int iRet = SendRecive(m_sPipeName, _T("GrabImage"), &sReceive);
@@ -91,15 +91,15 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 	switch(m_iChannel)
 	{
 	case CHANNEL_1_8:{ break;}
-	case CHANNEL_3_8:
+	case CHANNEL_3_8RGB:
 		{
-			for(int r=0; r<480; r++)
+			for(int r=0; r<m_iHeight; r++)
 			{
-				for(int c=0; c<640; c++)
+				for(int c=0; c<m_iWidth; c++)
 				{
-					imgOut->byImgR[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+0 + r*m_iWidht+c];
-					imgOut->byImgG[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight+1 + r*m_iWidht+c];
-					imgOut->byImgB[r*m_iWidht+c]=m_pbyMemory[m_iWidht*m_iHeight*2 + r*m_iWidht+c];
+					imgOut->byImgR[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight+0 + r*m_iWidth+c];
+					imgOut->byImgG[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight+1 + r*m_iWidth+c];
+					imgOut->byImgB[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*2 + r*m_iWidth+c];
 				}
 			}
 			break;
@@ -126,7 +126,7 @@ int CameraLocal::CloseCamera()
 	m_hPipe=INVALID_HANDLE_VALUE;
 
 	m_iChannel=CHANNEL_UNDEFINED;
-	m_iWidht=0;
+	m_iWidth=0;
 	m_iHeight=0;
 	m_sPipeName.Format(_T(""));
 

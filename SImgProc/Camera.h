@@ -9,7 +9,7 @@ struct CameraLocal
 	BYTE* m_pbyMemory;
 
 	int m_iChannel;
-	int m_iWidht;
+	int m_iWidth;
 	int m_iHeight;
 	CString m_sPipeName;
 
@@ -20,7 +20,7 @@ struct CameraLocal
 		m_pbyMemory=NULL;
 
 		m_iChannel=CHANNEL_UNDEFINED;
-		m_iWidht=0;
+		m_iWidth=0;
 		m_iHeight=0;
 		m_sPipeName.Format(_T(""));
 	}
