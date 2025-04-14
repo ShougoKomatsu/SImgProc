@@ -40,7 +40,7 @@ BOOL ImgRGB::Set(int iWidthIn, int iHeightIn, int iChannelIn)
 		byImg = new BYTE[iWidth*iHeight];
 		memset(byImg,0,iWidth*iHeight);
 	}
-	if(iChannel == CHANNEL_3_8)
+	if(iChannel == CHANNEL_3_8RGB)
 	{
 		byImgR = new BYTE[iWidth*iHeight];
 		byImgG = new BYTE[iWidth*iHeight];
@@ -104,7 +104,7 @@ BOOL ImgRGB::Assign(CString sFilePath)
 	if(bmih.biHeight<0){iHeightLocal=-1*(bmih.biHeight);}
 	else{iHeightLocal=(bmih.biHeight);}
 
-	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8);
+	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8RGB);
 
 	ULONG ulOffset;
 	ulOffset=bmfh.bfOffBits;
@@ -159,7 +159,7 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 		}
 		return TRUE;
 	}
-	if(iChannel==CHANNEL_3_8)
+	if(iChannel==CHANNEL_3_8RGB)
 	{
 		for(int r=0; r<iHeight; r++)
 		{
