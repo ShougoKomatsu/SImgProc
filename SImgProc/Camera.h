@@ -29,5 +29,6 @@ struct CameraLocal
 	int SendRecive(CString sPipeName, CString sSend, CString* sReceive);
 	int OpenCamera(CString sPipeName);
 	int CloseCamera();
+	int SetParameter(CString sProp, CString sParam);
 	int GrabImage(ImgRGB* imgOut);
 };

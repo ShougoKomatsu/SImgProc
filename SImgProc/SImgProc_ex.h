@@ -185,4 +185,5 @@ struct DLL_IE Camera
 	int OpenCamera(CString sPipeName);
 	int CloseCamera();
 	int GrabImage(ImgRGB* imgOut);
+	int SetParameter(CString sProp, CString sParam);
 };

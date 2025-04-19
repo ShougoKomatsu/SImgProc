@@ -614,6 +614,7 @@ void CSImgProcTestDlg::OnBnClickedButton1()
 	Camera camera;
 	camera.OpenCamera(_T("Camera0327"));
 	Sleep(1000);
+	camera.SetParameter(_T("EXPOSURE"),_T("10"));
 	ImgRGB imgTest;
 	camera.GrabImage(&imgTest);
 	WriteImage(&imgTest,_T("d:\\cameratest.bmp"));

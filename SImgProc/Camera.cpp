@@ -40,11 +40,12 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 int CameraLocal::OpenCamera(CString sPipeName)
 {
 	CString sReceive;
-	BOOL bRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
-	if(bRet != TRUE){return -1;}
+	int iRet = SendRecive(sPipeName, _T("OpenCamera"), &sReceive);
+	if(iRet != 0){return -1;}
 
 	CString sOut;
 	CString sRemin;
+	BOOL bRet;
 	bRet = ExtractData(sReceive, _T(","), &sOut, &sRemin);
 
 	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
@@ -68,7 +69,7 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	if(m_hSharedMemory == INVALID_HANDLE_VALUE){CloseCamera(); return -1;}
 
 	if(m_pbyMemory != NULL){UnmapViewOfFile(m_pbyMemory); m_pbyMemory = NULL;}
-	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidth*m_iWidth*iColorsPerPixel);
+	m_pbyMemory = (BYTE*)MapViewOfFile(m_hSharedMemory, FILE_MAP_ALL_ACCESS, NULL, NULL, m_iWidth*m_iHeight*iColorsPerPixel);
 	if(m_pbyMemory == NULL){CloseCamera(); return -1;}
 
 	return 0;
@@ -84,7 +85,6 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 
 	CString sReceive;
 	int iRet = SendRecive(m_sPipeName, _T("GrabImage"), &sReceive);
-	AfxMessageBox(sReceive);
 	if(iRet != 0){return iRet;}
 	//	if(sReceive.Compare(_T("Camera1")) != 0){return -1;}
 
@@ -132,8 +132,24 @@ int CameraLocal::CloseCamera()
 
 	return 0;
 }
+int CameraLocal::SetParameter(CString sProp, CString sParam)
+{
+	if(m_hPipe==INVALID_HANDLE_VALUE){return 0;}
 
+
+	CString sReceive;
+	CString sSend; 
+	sSend.Format(_T("SetParameter(%s,%s)"),sProp, sParam);
+	AfxMessageBox(sSend);
+	int iRet = SendRecive(m_sPipeName, sSend, &sReceive);
+	if(iRet != 0){return iRet;}
+	if(sReceive.CompareNoCase(_T("failed"))==0){return -1;}
+
+
+	return 0;
+}
 static CameraLocal s_cameraLocal;
 int DLL_IE Camera::OpenCamera(CString sPipeName){return s_cameraLocal.OpenCamera(sPipeName);}
 int DLL_IE Camera::CloseCamera(){return s_cameraLocal.CloseCamera();}
 int DLL_IE Camera::GrabImage(ImgRGB* imgOut){return s_cameraLocal.GrabImage(imgOut);}
+int DLL_IE Camera::SetParameter(CString sProp, CString sParam){return s_cameraLocal.SetParameter(sProp, sParam);}
