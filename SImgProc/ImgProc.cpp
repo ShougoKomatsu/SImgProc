@@ -501,36 +501,76 @@ BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, 
 	int iC0Local;
 	int iR1Local;
 	int iC1Local;
-	
-	iR0Local = max(iR0, 0);
-	iC0Local = max(iC0, 0);
 
-	iR1Local = min(iR1, imgTarget->iHeight-1);
-	iC1Local = min(iC1, imgTarget->iWidth-1);
+	int iInclR;
+	int iInclC;
+
+	if(iR0<iR1)
+	{
+		iInclR=+1;
+		iR0Local = max(iR0, 0);
+		iR1Local = min(iR1, imgTarget->iHeight-1);
+	}
+	else
+	{
+		iInclR=-1;
+		iR0Local = min(iR0, imgTarget->iHeight-1);
+		iR1Local = max(iR1, 0);
+	}
+
+	if(iC0<iC1)
+	{
+		iInclC=+1;
+		iC0Local = max(iC0, 0);
+		iC1Local = min(iC1, imgTarget->iWidth-1);
+	}
+	else
+	{
+		iInclC=-1;
+		iC0Local = min(iC0, imgTarget->iWidth-1);
+		iC1Local = max(iC1, 0);
+	}
 	
 	int iScanHeight;
 	int iScanWidth;
-	iScanHeight = iR1Local-iR0Local-iModelHeight + 2;
-	iScanWidth = iC1Local-iC0Local-iModelWidth + 2;
+	iScanHeight = abs(iR1Local-iR0Local)-iModelHeight + 2;
+	iScanWidth = abs(iC1Local-iC0Local)-iModelWidth + 2;
 
 	if(iScanHeight<=0){return FALSE;}
 	if(iScanWidth<=0){return FALSE;}
 
 	BOOL bFound;
-	int iREnd, iCEnd;
 
-	iREnd = iR0Local+iScanHeight;
-	iCEnd = iC0Local+iScanWidth;
+	int iRStart, iCStart;
+
+	if(iR0<iR1)
+	{
+		iRStart=iR0Local;
+	}
+	else
+	{
+		iRStart=iR0Local-iModelHeight+1;
+	}
+	if(iC0<iC1)
+	{
+		iCStart = iC0Local;
+	}
+	else
+	{
+		iCStart = iC0Local-iModelWidth+1;
+	}
 
 	int iPtrTarget;
 	int iPtrModel;
 
 	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
-		for(int iTargetR = iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC = iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
 				bFound = TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
@@ -551,10 +591,12 @@ BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, 
 
 	if((imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
-		for(int iTargetR=iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC=iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
 				bFound = TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
@@ -576,10 +618,12 @@ BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, 
 
 	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_1_24BGR))
 	{
-		for(int iTargetR=iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC=iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
 				bFound = TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
@@ -2808,41 +2852,83 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 	iModelHeight = imgModel->iHeight;
 	iModelWidth = imgModel->iWidth;
 
-	
+
 	int iR0Local;
 	int iC0Local;
 	int iR1Local;
 	int iC1Local;
-	
-	iR0Local = max(iR0, 0);
-	iC0Local = max(iC0, 0);
 
-	iR1Local = min(iR1, imgTarget->iHeight-1);
-	iC1Local = min(iC1, imgTarget->iWidth-1);
+
+	int iInclR;
+	int iInclC;
+
+	if(iR0<iR1)
+	{
+		iInclR=+1;
+		iR0Local = max(iR0, 0);
+		iR1Local = min(iR1, imgTarget->iHeight-1);
+	}
+	else
+	{
+		iInclR=-1;
+		iR0Local = min(iR0, imgTarget->iHeight-1);
+		iR1Local = max(iR1, 0);
+	}
+
+	if(iC0<iC1)
+	{
+		iInclC=+1;
+		iC0Local = max(iC0, 0);
+		iC1Local = min(iC1, imgTarget->iWidth-1);
+	}
+	else
+	{
+		iInclC=-1;
+		iC0Local = min(iC0, imgTarget->iWidth-1);
+		iC1Local = max(iC1, 0);
+	}
+
+
 
 
 	int iScanHeight;
 	int iScanWidth;
-	iScanHeight = iR1Local-iR0Local-iModelHeight + 2;
-	iScanWidth = iC1Local-iC0Local-iModelWidth + 2;
-
+	iScanHeight = abs(iR1Local-iR0Local)-iModelHeight + 2;
+	iScanWidth = abs(iC1Local-iC0Local)-iModelWidth + 2;
+	
 	if(iScanHeight<=0){return FALSE;}
 	if(iScanWidth<=0){return FALSE;}
 
-	int iREnd, iCEnd;
+	int iRStart, iCStart;
 
-	iREnd = iR0Local+iScanHeight;
-	iCEnd = iC0Local+iScanWidth;
+	if(iR0<iR1)
+	{
+		iRStart=iR0Local;
+	}
+	else
+	{
+		iRStart=iR0Local-iModelHeight+1;
+	}
+	if(iC0<iC1)
+	{
+		iCStart = iC0Local;
+	}
+	else
+	{
+		iCStart = iC0Local-iModelWidth+1;
+	}
 
 	int iPtrTarget;
 	int iPtrModel;
 
 	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
-		for(int iTargetR = iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC = iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
 				BOOL bOK_R=TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
@@ -2863,10 +2949,13 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 
 	if((imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
-		for(int iTargetR=iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC=iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
+
 				BOOL bOK_R=TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
@@ -2887,10 +2976,12 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 
 	if((imgTarget->iChannel==CHANNEL_1_24BGR) && (imgModel->iChannel == CHANNEL_1_24BGR))
 	{
-		for(int iTargetR=iR0Local; iTargetR<iREnd; iTargetR++)
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
-			for(int iTargetC=iC0Local; iTargetC<iCEnd; iTargetC++)
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
 			{
+				int iTargetC=iCStart+iIterC*iInclC;
 				BOOL bOK_R=TRUE;
 				for(int r=0; r<iModelHeight; r++)
 				{
