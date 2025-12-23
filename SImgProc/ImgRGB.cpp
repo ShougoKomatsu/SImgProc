@@ -175,3 +175,19 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 	return FALSE;
 }
 
+BOOL ImgRGB::Assign(BYTE* byData, int iWidth, int iHeight)
+{
+
+	GenRectangle1(&(this->objDomain), 0, 0, iHeight-1, iWidth-1);
+	this->Set(iWidth,iHeight,CHANNEL_1_8);
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				this->byImg[r*iWidth+c]=byData[r*iWidth+c];
+			}
+		}
+		return TRUE;
+}
+

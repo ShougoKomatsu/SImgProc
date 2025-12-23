@@ -90,6 +90,7 @@ struct DLL_IE ImgRGB
 	ImgRGB();
 	~ImgRGB();
 	BOOL Assign(CString sFilePath);
+	BOOL Assign(BYTE* byData, int iWidth, int iHeight);
 	BOOL Assign(const ImgRGB* imgRGBIn);
 
 	Object objDomain;
