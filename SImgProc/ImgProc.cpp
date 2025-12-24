@@ -991,7 +991,7 @@ inline BOOL UpdateMaxRDirection
 		return TRUE;
 	}
 
-	if(r<iHalfHeight+1)
+	if(r<iHalfHeight+1)//r = 1, 2, 3
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
@@ -1000,46 +1000,41 @@ inline BOOL UpdateMaxRDirection
 		return TRUE;
 	}
 
-	if(r<iImgHeight-iHalfHeight)
+	if(r<iImgHeight-iHalfHeight)//r = 4, 5, 6, ..., 15, 16
 	{
 		for(int c=0; c<iImgWidth; c++)
 		{
-			
 			if(byMaxOfEachC[c] > byImage[(r-iHalfHeight-1)*iImgWidth+c])
 			{
 				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+				continue;
 			}
-			else
+
+			if(byImage[(r-iHalfHeight-1)*iImgWidth+c] <= byImage[(r+iHalfHeight)*iImgWidth+c])
 			{
-				if(byImage[(r-iHalfHeight-1)*iImgWidth+c] <= byImage[(r+iHalfHeight)*iImgWidth+c])
-				{
-					byMaxOfEachC[c]=byImage[(r+iHalfHeight)*iImgWidth+c];
-				}
-				else
-				{
-				
-					byMaxOfEachC[c]=0;
-					for(int rLocal=-iHalfHeight; rLocal<=iHalfHeight; rLocal++)
-					{
-						byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
-					}
-				}
+				byMaxOfEachC[c]=byImage[(r+iHalfHeight)*iImgWidth+c];
+				continue;
+			}
+
+			byMaxOfEachC[c]=0;
+			for(int rLocal=-iHalfHeight; rLocal<=iHalfHeight; rLocal++)
+			{
+				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
 			}
 		}
 		return TRUE;
 	}
 
-	for(int c=0; c<iImgWidth; c++)
+	for(int c=0; c<iImgWidth; c++)//r = 17, 18, 19
 	{
-//		if(byMaxOfEachC[c] < byImage[(r-iHalfHeight-1)*iImgWidth+c])
-//		{
+		if(byMaxOfEachC[c] <= byImage[(r-iHalfHeight-1)*iImgWidth+c])//r-iHalfHeight-1 = 13, 14, 15
+		{
 			byMaxOfEachC[c]=0;
 			for(int rLocal=-iHalfHeight; rLocal< iImgHeight-r; rLocal++)
 			{
 				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
 			}
-//		}
-
+		}
 	}
 	return TRUE;
 }
