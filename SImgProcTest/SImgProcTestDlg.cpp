@@ -700,7 +700,7 @@ BOOL MaxFilterTest()
 		}
 			sResult+="\n";
 	}
-	AfxMessageBox(sResult);
+//	AfxMessageBox(sResult);
 	for(int i=0; i< 400; i++)
 	{
 		if(imgResult.byImg[i]!=g_byMax7x7[i]){CString sss; sss.Format(_T("%d %d %d"), i, imgResult.byImg[i],g_byMax7x7[i]); AfxMessageBox(sss);return FALSE;}
@@ -710,6 +710,7 @@ BOOL MaxFilterTest()
 void CSImgProcTestDlg::OnBnClickedButton1()
 {
 	if(MaxFilterTest()!=TRUE){AfxMessageBox(_T("MaxFilter Failed"));return;}
+	AfxMessageBox(_T("ok"));
 	return;
 	Camera camera;
 	camera.OpenCamera(_T("Camera0327"));
