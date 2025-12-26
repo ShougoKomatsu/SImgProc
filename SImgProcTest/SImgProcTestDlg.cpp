@@ -688,7 +688,7 @@ BOOL MaxFilterTest()
 	ImgRGB imgResult;
 	imgTest.Assign(g_byData400,20,20);
 
-	MaxImage(&imgTest, &imgResult,7,7);
+	MaxImage(&imgTest, &imgResult,0,0,19,19,7,7);
 	CString sResult;
 	for(int r=0; r<20; r++)
 	{
