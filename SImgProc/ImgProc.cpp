@@ -908,65 +908,73 @@ BOOL ImgRGBPyramid::SetPyramid(ImgRGB* imgRGBIn)
 }
 
 
+
+#define MAX(a,b) ((a>=b)?(a):(b))
+#define MIN(a,b) ((a<=b)?(a):(b))
+
+
 inline BOOL UpdateSumRDirection
 	(
-	BYTE* byImage, int iImgWidth, int iImgHeight,
-	int r, 
-	int iHalfHeight,
-	UINT* uiSumOfEachC, int* iTotalHeight)
+	const BYTE* byImage, const int iImgWidth, const int iImgHeight,
+	const int r, 
+	const int iC0, const int iC1,
+	const int iHalfHeight,
+	UINT* uiSumOfEachC, int* iTotalHeight, const BOOL bFirstRow=FALSE)
 {
 	if(byImage == NULL){return FALSE;}
 	if(uiSumOfEachC == NULL){return FALSE;}
 	if(iTotalHeight == NULL){return FALSE;}
 
-	if(r==0)
-	{
+	int iC0Local = max(0, iC0);
+	int iC1Local = min(iImgWidth-1, iC1);
 
-		for(int c=0; c<iImgWidth; c++)
+	if((r==0) || (bFirstRow==TRUE))
+	{
+		int iStartROffset = -1*min(r, iHalfHeight);
+		for(int c=iC0Local; c<=iC1Local; c++)
 		{
-			uiSumOfEachC[c]=0;
-			for(int rLocal=0; rLocal<=iHalfHeight; rLocal++)
+			uiSumOfEachC[c] = byImage[(r+iStartROffset)*iImgWidth+c];
+			for(int rOffset = iStartROffset+1; rOffset<=iHalfHeight; rOffset++)
 			{
-				uiSumOfEachC[c]+=byImage[(r+rLocal)*iImgWidth+c];
+				uiSumOfEachC[c] += byImage[(r+rOffset)*iImgWidth+c];
 			}
 		}
 
-		*iTotalHeight=iHalfHeight+1;
+		*iTotalHeight = iHalfHeight-iStartROffset+1;
 		return TRUE;
 	}
 
 	if(r<iHalfHeight+1)
 	{
-		for(int c=0; c<iImgWidth; c++)
+		for(int c=iC0Local; c <= iC1Local; c++)
 		{
 			uiSumOfEachC[c]+=byImage[(r+iHalfHeight)*iImgWidth+c];
 		}
-		*iTotalHeight=iHalfHeight+iHalfHeight+1;
+		*iTotalHeight = r+iHalfHeight+1;
 
 		return TRUE;
 	}
-	if(r<iImgHeight-iHalfHeight)
+
+	if(r < iImgHeight-iHalfHeight)
 	{
-		for(int c=0; c<iImgWidth; c++)
+		for(int c=iC0Local; c<=iC1Local; c++)
 		{
-			uiSumOfEachC[c]-=byImage[(r-iHalfHeight-1)*iImgWidth+c];
-			uiSumOfEachC[c]+=byImage[(r+iHalfHeight)*iImgWidth+c];
+			uiSumOfEachC[c] -= byImage[(r-iHalfHeight-1)*iImgWidth+c];
+			uiSumOfEachC[c] += byImage[(r+iHalfHeight)*iImgWidth+c];
 		}
-		*iTotalHeight=iHalfHeight+iHalfHeight+1;
+		*iTotalHeight = 2*iHalfHeight+1;
 
 		return TRUE;
 	}
 
-	for(int c=0; c<iImgWidth; c++)
+	for(int c = iC0Local; c <= iC1Local; c++)
 	{
 		uiSumOfEachC[c] -= byImage[(r-iHalfHeight-1)*iImgWidth+c];
 	}
-	*iTotalHeight=iHalfHeight+iHalfHeight+1;
+
+	*iTotalHeight = iImgHeight-r +iHalfHeight;
 	return TRUE;
 }
-
-#define MAX(a,b) ((a>=b)?(a):(b))
-#define MIN(a,b) ((a<=b)?(a):(b))
 
 inline BOOL UpdateMaxRDirection
 	(
@@ -1123,34 +1131,44 @@ BOOL SumCDirection
 	(
 	UINT* uiSumOfEachC,
 	int iImgWidth,
+	const int iC0, const int iC1,
 	int iHalfWidth,
 	UINT* uiSumOfRC, int* iTotalCs)
 {
-	uiSumOfRC[0]=0;
-	for(int c=0; c<iHalfWidth; c++)
-	{
-		uiSumOfRC[0]+=uiSumOfEachC[c];
-	}
-	iTotalCs[0]=iHalfWidth+1;
+	int iC0Local = max(0, iC0);
+	int iC1Local = min(iImgWidth-1, iC1);
 
-	for(int c=1; c<=iHalfWidth; c++)
-	{
-		uiSumOfRC[c]=uiSumOfRC[c-1]+uiSumOfEachC[c+iHalfWidth];
-		iTotalCs[c]=iTotalCs[c-1]+1;
-	}
+	int iStartCOffset = -1*min(iC0Local, iHalfWidth);
+	int iEndCOffset = min(iImgWidth-1-iC0Local, iHalfWidth);
 
-	for(int c=iHalfWidth+1; c<iImgWidth-iHalfWidth; c++)
+	uiSumOfRC[iC0Local] = uiSumOfEachC[iC0Local];
+	for(int cOffset = iStartCOffset+1; cOffset <= iEndCOffset; cOffset++)
 	{
-		uiSumOfRC[c]=uiSumOfRC[c-1]-uiSumOfEachC[c-iHalfWidth];
-		uiSumOfRC[c]+=uiSumOfEachC[c+iHalfWidth];
-		iTotalCs[c]=2*iHalfWidth+1;
+		uiSumOfRC[iC0Local] += uiSumOfEachC[iC0Local+cOffset];
 	}
+	iTotalCs[iC0Local]=iEndCOffset - iStartCOffset + 1;
 
-	for(int c=iImgWidth-iHalfWidth+1; c+iHalfWidth<iImgWidth; c++)
+	for(int c = iC0Local+1; c <= iC1Local; c++)
 	{
+		if(c-iHalfWidth < 0)
+		{
+			uiSumOfRC[c]=uiSumOfRC[c-1]+uiSumOfEachC[c+iHalfWidth];
+			iTotalCs[c]=iTotalCs[c-1]+1;
+			continue;
+		}
+
+		if(c+iHalfWidth <= iImgWidth-1)
+		{
+			uiSumOfRC[c]=uiSumOfRC[c-1]-uiSumOfEachC[c-iHalfWidth];
+			uiSumOfRC[c]+=uiSumOfEachC[c+iHalfWidth];
+			iTotalCs[c]=2*iHalfWidth+1;
+			continue;
+		}
+
 		uiSumOfRC[c]=uiSumOfRC[c]-uiSumOfEachC[c+iHalfWidth];
 		iTotalCs[c]=iTotalCs[c-1]-1;
 	}
+
 	return TRUE;
 }
 
@@ -1282,7 +1300,7 @@ BOOL MinCDirection
 	return TRUE;
 }
 
-BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iFilterHeight)
+BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;
@@ -1323,13 +1341,13 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iF
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		for(int r=0; r<iImgHeight; r++)
 		{
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
 
-			SumCDirection(uiFilteredOfEachC_R, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_R, iTotalCs_R);
-			SumCDirection(uiFilteredOfEachC_G, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_G, iTotalCs_G);
-			SumCDirection(uiFilteredOfEachC_B, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC_B, iTotalCs_B);
+			SumCDirection(uiFilteredOfEachC_R, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_R, iTotalCs_R);
+			SumCDirection(uiFilteredOfEachC_G, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_G, iTotalCs_G);
+			SumCDirection(uiFilteredOfEachC_B, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_B, iTotalCs_B);
 			for(int c=0; c<iImgWidth; c++)
 			{
 				imgR2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_R[c]/(iTotalCs_R[c]*iTotalHeight_R*1.0));
@@ -1368,9 +1386,9 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, int iFilterWidth, int iF
 		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		for(int r=0; r<iImgHeight; r++)
 		{
-			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, (iFilterHeight-1)/2, uiFilteredOfEachC, &iTotalHeight);
+			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC, &iTotalHeight);
 
-			SumCDirection(uiFilteredOfEachC, iImgWidth, (iFilterWidth-1)/2, uiFilteredOfRC, iTotalCs);
+			SumCDirection(uiFilteredOfEachC, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC, iTotalCs);
 			for(int c=0; c<iImgWidth; c++)
 			{
 				imgResult->byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC[c]/(iTotalCs[c]*iTotalHeight*1.0));
