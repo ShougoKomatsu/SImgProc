@@ -970,21 +970,21 @@ inline BOOL UpdateSumRDirection
 
 inline BOOL UpdateMaxRDirection
 	(
-	BYTE* byImage, int iImgWidth, int iImgHeight,
-	int r, 
-	int iC0, int iC1,
-	int iHalfHeight,
-	BYTE* byMaxOfEachC, BOOL bFirstRow=FALSE)
+	const BYTE* byImage, const int iImgWidth, const int iImgHeight,
+	const int r, 
+	const int iC0, const int iC1,
+	const int iHalfHeight,
+	BYTE* byMaxOfEachC, const BOOL bFirstRow=FALSE)
 {
 	if(byImage == NULL){return FALSE;}
 	if(byMaxOfEachC == NULL){return FALSE;}
 
-	int iC0Local=max(0, iC0);
-	int iC1Local=min(iImgWidth-1, iC1);
+	int iC0Local = max(0, iC0);
+	int iC1Local = min(iImgWidth-1, iC1);
 
 	if((r==0) || (bFirstRow==TRUE))
 	{
-		int iStartROffset=-1*min(r, iHalfHeight);
+		int iStartROffset = -1*min(r, iHalfHeight);
 		for(int c = iC0Local; c <= iC1Local; c++)
 		{
 			byMaxOfEachC[c] = byImage[(r+iStartROffset)*iImgWidth+c];
@@ -1005,7 +1005,7 @@ inline BOOL UpdateMaxRDirection
 		return TRUE;
 	}
 
-	if(r<iImgHeight-iHalfHeight)//r = 4, 5, 6, ..., 15, 16
+	if(r < iImgHeight-iHalfHeight)//r = 4, 5, 6, ..., 15, 16
 	{
 		for(int c = iC0Local; c <= iC1Local; c++)
 		{
@@ -1030,7 +1030,7 @@ inline BOOL UpdateMaxRDirection
 		return TRUE;
 	}
 
-	for(int c=iC0Local; c<=iC1Local; c++)//r = 17, 18, 19
+	for(int c = iC0Local; c <= iC1Local; c++)//r = 17, 18, 19
 	{
 		if(byMaxOfEachC[c] <= byImage[(r-iHalfHeight-1)*iImgWidth+c])//r-iHalfHeight-1 = 13, 14, 15
 		{
@@ -1154,30 +1154,30 @@ BOOL SumCDirection
 	return TRUE;
 }
 
-BOOL MaxCDirection
+inline BOOL MaxCDirection
 	(
-	BYTE* byMaxOfEachC,
-	int iImgWidth,
-	int iC0, int iC1,
-	int iHalfWidth,
+	const BYTE* byMaxOfEachC,
+	const int iImgWidth,
+	const int iC0, const int iC1,
+	const int iHalfWidth,
 	BYTE* byMaxOfRC)
 {
-	int iC0Local=max(0, iC0);
-	int iC1Local=min(iImgWidth-1, iC1);
+	int iC0Local = max(0, iC0);
+	int iC1Local = min(iImgWidth-1, iC1);
 
-	int iStartCOffset=-1*min(iC0Local, iHalfWidth);
-	int iEndCOffset=min(iImgWidth-1-iC0Local, iHalfWidth);
+	int iStartCOffset = -1*min(iC0Local, iHalfWidth);
+	int iEndCOffset = min(iImgWidth-1-iC0Local, iHalfWidth);
 
-	for(int i=0; i<iImgWidth; i++){byMaxOfRC[i]=0;}
+	for(int i = 0; i<iImgWidth; i++){byMaxOfRC[i] = 0;}
 
-	byMaxOfRC[iC0Local]=byMaxOfEachC[iC0Local];
+	byMaxOfRC[iC0Local] = byMaxOfEachC[iC0Local];
 	for(int cOffset = iStartCOffset+1; cOffset <= iEndCOffset; cOffset++)
 	{
 		byMaxOfRC[iC0Local] = MAX(byMaxOfRC[iC0Local], byMaxOfEachC[iC0Local+cOffset]);
 	}
 
 
-	for(int c=iC0Local+1; c<=iC1Local; c++)
+	for(int c = iC0Local+1; c <= iC1Local; c++)
 	{
 		if(c-iHalfWidth < 0)
 		{

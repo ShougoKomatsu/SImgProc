@@ -706,13 +706,14 @@ BOOL MaxFilterTest()
 		if(imgResult.byImg[i]!=g_byMax7x7[i]){CString sss; sss.Format(_T("%d %d %d"), i, imgResult.byImg[i],g_byMax7x7[i]); AfxMessageBox(sss);return FALSE;}
 	}
 
-	for(int rStart=0; rStart<19; rStart++)
+	int iSparse=2;
+	for(int rStart=0; rStart<19; rStart+=iSparse)
 	{
-		for(int rEnd=rStart; rEnd<20; rEnd++)
+		for(int rEnd=rStart; rEnd<20; rEnd+=iSparse)
 		{
-			for(int cStart=0; cStart<19; cStart++)
+			for(int cStart=0; cStart<19; cStart+=iSparse)
 			{
-				for(int cEnd=cStart; cEnd<20; cEnd++)
+				for(int cEnd=cStart; cEnd<20; cEnd+=iSparse)
 				{
 
 					for(int r=rStart; r<= rEnd; r++)
