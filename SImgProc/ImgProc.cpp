@@ -967,6 +967,7 @@ inline BOOL UpdateSumRDirection
 
 #define MAX(a,b) ((a>=b)?(a):(b))
 #define MIN(a,b) ((a<=b)?(a):(b))
+
 inline BOOL UpdateMaxRDirection
 	(
 	BYTE* byImage, int iImgWidth, int iImgHeight,
@@ -984,29 +985,29 @@ inline BOOL UpdateMaxRDirection
 	if((r==0) || (bFirstRow==TRUE))
 	{
 		int iStartROffset=-1*min(r, iHalfHeight);
-		for(int c=iC0Local; c<=iC1Local; c++)
+		for(int c = iC0Local; c <= iC1Local; c++)
 		{
-			byMaxOfEachC[c]=byImage[(r+iStartROffset)*iImgWidth+c];
-			for(int rLocal=iStartROffset+1; rLocal<=iHalfHeight; rLocal++)
+			byMaxOfEachC[c] = byImage[(r+iStartROffset)*iImgWidth+c];
+			for(int rOffset = iStartROffset+1; rOffset<=iHalfHeight; rOffset++)
 			{
-				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+				byMaxOfEachC[c] = MAX(byMaxOfEachC[c], byImage[(r+rOffset)*iImgWidth+c]);
 			}
 		}
 		return TRUE;
 	}
 
-	if(r<iHalfHeight+1)//r = 1, 2, 3
+	if(r < iHalfHeight+1)//r = 1, 2, 3
 	{
-		for(int c=iC0Local; c<=iC1Local; c++)
+		for(int c = iC0Local; c <= iC1Local; c++)
 		{
-			byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
+			byMaxOfEachC[c] = MAX(byMaxOfEachC[c], byImage[(r+iHalfHeight)*iImgWidth+c]);
 		}
 		return TRUE;
 	}
 
 	if(r<iImgHeight-iHalfHeight)//r = 4, 5, 6, ..., 15, 16
 	{
-		for(int c=iC0Local; c<=iC1Local; c++)
+		for(int c = iC0Local; c <= iC1Local; c++)
 		{
 			if(byMaxOfEachC[c] > byImage[(r-iHalfHeight-1)*iImgWidth+c])
 			{
@@ -1020,27 +1021,23 @@ inline BOOL UpdateMaxRDirection
 				continue;
 			}
 
-			byMaxOfEachC[c]=byImage[(r-iHalfHeight)*iImgWidth+c];
-			for(int rLocal=-iHalfHeight+1; rLocal<=iHalfHeight; rLocal++)
+			byMaxOfEachC[c] = byImage[(r-iHalfHeight)*iImgWidth+c];
+			for(int rOffset = -iHalfHeight+1; rOffset <= iHalfHeight; rOffset++)
 			{
-				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+				byMaxOfEachC[c] = MAX(byMaxOfEachC[c], byImage[(r+rOffset)*iImgWidth+c]);
 			}
 		}
 		return TRUE;
 	}
 
-	if(r==19)
-	{
-		r=r;
-	}
 	for(int c=iC0Local; c<=iC1Local; c++)//r = 17, 18, 19
 	{
 		if(byMaxOfEachC[c] <= byImage[(r-iHalfHeight-1)*iImgWidth+c])//r-iHalfHeight-1 = 13, 14, 15
 		{
-			byMaxOfEachC[c]=byImage[(r-iHalfHeight)*iImgWidth+c];
-			for(int rLocal=-iHalfHeight+1; rLocal< iImgHeight-r; rLocal++)
+			byMaxOfEachC[c] = byImage[(r-iHalfHeight)*iImgWidth+c];
+			for(int rOffset = -iHalfHeight+1; rOffset < iImgHeight - r; rOffset++)
 			{
-				byMaxOfEachC[c]=MAX(byMaxOfEachC[c], byImage[(r+rLocal)*iImgWidth+c]);
+				byMaxOfEachC[c] = MAX(byMaxOfEachC[c], byImage[(r+rOffset)*iImgWidth+c]);
 			}
 		}
 	}
@@ -1157,72 +1154,6 @@ BOOL SumCDirection
 	return TRUE;
 }
 
-/*
-BOOL MaxCDirection
-	(
-	BYTE* byMaxOfEachC,
-	int iImgWidth,
-	int iC0, int iC1,
-	int iHalfWidth,
-	BYTE* byMaxOfRC)
-{
-	int iC0Local=max(0, iC0);
-	int iC1Local=min(iImgWidth-1, iC1);
-
-	int iStartCOffset=-1*min(iC0Local, iHalfWidth);
-
-	for(int i=0; i<iImgWidth; i++){byMaxOfRC[i]=0;}
-
-	byMaxOfRC[0]=byMaxOfEachC[0];
-	for(int c=1; c<=iHalfWidth; c++)
-	{
-		byMaxOfRC[0]=MAX(byMaxOfRC[0], byMaxOfEachC[c]);
-	}
-
-	for(int c=1; c<=iHalfWidth; c++)
-	{
-		byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
-	}
-
-	for(int c=iHalfWidth+1; c<iImgWidth-iHalfWidth; c++)
-	{
-
-		if(byMaxOfRC[c-1]>byMaxOfEachC[c-iHalfWidth-1])
-		{
-			byMaxOfRC[c]= MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
-			continue;
-		}
-		if(byMaxOfEachC[c-iHalfWidth-1] < byMaxOfEachC[c+iHalfWidth])
-		{
-			byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
-			continue;
-		}
-
-		byMaxOfRC[c]=byMaxOfEachC[c-iHalfWidth];
-		for(int cLocal=-iHalfWidth+1; cLocal<= iHalfWidth; cLocal++)
-		{
-			byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
-		}
-	}
-
-	for(int c=iImgWidth-iHalfWidth; c<iImgWidth; c++)
-	{
-		if(byMaxOfRC[c-1]>byMaxOfEachC[c-iHalfWidth-1])
-		{
-			byMaxOfRC[c]=byMaxOfRC[c-1];
-			continue;
-		}
-
-		byMaxOfRC[c]=byMaxOfEachC[c-iHalfWidth];
-		for(int cLocal=-iHalfWidth+1; cLocal< iImgWidth-c; cLocal++)
-		{
-			byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
-		}
-	}
-	return TRUE;
-}
-*/
-
 BOOL MaxCDirection
 	(
 	BYTE* byMaxOfEachC,
@@ -1240,51 +1171,51 @@ BOOL MaxCDirection
 	for(int i=0; i<iImgWidth; i++){byMaxOfRC[i]=0;}
 
 	byMaxOfRC[iC0Local]=byMaxOfEachC[iC0Local];
-	for(int cOffset=iStartCOffset+1; cOffset<=iEndCOffset; cOffset++)
+	for(int cOffset = iStartCOffset+1; cOffset <= iEndCOffset; cOffset++)
 	{
-		byMaxOfRC[iC0Local]=MAX(byMaxOfRC[iC0Local], byMaxOfEachC[iC0Local+cOffset]);
+		byMaxOfRC[iC0Local] = MAX(byMaxOfRC[iC0Local], byMaxOfEachC[iC0Local+cOffset]);
 	}
 
 
 	for(int c=iC0Local+1; c<=iC1Local; c++)
 	{
-		if(c-iHalfWidth<0)
+		if(c-iHalfWidth < 0)
 		{
-			byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+			byMaxOfRC[c] = MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
 			continue;
 		}
 
-		if(c+iHalfWidth<=iImgWidth-1)
+		if(c+iHalfWidth <= iImgWidth-1)
 		{
-			if(byMaxOfRC[c-1]>byMaxOfEachC[c-iHalfWidth-1])
+			if(byMaxOfRC[c-1] > byMaxOfEachC[c-iHalfWidth-1])
 			{
-				byMaxOfRC[c]= MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+				byMaxOfRC[c] = MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
 				continue;
 			}
 			if(byMaxOfEachC[c-iHalfWidth-1] < byMaxOfEachC[c+iHalfWidth])
 			{
-				byMaxOfRC[c]=MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
+				byMaxOfRC[c] = MAX(byMaxOfRC[c-1], byMaxOfEachC[c+iHalfWidth]);
 				continue;
 			}
 
-			byMaxOfRC[c]=byMaxOfEachC[c-iHalfWidth];
-			for(int cLocal=-iHalfWidth+1; cLocal<= iHalfWidth; cLocal++)
+			byMaxOfRC[c] = byMaxOfEachC[c-iHalfWidth];
+			for(int cOffset = -iHalfWidth+1; cOffset<= iHalfWidth; cOffset++)
 			{
-				byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
+				byMaxOfRC[c] = MAX(byMaxOfRC[c], byMaxOfEachC[c + cOffset]);
 			}
 			continue;
 		}
 
-		if(byMaxOfRC[c-1]>byMaxOfEachC[c-iHalfWidth-1])
+		if(byMaxOfRC[c-1] > byMaxOfEachC[c-iHalfWidth-1])
 		{
-			byMaxOfRC[c]=byMaxOfRC[c-1];
+			byMaxOfRC[c] = byMaxOfRC[c-1];
 			continue;
 		}
 
-		byMaxOfRC[c]=byMaxOfEachC[c-iHalfWidth];
-		for(int cLocal=-iHalfWidth+1; cLocal< iImgWidth-c; cLocal++)
+		byMaxOfRC[c] = byMaxOfEachC[c-iHalfWidth];
+		for(int cOffset = -iHalfWidth+1; cOffset < iImgWidth-c; cOffset++)
 		{
-			byMaxOfRC[c]=MAX(byMaxOfRC[c], byMaxOfEachC[c+cLocal]);
+			byMaxOfRC[c] = MAX(byMaxOfRC[c], byMaxOfEachC[c + cOffset]);
 		}
 	}
 
@@ -1534,7 +1465,8 @@ BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int 
 		int* iTotalCs;
 		iTotalCs=new int [iImgWidth];
 		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		if(iStartR!=0)
+
+		if(iStartR != 0)
 		{
 			UpdateMaxRDirection(imgIn->byImg, iImgWidth, iImgHeight, iStartR-1, 0, iImgWidth-1, iHalfHeight, uiFilteredOfEachC, TRUE);
 		}

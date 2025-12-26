@@ -698,13 +698,38 @@ BOOL MaxFilterTest()
 			sTemp.Format(_T("%d,"),imgResult.byImg[r*20+c]);
 			sResult+=sTemp;
 		}
-			sResult+="\n";
+		sResult+="\n";
 	}
-//	AfxMessageBox(sResult);
+	//	AfxMessageBox(sResult);
 	for(int i=0; i< 400; i++)
 	{
 		if(imgResult.byImg[i]!=g_byMax7x7[i]){CString sss; sss.Format(_T("%d %d %d"), i, imgResult.byImg[i],g_byMax7x7[i]); AfxMessageBox(sss);return FALSE;}
 	}
+
+	for(int rStart=0; rStart<19; rStart++)
+	{
+		for(int rEnd=rStart; rEnd<20; rEnd++)
+		{
+			for(int cStart=0; cStart<19; cStart++)
+			{
+				for(int cEnd=cStart; cEnd<20; cEnd++)
+				{
+
+					for(int r=rStart; r<= rEnd; r++)
+					{
+						for(int c=cStart; c<= cEnd; c++)
+						{
+							for(int i=0; i<400; i++){imgResult.byImg[i]=255;}
+							MaxImage(&imgTest, &imgResult,rStart,cStart,rEnd,cEnd,7,7);
+
+							if(imgResult.byImg[r*20+c]!=g_byMax7x7[r*20+c]){CString sss; sss.Format(_T("(%d, %d) %d %d"), r, c, imgResult.byImg[r*20+c],g_byMax7x7[r*20+c]); AfxMessageBox(sss);return FALSE;}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return TRUE;
 }
 void CSImgProcTestDlg::OnBnClickedButton1()
