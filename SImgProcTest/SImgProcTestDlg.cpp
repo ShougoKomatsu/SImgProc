@@ -723,7 +723,7 @@ BOOL MaxFilterTest()
 							for(int i=0; i<400; i++){imgResult.byImg[i]=255;}
 							MaxImage(&imgTest, &imgResult,rStart,cStart,rEnd,cEnd,7,7);
 
-							if(imgResult.byImg[r*20+c]!=g_byMax7x7[r*20+c]){CString sss; sss.Format(_T("(%d, %d) %d %d"), r, c, imgResult.byImg[r*20+c],g_byMax7x7[r*20+c]); AfxMessageBox(sss);return FALSE;}
+							if(imgResult.byImg[r*20+c]!=g_byMax7x7[r*20+c]){CString sss; sss.Format(_T("(%d, %d) %d %d| rS = %d, re = %d, cS = %d, cE=%d"), r, c, imgResult.byImg[r*20+c],g_byMax7x7[r*20+c],rStart,rEnd,cStart,cEnd); AfxMessageBox(sss);return FALSE;}
 						}
 					}
 				}
