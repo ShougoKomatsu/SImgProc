@@ -1354,16 +1354,23 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		for(int r=0; r<iImgHeight; r++)
+		
+		if(iStartR != 0)
 		{
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
-			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, 0, iImgWidth-1, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
+			UpdateSumRDirection(imgG1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
+			UpdateSumRDirection(imgB1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
+		}
+		for(int r=iStartR; r<=iEndR; r++)
+		{
+			UpdateSumRDirection(imgR1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_R, &iTotalHeight_R);
+			UpdateSumRDirection(imgG1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_G, &iTotalHeight_G);
+			UpdateSumRDirection(imgB1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_B, &iTotalHeight_B);
 
-			SumCDirection(uiFilteredOfEachC_R, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_R, iTotalCs_R);
-			SumCDirection(uiFilteredOfEachC_G, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_G, iTotalCs_G);
-			SumCDirection(uiFilteredOfEachC_B, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_B, iTotalCs_B);
-			for(int c=0; c<iImgWidth; c++)
+			SumCDirection(uiFilteredOfEachC_R, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_R, iTotalCs_R);
+			SumCDirection(uiFilteredOfEachC_G, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_G, iTotalCs_G);
+			SumCDirection(uiFilteredOfEachC_B, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_B, iTotalCs_B);
+			for(int c=iStartC; c<=iEndC; c++)
 			{
 				imgR2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_R[c]/(iTotalCs_R[c]*iTotalHeight_R*1.0));
 				imgG2.byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC_G[c]/(iTotalCs_G[c]*iTotalHeight_G*1.0));
@@ -1402,15 +1409,15 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int
 		
 		if(iStartR != 0)
 		{
-			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, iStartR-1, iC0, iC1, iHalfHeight, uiFilteredOfEachC, &iTotalHeight, TRUE);
+			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, iHalfHeight, uiFilteredOfEachC, &iTotalHeight, TRUE);
 		}
 
 		for(int r=iStartR; r<=iEndR; r++)
 		{
-			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, iC0, iC1, (iFilterHeight-1)/2, uiFilteredOfEachC, &iTotalHeight);
+			UpdateSumRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC, &iTotalHeight);
 
-			SumCDirection(uiFilteredOfEachC, iImgWidth, iC0, iC1, (iFilterWidth-1)/2, uiFilteredOfRC, iTotalCs);
-			for(int c=0; c<iImgWidth; c++)
+			SumCDirection(uiFilteredOfEachC, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC, iTotalCs);
+			for(int c=iStartC; c<=iEndC; c++)
 			{
 				imgResult->byImg[r*iImgWidth+c]=BYTE(uiFilteredOfRC[c]/(iTotalCs[c]*iTotalHeight*1.0));
 			}
@@ -1568,16 +1575,23 @@ BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int 
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		for(int r=0; r<iImgHeight; r++)
+		
+		if(iStartR != 0)
 		{
-			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, iC0, iC1, (iFilterHeight-1)/2, uiFilteredOfEachC_R);
-			UpdateMinRDirection(imgG1.byImg, iImgWidth, iImgHeight, r, iC0, iC1, (iFilterHeight-1)/2, uiFilteredOfEachC_G);
-			UpdateMinRDirection(imgB1.byImg, iImgWidth, iImgHeight, r, iC0, iC1, (iFilterHeight-1)/2, uiFilteredOfEachC_B);
+			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_R);
+			UpdateMinRDirection(imgG1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_G);
+			UpdateMinRDirection(imgB1.byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_B);
+		}
+		for(int r=iStartR; r<=iEndR; r++)
+		{
+			UpdateMinRDirection(imgR1.byImg, iImgWidth, iImgHeight, r, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_R);
+			UpdateMinRDirection(imgG1.byImg, iImgWidth, iImgHeight, r, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_G);
+			UpdateMinRDirection(imgB1.byImg, iImgWidth, iImgHeight, r, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC_B);
 
-			MinCDirection(uiFilteredOfEachC_R, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_R);
-			MinCDirection(uiFilteredOfEachC_G, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_G);
-			MinCDirection(uiFilteredOfEachC_B, iImgWidth, 0, iImgWidth-1, (iFilterWidth-1)/2, uiFilteredOfRC_B);
-			for(int c=0; c<iImgWidth; c++)
+			MinCDirection(uiFilteredOfEachC_R, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_R);
+			MinCDirection(uiFilteredOfEachC_G, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_G);
+			MinCDirection(uiFilteredOfEachC_B, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC_B);
+			for(int c=iStartC; c<=iEndC; c++)
 			{
 				imgR2.byImg[r*iImgWidth+c]=uiFilteredOfRC_R[c];
 				imgG2.byImg[r*iImgWidth+c]=uiFilteredOfRC_G[c];
@@ -1610,15 +1624,15 @@ BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int 
 		
 		if(iStartR != 0)
 		{
-			UpdateMinRDirection(imgIn->byImg, iImgWidth, iImgHeight, iStartR-1, iC0, iC1, iHalfHeight, uiFilteredOfEachC, TRUE);
+			UpdateMinRDirection(imgIn->byImg, iImgWidth, iImgHeight, iStartR-1, iStartC, iEndC, iHalfHeight, uiFilteredOfEachC, TRUE);
 		}
 
 		for(int r=iStartR; r<=iEndR; r++)
 		{
-			UpdateMinRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, iC0, iC1, (iFilterHeight-1)/2, uiFilteredOfEachC);
+			UpdateMinRDirection(imgIn->byImg, iImgWidth, iImgHeight, r, iStartC, iEndC, (iFilterHeight-1)/2, uiFilteredOfEachC);
 
-			MinCDirection(uiFilteredOfEachC, iImgWidth, iC0, iC1, (iFilterWidth-1)/2, uiFilteredOfRC);
-			for(int c=0; c<iImgWidth; c++)
+			MinCDirection(uiFilteredOfEachC, iImgWidth, iStartC, iEndC, (iFilterWidth-1)/2, uiFilteredOfRC);
+			for(int c=iStartC; c<=iEndC; c++)
 			{
 				imgResult->byImg[r*iImgWidth+c]=uiFilteredOfRC[c];
 			}
