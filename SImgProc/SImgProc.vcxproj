@@ -115,6 +115,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
+    <ClCompile Include="Filter.cpp" />
     <ClCompile Include="ImgProc.cpp" />
     <ClCompile Include="ImgRGB.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -128,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CommonFunction.h" />
+    <ClInclude Include="Filter.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RunLength.h" />

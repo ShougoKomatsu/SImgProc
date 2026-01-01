@@ -12,6 +12,7 @@
 
 #include "..\\simgproc\\ImgProc.h"
 #include "..\\simgproc\\commonfunction.h"
+#include "..\\simgproc\\Filter.cpp"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
