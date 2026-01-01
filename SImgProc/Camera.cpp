@@ -22,7 +22,7 @@ int CameraLocal::SendRecive(CString sPipeName, CString sSend, CString* sReceive)
 
 	TCHAR tchBuffer[256];
 	ZeroMemory(tchBuffer, sizeof(tchBuffer));
-	_stprintf(tchBuffer, _T("%s"), sSend);
+	_stprintf_s(tchBuffer, _T("%s"), (LPCTSTR)sSend);
 	DWORD dwNumberOfBytesWritten = 0;
 	DWORD dwNumberOfByteToWrite = (_tcslen(tchBuffer)+1) * sizeof(TCHAR);
 	bRet = WriteFile(m_hPipe, tchBuffer, dwNumberOfByteToWrite, (LPDWORD)&dwNumberOfBytesWritten, NULL);

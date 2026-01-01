@@ -91,39 +91,39 @@ BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 
 				if(dH<=60.0)
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV;
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV*(dS*((dH-0)/60.0));
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV*(1 - dS);
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV);
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV*(dS*((dH-0)/60.0)));
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
 				}
 				else if(dH<=120.0)
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV*(dS*(dH-60.0)/60.0);
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV;
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV*(1 - dS);
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV*(dS*(dH-60.0)/60.0));
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV);
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
 				}
 				else if(dH<=180.0)
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV*(1 - dS);
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV;
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV*(dS*(dH-120.0)/60.0);
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV);
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV*(dS*(dH-120.0)/60.0));
 				}
 				else if(dH<=240.0)
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV*(1 - dS);
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV*(dS*(dH-180.0)/60.0);
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV;
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV*(dS*(dH-180.0)/60.0));
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV);
 				}
 				else if(dH<=300.0)
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV*(dS*(dH-240.0)/60.0);
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV*(1 - dS);
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV;
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV*(dS*(dH-240.0)/60.0));
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV);
 				}
 				else
 				{
-					imgOut->byImgR[r*imgIn->iWidth+c] = dV;
-					imgOut->byImgG[r*imgIn->iWidth+c] = dV*(1 - dS);
-					imgOut->byImgB[r*imgIn->iWidth+c] = dV*(dS*(dH-300.0)/60.0);
+					imgOut->byImgR[r*imgIn->iWidth+c] = BYTE(dV);
+					imgOut->byImgG[r*imgIn->iWidth+c] = BYTE(dV*(1 - dS));
+					imgOut->byImgB[r*imgIn->iWidth+c] = BYTE(dV*(dS*(dH-300.0)/60.0));
 				}
 			}
 		}
@@ -1581,7 +1581,7 @@ inline void SumHorizontalLine(UINT* uiRSum, UINT* uiSumC, UINT uiImgW, UINT uiFi
 	{
 		uiSumC[c]=uiSumC[c-1]+uiRSum[c+uiFilterHalfW]-uiRSum[c-uiFilterHalfW-1];
 	}
-	for(INT c=uiImgW-uiFilterHalfW; c<uiImgW; c++)
+	for(UINT c=uiImgW-uiFilterHalfW; c<uiImgW; c++)
 	{
 		uiSumC[c]=uiSumC[c-1]-uiRSum[c-uiFilterHalfW-1];
 	}
@@ -1661,211 +1661,6 @@ inline void MeanDivide(UINT* uiSum, BYTE* byMean, UINT uiImgW, UINT uiImgH, UINT
 	}
 }
 
-BOOL MeanFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFilterW, UINT uiFilterH)
-{
-	if(byImg==NULL){return FALSE;}
-	if(byResult == NULL){return FALSE;}
-	if(uiFilterW < 3){return FALSE;}
-	if(uiFilterH<3){return FALSE;}
-	if((uiFilterW%2)!=1){return FALSE;}
-	if((uiFilterH%2)!=1){return FALSE;}
-	if(uiImgW<uiFilterW){return FALSE;}
-	if(uiImgH<uiFilterH){return FALSE;}
-
-	if((uiFilterW*uiFilterH)>= (UINT_MAX >> 8)){return FALSE;}
-
-	UINT uiFilterHalfW = (uiFilterW-1)/2;
-	UINT uiFilterHalfH = (uiFilterH-1)/2;
-
-	UINT* uiImgSum=NULL;
-	uiImgSum=new UINT[uiImgW*uiImgH];
-	if(uiImgSum==NULL){return FALSE;}
-
-
-	UINT* uiRSumData=NULL;
-	uiRSumData=new UINT[uiImgW*uiImgH];
-	if(uiRSumData==NULL){SAFE_DELETE(uiImgSum); return FALSE;}
-	VerticalSumR0(byImg, uiRSumData, uiImgW, uiFilterHalfH);
-	SumHorizontalLine(uiRSumData, &(uiImgSum[0*uiImgW]), uiImgW, uiFilterHalfW);
-	for(UINT r=1; r<uiImgH; r++)
-	{
-		UpdateVerticalSum(byImg, uiRSumData, r, uiImgW, uiImgH, uiFilterHalfH);
-		SumHorizontalLine(uiRSumData, &(uiImgSum[r*uiImgW]), uiImgW, uiFilterHalfW);
-	}
-	MeanDivide(uiImgSum, byResult, uiImgW, uiImgH, uiFilterHalfW, uiFilterHalfH);
-	SAFE_DELETE(uiImgSum);
-	SAFE_DELETE(uiRSumData);
-	return TRUE;
-}
-
-
-inline BYTE byMaxC(BYTE* byImg, UINT uiImgW, UINT r0, UINT c0, UINT uiFilterW, UINT* uiMaxCL)
-{
-	BYTE byMax=0;
-	*uiMaxCL=0;
-	for(UINT cl=0; cl<uiFilterW; cl++)
-	{
-		if(byMax<= byImg[r0 * uiImgW+c0+cl])
-		{
-			byMax=byImg[r0 * uiImgW+c0+cl];
-			*uiMaxCL=cl;
-		}
-	}
-	return byMax;
-}
-
-
-
-
-
-inline BYTE byMaxR(BYTE* byImg, UINT uiImgW, UINT r0, UINT c0, UINT uiFilterH, UINT* uiMaxRL)
-{
-	BYTE byMax=0;
-	for(int rl=0; rl<uiFilterH; rl++)
-	{
-		if(byMax<=byImg[(r0+rl)*uiImgW+c0])
-		{
-			byMax=byImg[(r0+rl)*uiImgW+c0];
-			*uiMaxRL=rl;
-		}
-	}
-	return byMax;
-}
-
-inline BYTE byMaxRC(BYTE* byImg, int iImgW, int r0, int c0, int iFilterW, int iFilterH)
-{
-	BYTE byMax=0;
-	for(int rl=0; rl<iFilterH; rl++)
-	{
-		for(int cl=0; cl<iFilterW; cl++)
-		{
-			if(byMax<=byImg[(r0+rl)*iImgW+cl+c0])
-			{
-				byMax=byImg[(r0+rl)*iImgW+cl+c0];
-			}
-		}
-	}
-	return byMax;
-}
-
-
-
-
-
-
-inline void UpdateRDirectionMax(BYTE* byImgExp, BYTE* byRMaxData, int r_origin, int iImgW, int iFilterHalfW, int iFilterHalfH, UINT* uiMaxPositions)
-{
-	if(r_origin==0)
-	{
-		for(int c=0; c<iImgW; c++)
-		{
-			byRMaxData[c+iFilterHalfW]=byMaxR(byImgExp, iImgW, r_origin+iFilterHalfH, c, iFilterHalfH+1, &(uiMaxPositions[c]));
-		}
-		return;
-	}
-
-	for(int c=0; c<iImgW; c++)
-	{
-		if(byRMaxData[c+iFilterHalfW] < byImgExp[(r_origin+2*iFilterHalfH)*iImgW+c])
-		{
-			byRMaxData[c+iFilterHalfW]=byImgExp[(r_origin+2*iFilterHalfH)*iImgW+c];
-			uiMaxPositions[c]=2*iFilterHalfH;
-			continue;
-		}
-
-		if(uiMaxPositions[c]==0)
-		{
-			byRMaxData[c+iFilterHalfW]=byMaxR(byImgExp, iImgW, r_origin, c, 2*iFilterHalfH+1, &(uiMaxPositions[c]));
-			continue;
-		}
-		(uiMaxPositions[c])--;
-	}
-}
-
-
-BOOL MaxFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFilterW, UINT uiFilterH)
-{
-	if(byImg!=NULL){return FALSE;}
-	if(byResult!=NULL){return FALSE;}
-
-	BYTE* byImgExpanded;
-	BYTE* byRMaxData;
-	UINT* uiMaxPositions;
-	UINT uiMaxPositionCL;
-
-	if((uiFilterW % 2)!=1){return FALSE;}
-	if((uiFilterH % 2)!=1){return FALSE;}
-
-	UINT uiFilterHalfW = (uiFilterW-1)/2;
-	UINT uiFilterHalfH = (uiFilterH-1)/2;
-
-	BOOL bSameMemory=FALSE;
-	BYTE* byResultLocal;
-	BYTE* pbyResult;
-	if(byImg==byResult)
-	{
-		bSameMemory=TRUE;
-		byResultLocal=new BYTE[uiImgW*uiImgH];
-		pbyResult=byResultLocal;
-	}
-	else
-	{
-		pbyResult=byResult;
-	}
-
-	byImgExpanded = new BYTE[uiImgW*(uiImgH + 2 * uiFilterHalfH)];
-	byRMaxData = new BYTE[uiImgW + 2*uiFilterHalfW];
-	uiMaxPositions = new UINT[uiImgW];
-
-	memset(byImgExpanded, 0, uiImgW*(uiImgH + 2 * uiFilterHalfH));
-	for(UINT r=0; r<uiImgH; r++)
-	{
-		for(UINT c=0; c<uiImgW; c++)
-		{
-			byImgExpanded[(r + uiFilterHalfH)*uiImgW+c] = byImg[r*uiImgW+c];
-		}
-	}
-	memset(byRMaxData, 0, uiImgW + 2*uiFilterHalfW);
-	for(UINT r=0; r<uiImgH; r++)
-	{
-		UpdateRDirectionMax(byImgExpanded, byRMaxData, r, uiImgW, uiFilterHalfW, uiFilterHalfH, uiMaxPositions);
-
-		pbyResult[r*uiImgW+0]=byMaxC(byRMaxData, uiImgW + uiFilterHalfW, 0, 0, uiFilterW, &(uiMaxPositionCL));
-		for(UINT c=1; c<uiImgW; c++)
-		{
-			if(byRMaxData[c+2*uiFilterHalfW]>pbyResult[r*uiImgW+c-1])
-			{
-				pbyResult[r*uiImgW+c] = byRMaxData[c+2*uiFilterHalfW];
-				uiMaxPositionCL = 2*uiFilterHalfW;
-				continue;
-			}
-			if(uiMaxPositionCL==0)
-			{
-				pbyResult[r*uiImgW+c] = byMaxC(byRMaxData, uiImgW+2*uiFilterHalfW, 0, c, uiFilterW,&uiMaxPositionCL);
-				continue;
-			}
-			uiMaxPositionCL--;
-			pbyResult[r*uiImgW+c] = pbyResult[r*uiImgW+c-1];
-		}
-	}
-
-	if(bSameMemory==TRUE)
-	{
-		for(UINT r=0; r<uiImgH; r++)
-		{
-			for(UINT c=0; c<uiImgW; c++)
-			{
-				byResult[r*uiImgW+c]=byResultLocal[r*uiImgW+c];
-			}
-		}
-		SAFE_DELETE(byResultLocal);
-	}
-
-	SAFE_DELETE(uiMaxPositions);
-	SAFE_DELETE(byImgExpanded);
-	SAFE_DELETE(byRMaxData);
-	return TRUE;
-}
 BOOL InvertImage(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH)
 {
 	if(byImg!=NULL){return FALSE;}
@@ -2491,7 +2286,7 @@ BOOL SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, d
 	objOut->Init();
 	if(sFeature.CompareNoCase(_T("area"))==0)
 	{
-		for(int i=0; i<=objIn->m_uiMaxLabel; i++)
+		for(UINT i=0; i<=objIn->m_uiMaxLabel; i++)
 		{
 			SelectObj(objIn, i, &objTemp);
 			AreaCenter(&objTemp, &dA, &dR, &dC);
@@ -2627,8 +2422,8 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 		int iAreaTemp;
 		iAreaTemp = obj->runLength[iID].iCEnd - obj->runLength[iID].iCStart+1;
 		iArea+=iAreaTemp;
-		uiCSum+=(obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp;
-		uiRSum+=(obj->runLength[iID].iR) * iAreaTemp;
+		uiCSum += UINT((obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp);
+		uiRSum += UINT((obj->runLength[iID].iR) * iAreaTemp);
 	}
 	*dArea=double(iArea);
 	*dR=uiRSum/(*dArea);
@@ -2636,9 +2431,9 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 	return TRUE;
 }
 
-BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLength)
+BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, UINT iLength)
 {
-	if(iLength<obj->m_uiMaxLabel+1){return FALSE;}
+	if(iLength < obj->m_uiMaxLabel+1){return FALSE;}
 
 	int* iAreas;
 	UINT* uiRSums;
@@ -2648,7 +2443,7 @@ BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLeng
 	uiRSums = new UINT[obj->m_uiMaxLabel+1];
 	uiCSums = new UINT[obj->m_uiMaxLabel+1];
 
-	for(int i=0; i<=obj->m_uiMaxLabel; i++)
+	for(UINT i=0; i<=obj->m_uiMaxLabel; i++)
 	{
 		iAreas[i]=0;
 		uiRSums[i]=0;
@@ -2659,10 +2454,10 @@ BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, int iLeng
 		int iAreaTemp;
 		iAreaTemp = obj->runLength[iID].iCEnd - obj->runLength[iID].iCStart+1;
 		iAreas[obj->runLength[iID].uiLabel]+=iAreaTemp;
-		uiCSums[obj->runLength[iID].uiLabel]+=(obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp;
-		uiRSums[obj->runLength[iID].uiLabel]+=(obj->runLength[iID].iR) * iAreaTemp;
+		uiCSums[obj->runLength[iID].uiLabel] += UINT((obj->runLength[iID].iCEnd + obj->runLength[iID].iCStart)/(2.0) * iAreaTemp);
+		uiRSums[obj->runLength[iID].uiLabel] += UINT((obj->runLength[iID].iR) * iAreaTemp);
 	}
-	for(int i=0; i<=obj->m_uiMaxLabel; i++)
+	for(UINT i=0; i<=obj->m_uiMaxLabel; i++)
 	{
 		if(iAreas[i]==0){dAreas[i]=0; dRs[i]=0; dCs[i]=0; continue;}
 		dAreas[i]=double(iAreas[i]);
