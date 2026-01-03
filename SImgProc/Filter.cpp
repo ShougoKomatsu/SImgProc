@@ -398,7 +398,7 @@ BOOL MinCDirection
 	return TRUE;
 }
 
-BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
+BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;
@@ -522,7 +522,7 @@ BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int
 	return FALSE;
 }
 
-BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
+BOOL DLL_IE MaxImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
 	int iImgWidth = imgIn->iWidth;
 	int iImgHeight = imgIn->iHeight;
@@ -629,7 +629,7 @@ BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int 
 	return FALSE;
 }	
 
-BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
+BOOL DLL_IE MinImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
 	int iImgWidth=imgIn->iWidth;
 	int iImgHeight=imgIn->iHeight;

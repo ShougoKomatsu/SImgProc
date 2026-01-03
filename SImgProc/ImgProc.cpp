@@ -5,7 +5,7 @@
 #include "runlength.h"
 #include "Camera.h"
 
-BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
+BOOL ConvertImage(const ImgRGB* imgIn, ImgRGB* imgOut, const CString sDstColor)
 {
 	if(imgIn==NULL){return FALSE;}
 	if(imgOut==NULL){return FALSE;}
@@ -133,7 +133,7 @@ BOOL ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor)
 	return TRUE;
 }
 
-BOOL Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
+BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
 {
 	if((imgIn->iChannel != CHANNEL_3_8RGB) && (imgIn->iChannel != CHANNEL_1_24BGR)){return FALSE;}
 	imgR->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
@@ -173,7 +173,7 @@ BOOL Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
 	return FALSE;
 }
 
-BOOL Compose3(ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgOut)
+BOOL Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, ImgRGB* imgOut)
 {
 	if(imgR->iChannel != CHANNEL_1_8){return FALSE;}
 	if(imgG->iChannel != CHANNEL_1_8){return FALSE;}
@@ -197,19 +197,21 @@ BOOL Compose3(ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgOut)
 	return TRUE;
 }
 
-BOOL Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut)
+BOOL Threshold(const ImgRGB* imgIn, const BYTE byThreshMin, const BYTE byThreshMax, Object* ObjOut)
 {
 	if(imgIn->iChannel != CHANNEL_1_8){return FALSE;}
 
 	ObjOut->Init();
+	Object ObjTemp;
+	ObjTemp.Copy(&(imgIn->objDomain));
 
 	for(int r=0; r<imgIn->iHeight; r++)
 	{
-		if(imgIn->objDomain.IsRInRegion(r)==FALSE){continue;}
+		if(ObjTemp.IsRInRegion(r)==FALSE){continue;}
 
 		int iIDStart;
 		int iIDEnd;
-		imgIn->objDomain.GetRunlengthIDsInR(r,&iIDStart, &iIDEnd);
+		ObjTemp.GetRunlengthIDsInR(r,&iIDStart, &iIDEnd);
 
 		for(int iID=iIDStart; iID<=iIDEnd; iID++)
 		{
@@ -254,7 +256,7 @@ BOOL ReduceDomain(ImgRGB* imgRGBIn, Object* objIn, ImgRGB* imgRGBOut)
 	imgRGBOut->objDomain.Copy(objIn);
 	return TRUE;
 }
-BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
+BOOL SelectObj(const Object* objIn, const int iLabel, Object* objOut)
 {
 	objOut->Init();
 	for(int iID=0; iID<=objIn->m_iMaxID; iID++)
@@ -265,7 +267,7 @@ BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 		}
 	}
 	return TRUE;
-}BOOL GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValueG, int* iValueB)
+}BOOL GetValue(const ImgRGB* imgRGBin, const int iR, const int iC, int* iValueR, int* iValueG, int* iValueB)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(iR<0){return FALSE;}
@@ -297,7 +299,7 @@ BOOL SelectObj(Object* objIn, int iLabel, Object* objOut)
 	return FALSE;
 }
 
-BOOL GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, double* dValueR, double* dValueG, double* dValueB)
+BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, const int iR1, const int iC1, double* dValueR, double* dValueG, double* dValueB)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(iR0>iR1){return FALSE;}
@@ -361,7 +363,7 @@ BOOL GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, doub
 	return FALSE;
 }
 
-BOOL CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, int iC1)
+BOOL CropImage(const ImgRGB* imgRGBin, ImgRGB* imgRGBout, const int iR0, const int iC0, const int iR1, const int iC1)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(imgRGBout==NULL){return FALSE;}
@@ -484,7 +486,7 @@ BOOL Screenshot(ImgRGB* imgRGB)
 	return TRUE;
 }
 
-BOOL IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC)
+BOOL IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC)
 {
 	int iModelHeight;
 	int iModelWidth;
@@ -811,7 +813,7 @@ int GetLevelSize(int iHW, int iLevel)
 	}
 	return iParentLevelHW;
 }
-BOOL ImgRGBPyramid::SetPyramid(ImgRGB* imgRGBIn)
+BOOL ImgRGBPyramid::SetPyramid(const ImgRGB* imgRGBIn)
 {
 	this->imgRGB.Set(imgRGBIn->iWidth, imgRGBIn->iHeight*2,CHANNEL_3_8RGB);
 
@@ -1503,7 +1505,7 @@ return FindModelPyramidRecursion(&imgTargetPylam, &imgModelPylam, 0, 0, imgTarge
 */
 
 
-BOOL CorrelMap(ImgRGB* imgTarget, ImgRGB* imgModel, ImgMap* imgMap, int iR0, int iC0, int iR1, int iC1)
+BOOL CorrelMap(const ImgRGB* imgTarget, const ImgRGB* imgModel, ImgMap* imgMap, const int iR0, const int iC0, const int iR1, const int iC1)
 {
 	if(imgTarget == NULL){return FALSE;}
 	if(imgModel == NULL){return FALSE;}
@@ -1811,7 +1813,7 @@ BOOL CorrelMapPyramid(ImgRGB* imgTarget, int iPointerTargetOffset, int iTargetWi
 	return TRUE;
 }
 
-BOOL FindModel(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC, double dThreshPercent)
+BOOL FindModel(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC, const double dThreshPercent)
 {
 	int iModelHeight;
 	int iModelWidth;
@@ -1908,13 +1910,14 @@ BOOL DetectArea(ImgMap* imgMap, UINT uiThreshScore, int* iR0, int* iC0, int* iR1
 
 	return TRUE;
 }
-BOOL FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, double dThreshPercent, int* iFoundR, int* iFoundC)
+BOOL FindModelPyramid(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, const	double dThreshPercent, int* iFoundR, int* iFoundC)
 {
 
 	if(imgTarget == NULL){return FALSE;}
 	if(imgModel == NULL){return FALSE;}
 	if(dThreshPercent<0){return FALSE;}
-	if(dThreshPercent>1){dThreshPercent=1;}
+	double dThreshPercentLocal=dThreshPercent;
+	if(dThreshPercent>1){dThreshPercentLocal=1;}
 	ImgRGBPyramid imgTargetPyram;
 	ImgRGBPyramid imgModelPyram;
 
@@ -1960,7 +1963,7 @@ BOOL FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int
 					if(imgMap.uiMap[iMapR*imgMap.iWidth+iMapC]<iScoreMin){iScoreMin=imgMap.uiMap[iMapR*imgMap.iWidth+iMapC]; iMaxR=iMapR; iMaxC=iMapC;}
 				}
 			}
-			if((1-(imgMap.uiMap[iMaxR*imgMap.iWidth+iMaxC]/((double)imgModel->iWidth*imgModel->iHeight*255)))*100<dThreshPercent){return FALSE;}
+			if((1-(imgMap.uiMap[iMaxR*imgMap.iWidth+iMaxC]/((double)imgModel->iWidth*imgModel->iHeight*255)))*100<dThreshPercentLocal){return FALSE;}
 			(*iFoundR)=iMaxR+iR0Level;
 			(*iFoundC)=iMaxC+iC0Level;
 			return TRUE;
@@ -1970,7 +1973,7 @@ BOOL FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int
 		int iDetectC0;
 		int iDetectR1;
 		int iDetectC1;
-		bRet = DetectArea(&imgMap, (UINT)(iModelWidthLevel*iModelHeightLevel*dThreshPercent*255), &iDetectR0, &iDetectC0, &iDetectR1, &iDetectC1);
+		bRet = DetectArea(&imgMap, (UINT)(iModelWidthLevel*iModelHeightLevel*dThreshPercentLocal*255), &iDetectR0, &iDetectC0, &iDetectR1, &iDetectC1);
 
 		iR0Level = iDetectR0*2-1;
 		iC0Level = iDetectC0*2-1;
@@ -1984,7 +1987,7 @@ BOOL FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int
 }
 
 
-BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC)
+BOOL IsInRegionMask(const ImgRGB* imgTarget, const ImgRGB* imgModel, const ImgRGB* imgMask, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC)
 {
 	int iModelHeight;
 	int iModelWidth;
@@ -2153,7 +2156,7 @@ BOOL IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR
 }
 
 
-BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
+BOOL ConcatObj(const Object* objIn1, const Object* objIn2, Object* objOut)
 {
 	if(objIn1->m_iMaxID<0){objOut->Copy(objIn2); return TRUE;}
 	if(objIn2->m_iMaxID<0){objOut->Copy(objIn1); return TRUE;}
@@ -2188,7 +2191,7 @@ BOOL ConcatObj(Object* objIn1, Object* objIn2, Object* objOut)
 	return TRUE;
 }
 
-BOOL ConvertImageCHANNEL_3_8RGB(ImgRGB* imgIn, ImgRGB* imgOut)
+BOOL ConvertImageCHANNEL_3_8RGB(const ImgRGB* imgIn, ImgRGB* imgOut)
 {
 	imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_3_8RGB);
 
@@ -2226,7 +2229,7 @@ BOOL ConvertImageCHANNEL_3_8RGB(ImgRGB* imgIn, ImgRGB* imgOut)
 	return FALSE;
 }
 
-BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB)
+BOOL PaintRegion(const ImgRGB* imgIn, const Object* objIn, ImgRGB* imgOut, const BYTE byR, const BYTE byG, const BYTE byB)
 {
 	BOOL bRet;
 	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
@@ -2251,7 +2254,7 @@ BYTE g_byG[3]={0, 255, 0};
 BYTE g_byB[3]={0, 0, 255};
 UINT g_uiColored=3;
 
-BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
+BOOL PaintRegion(const ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 {
 	BOOL bRet;
 	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
@@ -2277,7 +2280,7 @@ BOOL PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 
 	return TRUE;
 }
-BOOL SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax)
+BOOL SelectShape(const Object* objIn, Object* objOut, const CString sFeature, const double dMin, const double dMax)
 {
 
 	Object objTemp;
@@ -2317,7 +2320,7 @@ BOOL Connection(Object* objIn, Object* objOut, int iNeighborPolicy)
 	return TRUE;
 }
 
-BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
+BOOL SortRegion(const Object* objIn, const CString sMode, const CString sAscDsc, Object* objOut)
 {
 	if((sAscDsc.CompareNoCase(_T("Asc"))!=0)&&(sAscDsc.CompareNoCase(_T("Dsc"))!=0)){return FALSE;}
 	Object objLocal;
@@ -2412,7 +2415,7 @@ BOOL SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut)
 	return TRUE;
 }
 
-BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
+BOOL AreaCenter(const Object* obj, double* dArea, double* dR, double* dC)
 {
 	int iArea=0;
 	UINT uiRSum=0;
@@ -2431,7 +2434,7 @@ BOOL AreaCenter(Object* obj, double* dArea, double* dR, double* dC)
 	return TRUE;
 }
 
-BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, UINT iLength)
+BOOL AreaCenter(const Object* obj, double* dAreas, double* dRs, double* dCs, const UINT iLength)
 {
 	if(iLength < obj->m_uiMaxLabel+1){return FALSE;}
 
@@ -2469,7 +2472,7 @@ BOOL AreaCenter(Object* obj, double* dAreas, double* dRs, double* dCs, UINT iLen
 	SAFE_DELETE(uiCSums);
 	return TRUE;
 }
-BOOL ReadImage(CString sFilePath, ImgRGB* imgRGB)
+BOOL ReadImage(const CString sFilePath, ImgRGB* imgRGB)
 {
 	return imgRGB->Assign(sFilePath);
 }

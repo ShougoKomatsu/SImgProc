@@ -40,8 +40,8 @@ struct RunLength
 	UINT uiLabel;
 	BOOL bValid;
 	BOOL bIsConnectionOperated;
-	void Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn);
-	void Copy(RunLength* runLengthIn);
+	void Set(const int iRIn, const int iCStartIn, const int iCEndIn, const UINT uiLabelIn, const BOOL bValidIn);
+	void Copy(const RunLength* runLengthIn);
 	RunLength();
 };
 
@@ -54,21 +54,21 @@ struct DLL_IE Object
 
 	Object();
 	BOOL Init();
-	BOOL Alloc(int iBuf);
-	BOOL Expand(int iBuf);
-	BOOL Copy(Object* objSrc);
-	BOOL Add(int iR, int iCStart, int iCEnd, UINT uiLabel);
-	BOOL IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy);
-	BOOL ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy);
-	BOOL Connection(int iNeighborPolicy);
+	BOOL Alloc(const int iBuf);
+	BOOL Expand(const int iBuf);
+	BOOL Copy(const Object* objSrc);
+	BOOL Add(const int iR, const int iCStart, const int iCEnd, const UINT uiLabel);
+	BOOL IsNeighbor(const RunLength* runLength1, const RunLength* runLength2, const int iNeighborPolicy);
+	BOOL ConnectNeighbor(const RunLength* runLength, const int iID, const int iNeighborPolicy);
+	BOOL Connection(const int iNeighborPolicy);
 	BOOL SortR();
 	BOOL Truncate();
 	BOOL ReCheckID();
-	BOOL IsInRegion(int dR, int dC);
-	BOOL IsRInRegion(int iR);
+	BOOL IsInRegion(const int dR, const int dC);
+	BOOL IsRInRegion(const int iR);
 	BOOL UnionOverwrappedRunlength();
 	BOOL Union1();
-	BOOL GetRunlengthIDsInR(int iRIn, int* iIDStart, int* iIDEnd);
+	BOOL GetRunlengthIDsInR(const int iRIn, int* iIDStart, int* iIDEnd);
 };
 
 
@@ -85,12 +85,12 @@ struct DLL_IE ImgRGB
 	double* dImg2;
 	double* dImg3;
 	BYTE* byImg;
-	BOOL Set(int iWidthIn, int iHeightIn, int iChannelIn);
+	BOOL Set(const int iWidthIn, const int iHeightIn, const int iChannelIn);
 	BOOL Init();
 	ImgRGB();
 	~ImgRGB();
-	BOOL Assign(CString sFilePath);
-	BOOL Assign(BYTE* byData, int iWidth, int iHeight);
+	BOOL Assign(const CString sFilePath);
+	BOOL Assign(const BYTE* byData, const int iWidth, const int iHeight);
 	BOOL Assign(const ImgRGB* imgRGBIn);
 
 	Object objDomain;
@@ -102,7 +102,7 @@ struct ImgRGBPyramid
 	ImgRGB imgRGB;
 	int iWidthOriginal;
 	int iHeightOriginal;
-	BOOL DLL_IE SetPyramid(ImgRGB* imgRGBIn);
+	BOOL DLL_IE SetPyramid(const ImgRGB* imgRGBIn);
 };
 
 struct ImgMap
@@ -139,33 +139,32 @@ struct ImgMap
 
 
 BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
-BOOL DLL_IE ReadImage(CString sFilePath, ImgRGB* imgRGB);
-BOOL DLL_IE ConvertImage(ImgRGB* imgIn, ImgRGB* imgOut,CString sDstColor);
-BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
-BOOL DLL_IE Compose3(ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgOut);
+BOOL DLL_IE ReadImage(const CString sFilePath, ImgRGB* imgRGB);
+BOOL DLL_IE ConvertImage(const ImgRGB* imgIn, ImgRGB* imgOut, const CString sDstColor);
+BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
+BOOL DLL_IE Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, ImgRGB* imgOut);
 
 BOOL DLL_IE Screenshot(ImgRGB* imgRGB);
-BOOL DLL_IE CropImage(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, int iC1);
+BOOL DLL_IE CropImage(const ImgRGB* imgRGBin, ImgRGB* imgRGBout, const int iR0, const int iC0, const int iR1, const int iC1);
 
-BOOL DLL_IE IsInRegion(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC);
-BOOL DLL_IE IsInRegionMask(ImgRGB* imgTarget, ImgRGB* imgModel, ImgRGB* imgMask, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC);
-BOOL DLL_IE FindModel(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, int* iFoundR, int* iFoundC, double dThreshPercent=0.0);
-BOOL DLL_IE FindModelPyramid(ImgRGB* imgTarget, ImgRGB* imgModel, int iR0, int iC0, int iR1, int iC1, double dThreshPercent, int* iFoundR, int* iFoundC);
+BOOL DLL_IE IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC);
+BOOL DLL_IE IsInRegionMask(const ImgRGB* imgTarget, const ImgRGB* imgModel, const ImgRGB* imgMask, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC);
+BOOL DLL_IE FindModel(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC, const double dThreshPercent=0.0);
+BOOL DLL_IE FindModelPyramid(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, const double dThreshPercent, int* iFoundR, int* iFoundC);
 
-BOOL DLL_IE GetValue(ImgRGB* imgRGBin, int iR, int iC, int* iValueR, int* iValueG, int* iValueB);
-BOOL DLL_IE GetValueInRegion(ImgRGB* imgRGBin, int iR0, int iC0, int iR1, int iC1, double* dValueR, double* dValueG, double* dValueB);
+BOOL DLL_IE GetValue(const ImgRGB* imgRGBin, const int iR, const int iC, int* iValueR, int* iValueG, int* iValueB);
+BOOL DLL_IE GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, const int iR1, const int iC1, double* dValueR, double* dValueG, double* dValueB);
 
 
-BOOL DLL_IE SortRegion(Object* objIn, CString sMode, CString sAscDsc, Object* objOut);
-BOOL DLL_IE Threshold(ImgRGB* imgIn, BYTE byThreshMin, BYTE byThreshMax, Object* ObjOut);
-BOOL DLL_IE AreaCenter(Object* obj, double* dArea, double* dR, double* dC);
-BOOL DLL_IE AreaCenter(Object* obj, double* dArea, double* dR, double* dC, UINT uiLength);
-BOOL DLL_IE SelectObj(Object* objIn, int iID, Object* objOut);
-BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut, BYTE byR, BYTE byG, BYTE byB);
-BOOL DLL_IE PaintRegion(ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut);
-BOOL DLL_IE Decompose3(ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
-BOOL DLL_IE SelectShape(Object* objIn, Object* objOut, CString sFeature, double dMin, double dMax);
-BOOL DLL_IE ConcatObj(Object* objIn1, Object* objIn2, Object* objOut);
+BOOL DLL_IE SortRegion(const Object* objIn, const CString sMode, const CString sAscDsc, Object* objOut);
+BOOL DLL_IE Threshold(const ImgRGB* imgIn, const BYTE byThreshMin, const BYTE byThreshMax, Object* ObjOut);
+BOOL DLL_IE AreaCenter(const Object* obj, double* dArea, double* dR, double* dC);
+BOOL DLL_IE AreaCenter(const Object* obj, double* dArea, double* dR, double* dC, const UINT uiLength);
+BOOL DLL_IE SelectObj(const Object* objIn, const int iID, Object* objOut);
+BOOL DLL_IE PaintRegion(const ImgRGB* imgIn, const Object* objIn, ImgRGB* imgOut, const BYTE byR, const BYTE byG, const BYTE byB);
+BOOL DLL_IE PaintRegion(const ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut);
+BOOL DLL_IE SelectShape(const Object* objIn, Object* objOut, const CString sFeature, const double dMin, const double dMax);
+BOOL DLL_IE ConcatObj(const Object* objIn1, const Object* objIn2, Object* objOut);
 
 BOOL DLL_IE Connection(Object* objIn, Object* objOut, int iNeighborPolicy);
 BOOL DLL_IE Union1(Object* objIn, Object* objOut);
@@ -173,10 +172,11 @@ BOOL DLL_IE Union1(Object* objIn, Object* objOut);
 BOOL DLL_IE ReduceDomain(ImgRGB* imgRGBIn, Object* objIn, ImgRGB* imgRGBOut);
 
 BOOL DLL_IE GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1);
-BOOL DLL_IE MeanImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
-BOOL DLL_IE MaxImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int C0, const int R1, const int C1, const int iFilterWidth, const int iFilterHeight);
-BOOL DLL_IE MinImage(ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
 BOOL DLL_IE SubImage(ImgRGB* img1, ImgRGB* img2, ImgRGB* imgResult, double dMult, double dAdd);
+
+BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
+BOOL DLL_IE MaxImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int C0, const int R1, const int C1, const int iFilterWidth, const int iFilterHeight);
+BOOL DLL_IE MinImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
 
 
 struct DLL_IE Camera

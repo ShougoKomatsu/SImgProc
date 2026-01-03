@@ -17,7 +17,7 @@ BOOL Object::Init()
 	return TRUE;
 }
 
-BOOL Object::Alloc(int iBuf)
+BOOL Object::Alloc(const int iBuf)
 {
 	Init();
 	runLength=new RunLength[iBuf];
@@ -25,7 +25,7 @@ BOOL Object::Alloc(int iBuf)
 	return TRUE;
 }
 
-BOOL Object::Expand(int iBuf)
+BOOL Object::Expand(const int iBuf)
 {
 	if(iBuf==1)
 	{
@@ -45,7 +45,7 @@ BOOL Object::Expand(int iBuf)
 
 }
 
-BOOL Object::Copy(Object* objSrc)
+BOOL Object::Copy(const Object* objSrc)
 {
 	if(objSrc==this){return TRUE;}
 
@@ -66,7 +66,7 @@ BOOL Object::Copy(Object* objSrc)
 
 }
 
-BOOL Object::Add(int iR, int iCStart, int iCEnd, UINT uiLabel)
+BOOL Object::Add(const int iR, const int iCStart, const int iCEnd, const UINT uiLabel)
 {
 	if(m_iMaxID+1>=m_iBufNum)
 	{
@@ -86,7 +86,7 @@ BOOL Object::Add(int iR, int iCStart, int iCEnd, UINT uiLabel)
 }
 
 
-BOOL Object::IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeighborPolicy)
+BOOL Object::IsNeighbor(const RunLength* runLength1, const RunLength* runLength2, const int iNeighborPolicy)
 {
 	if(runLength2->iR<runLength1->iR-1){return FALSE;}
 	if(runLength2->iR>runLength1->iR+1){return FALSE;}
@@ -113,7 +113,7 @@ BOOL Object::IsNeighbor(RunLength* runLength1, RunLength* runLength2, int iNeigh
 	return FALSE;
 }
 
-BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
+BOOL Object::ConnectNeighbor(const RunLength* runLength, const int iID, const int iNeighborPolicy)
 {
 	if(runLength->bValid==FALSE){return FALSE;}
 	int iSelfR=runLength->iR;
@@ -150,7 +150,7 @@ BOOL Object::ConnectNeighbor(RunLength* runLength, int iID, int iNeighborPolicy)
 	return TRUE;
 }
 
-BOOL Object::Connection(int iNeighborPolicy)
+BOOL Object::Connection(const int iNeighborPolicy)
 {
 	UINT uiMaxLabel=0;
 
@@ -215,7 +215,7 @@ BOOL Object::Truncate()
 	return TRUE;
 
 }
-BOOL Object::IsInRegion(int dR, int dC)
+BOOL Object::IsInRegion(const int dR, const int dC)
 {
 	for(int iID=0; iID<=this->m_iMaxID; iID++)
 	{
@@ -233,7 +233,7 @@ BOOL Object::IsInRegion(int dR, int dC)
 	return FALSE;
 }
 
-BOOL Object::GetRunlengthIDsInR(int iRIn, int* iIDStart, int* iIDEnd)
+BOOL Object::GetRunlengthIDsInR(const int iRIn, int* iIDStart, int* iIDEnd)
 {
 	BOOL bStart;
 	bStart=FALSE;
@@ -336,7 +336,7 @@ BOOL Object::ReCheckID()
 
 	return TRUE;
 }
-BOOL Object::IsRInRegion(int iRIn)
+BOOL Object::IsRInRegion(const int iRIn)
 {
 	for(int iID=0; iID<=this->m_iMaxID; iID++)
 	{
@@ -346,7 +346,7 @@ BOOL Object::IsRInRegion(int iRIn)
 	}
 	return FALSE;
 }
-BOOL GenRectangle1(Object* objOut, int iR0, int iC0, int iR1, int iC1)
+BOOL GenRectangle1(Object* objOut, const int iR0, const int iC0, const int iR1, const int iC1)
 {
 	int iR0Local=min(iR0, iR1);
 	int iR1Local=max(iR0, iR1);
@@ -382,7 +382,7 @@ BOOL Union1(Object* objIn, Object* objOut)
 }
 
 
-BOOL SmallestRectange1(Object* obIn, int* iR1, int* iC1, int* iR2, int* iC2)
+BOOL SmallestRectange1(const Object* obIn, int* iR1, int* iC1, int* iR2, int* iC2)
 {
 	int iCMin;
 	int iCMax;

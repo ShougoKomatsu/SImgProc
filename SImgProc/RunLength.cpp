@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SImgProc_ex.h"
 
-void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL bValidIn)
+void RunLength::Set(const int iRIn, const int iCStartIn, const int iCEndIn, const UINT uiLabelIn, const BOOL bValidIn)
 {
 	iR=iRIn;
 	iCStart=iCStartIn;
@@ -14,14 +14,14 @@ void RunLength::Set(int iRIn, int iCStartIn, int iCEndIn, UINT uiLabelIn, BOOL b
 RunLength::RunLength(){iR=0; iCStart=0; iCEnd=0; uiLabel=0; bValid=FALSE;}
 
 
-void RunLength::Copy(RunLength* runLengthIn)
+void RunLength::Copy(const RunLength* runLengthIn)
 {
 	if(runLengthIn==this){return;}
 
 	this->Set(runLengthIn->iR,runLengthIn->iCStart, runLengthIn->iCEnd, runLengthIn->uiLabel, runLengthIn->bValid);
 }
 
-BOOL IsOverWrapped(RunLength* runLength1, RunLength* runLength2)
+BOOL IsOverWrapped(const RunLength* runLength1, const RunLength* runLength2)
 {
 
 	if(runLength1->iR != runLength2->iR){return FALSE;}

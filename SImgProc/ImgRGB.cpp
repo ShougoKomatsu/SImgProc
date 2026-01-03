@@ -20,7 +20,7 @@ BOOL ImgRGB::Init()
 	return TRUE;
 }
 
-BOOL ImgRGB::Set(int iWidthIn, int iHeightIn, int iChannelIn)
+BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 {
 	Init();
 	if(iWidthIn<=0){return FALSE;}
@@ -55,7 +55,7 @@ BOOL ImgRGB::Set(int iWidthIn, int iHeightIn, int iChannelIn)
 	return TRUE;
 }
 
-BOOL ImgRGB::Assign(CString sFilePath)
+BOOL ImgRGB::Assign(const CString sFilePath)
 {
 
 	this->Init();
@@ -175,7 +175,7 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 	return FALSE;
 }
 
-BOOL ImgRGB::Assign(BYTE* byData, int iWidth, int iHeight)
+BOOL ImgRGB::Assign(const BYTE* byData, const int iWidth, const int iHeight)
 {
 
 	GenRectangle1(&(this->objDomain), 0, 0, iHeight-1, iWidth-1);
