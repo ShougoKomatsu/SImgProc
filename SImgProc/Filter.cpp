@@ -205,7 +205,7 @@ inline BOOL UpdateMinRDirection
 	
 	for(int c = iC0Local; c <= iC1Local; c++)
 	{
-		if(byMinOfEachC[c] > byImage[(r-iHalfHeight-1)*iImgWidth+c])
+		if(byMinOfEachC[c] >= byImage[(r-iHalfHeight-1)*iImgWidth+c])
 		{
 			byMinOfEachC[c] = byImage[(r-iHalfHeight)*iImgWidth+c];
 			for(int rOffset = -iHalfHeight+1; rOffset< iImgHeight-r; rOffset++)
@@ -389,7 +389,7 @@ BOOL MinCDirection
 		}
 
 		byMinOfRC[c] = byMinOfEachC[c-iHalfWidth];
-		for(int cOffset = -iHalfWidth; cOffset < iHalfWidth-c; cOffset++)
+		for(int cOffset = -iHalfWidth; cOffset < iImgWidth-c; cOffset++)
 		{
 			byMinOfRC[c] = MIN(byMinOfRC[c], byMinOfEachC[c+cOffset]);
 		}
