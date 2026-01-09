@@ -715,7 +715,6 @@ BYTE g_byBmpData1_16[192]=
 	0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0x80,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
 };
-};
 
 BYTE g_byBmpData1_256[192]=
 {
@@ -765,7 +764,6 @@ BYTE g_byBmpData2_16[204]=
 	0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0x80,
 	0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0xC0, 0x80, 0x00, 0x00, 0xFF, 0x80,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
-};
 };
 
 BYTE g_byBmpData2_256[204]=
@@ -839,8 +837,71 @@ BOOL MaxFilterTest()
 
 	return TRUE;
 }
-void CSImgProcTestDlg::OnBnClickedButton1()
+BOOL IsDataOK(ImgRGB* imgRGB, BYTE* byData)
 {
+		if(imgRGB->iWidth<=0){return FALSE;}
+	for(int r=0; r<imgRGB->iHeight; r++)
+	{
+		for(int c=0; c<imgRGB->iWidth; c++)
+		{
+			if(imgRGB->byImgB[r*imgRGB->iWidth+c]!= byData[r*imgRGB->iWidth+c]){return FALSE;}
+			if(imgRGB->byImgG[r*imgRGB->iWidth+c]!= byData[r*imgRGB->iWidth+c]){return FALSE;}
+			if(imgRGB->byImgR[r*imgRGB->iWidth+c]!= byData[r*imgRGB->iWidth+c]){return FALSE;}
+		}
+	}
+return TRUE;
+}
+BOOL FleReadTest()
+{
+	TCHAR tchBuf[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH,tchBuf);
+	CString sFilePath;
+	ImgRGB imgRGB;
+
+
+
+	sFilePath.Format(_T("%s\\bmp\\test_24bit.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){return FALSE;}
+
+	sFilePath.Format(_T("%s\\bmp\\test2_24bit.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){return FALSE;}
+	
+	
+	sFilePath.Format(_T("%s\\bmp\\test_256.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){return FALSE;}
+	
+	sFilePath.Format(_T("%s\\bmp\\test2_256.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){return FALSE;}
+
+	
+	
+	sFilePath.Format(_T("%s\\bmp\\test_016.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData1_16)!= TRUE){return FALSE;}
+	
+	sFilePath.Format(_T("%s\\bmp\\test2_016.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData2_16)!= TRUE){return FALSE;}
+
+	
+
+	sFilePath.Format(_T("%s\\bmp\\test_002.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData1_2)!= TRUE){return FALSE;}
+
+	sFilePath.Format(_T("%s\\bmp\\test2_002.bmp"),tchBuf);
+	imgRGB.Assign(sFilePath);
+	if(IsDataOK(&imgRGB,g_byBmpData2_2)!= TRUE){return FALSE;}
+
+	return TRUE;
+}
+void CSImgProcTestDlg::OnBnClickedButton1()
+{		
+	if(FleReadTest()!=TRUE){AfxMessageBox(_T("FleReadTest Failed"));return;}
 	if(MaxFilterTest()!=TRUE){AfxMessageBox(_T("MaxFilter Failed"));return;}
 	AfxMessageBox(_T("ok"));
 	return;

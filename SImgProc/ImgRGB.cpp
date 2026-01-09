@@ -88,13 +88,13 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 
 	for(int i=0; i<sizeof(bmfh); i++)
 	{
-		((BYTE*)&bmfh)[i]=byData[i];
+	((BYTE*)&bmfh)[i]=byData[i];
 	}
 	if(bmfh.bfType != 0x4d42){SAFE_DELETE(byData); return FALSE;}
 
 	for(int i=0; i<sizeof(bmih); i++)
 	{
-		((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
+	((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
 	}
 
 
@@ -115,33 +115,165 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 
 	for(int r=0; r<iHeightLocal; r++)
 	{
-		for(int c=0; c< iWidthLocal; c++)
-		{
-			(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+0];
-			(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+1];
-			(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+2];
-		}
+	for(int c=0; c< iWidthLocal; c++)
+	{
+	(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+0];
+	(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+1];
+	(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+2];
+	}
 	}
 
 	SAFE_DELETE(byData);
 	GenRectangle1(&(this->objDomain), 0, 0, iHeightLocal-1, iWidthLocal-1);
 	return TRUE;
+	}
+	*/
+
+
+BOOL ReadBmp(BYTE* byData, ImgRGB* imgRGB)
+{
+	
+	BITMAPFILEHEADER bmfh;
+	for(int i=0; i<sizeof(bmfh); i++)
+	{
+		((BYTE*)&bmfh)[i] = byData[i];
+	}
+
+	BITMAPINFOHEADER bmih;
+	for(int i=0; i<sizeof(bmih); i++)
+	{
+		((BYTE*)&bmih)[i] = byData[sizeof(bmfh)+i];
+	}
+
+
+	int iWidth;
+	int iHeight;
+
+	iWidth = bmih.biWidth;
+	if(bmih.biHeight<0){iHeight = -1*(bmih.biHeight);}
+	else{iHeight = (bmih.biHeight);}
+
+	imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
+
+	int iBitCount = bmih.biBitCount;
+	ULONG ulOffset = bmfh.bfOffBits;
+
+	if (iBitCount == 24) 
+	{
+		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c< iWidth; c++)
+			{
+				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 0];
+				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 1];
+				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 2];
+			}
+		}
+		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
+		return TRUE;
+	}
+
+	if(iBitCount==1)
+	{
+		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
+		int iPaletteSize = ((bmih.biClrUsed == 0) ? 2 : bmih.biClrUsed);
+		BYTE* byPalette=NULL;
+		byPalette = new BYTE[iPaletteSize *4];
+		for(int i=0; i<iPaletteSize*4; i++)
+		{
+			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+		}
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for (int c8 = 0; c8 < (iWidth+7)/8; c8++)
+			{
+				for(int iDataPos = 0; iDataPos<8; iDataPos++)
+				{
+					if(c8*8 + iDataPos >= iWidth){break;}
+					BYTE iIndex = ((byData[ulOffset + r*iRowSize + c8]) >> ((7 - iDataPos)*0x01)) & 0x01;
+
+					(imgRGB->byImgB)[(iHeight - r -1) *iWidth+(c8*8+iDataPos)] = byPalette[4*iIndex + 0];
+					(imgRGB->byImgG)[(iHeight - r -1) *iWidth+(c8*8+iDataPos)] = byPalette[4*iIndex + 1];
+					(imgRGB->byImgR)[(iHeight - r -1) *iWidth+(c8*8+iDataPos)] = byPalette[4*iIndex + 2];
+				}
+			}
+		}
+		SAFE_DELETE(byPalette);
+		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
+		return TRUE;
+	}
+
+	if(iBitCount==4)
+	{
+		int iRowSize = (( (iWidth+1) / 2 + 3) / 4) * 4;
+		int iPaletteSize = ((bmih.biClrUsed == 0) ? 16 : bmih.biClrUsed);
+		BYTE* byPalette=NULL;
+		byPalette = new BYTE[iPaletteSize *4];
+		for(int i=0; i<iPaletteSize*4; i++)
+		{
+			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+		}
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c2=0; c2< (iWidth+1)/2; c2++)
+			{
+				for(int iDataPos = 0; iDataPos<2; iDataPos++)
+				{
+					if(c2*2 + iDataPos >= iWidth){break;}
+					BYTE iIndex = ((byData[ulOffset + r*iRowSize + c2]) >> ((1-iDataPos)*0x04)) & 0x0F;
+
+					(imgRGB->byImgB)[(iHeight - r -1) *iWidth+2*c2+iDataPos] = byPalette[4*iIndex + 0];
+					(imgRGB->byImgG)[(iHeight - r -1) *iWidth+2*c2+iDataPos] = byPalette[4*iIndex + 1];
+					(imgRGB->byImgR)[(iHeight - r -1) *iWidth+2*c2+iDataPos] = byPalette[4*iIndex + 2];
+				}
+			}
+		}
+		SAFE_DELETE(byPalette);
+		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
+		return TRUE;
+	}
+
+	if(iBitCount==8)
+	{
+		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
+		int iPaletteSize = ((bmih.biClrUsed == 0) ? 256 : bmih.biClrUsed);
+		BYTE* byPalette=NULL;
+		byPalette = new BYTE[iPaletteSize *4];
+		for(int i=0; i<iPaletteSize*4; i++)
+		{
+			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+		}
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c< iWidth; c++)
+			{
+				int iIndex = byData[ulOffset + r*iRowSize + c];
+				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 0];
+				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 1];
+				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 2];
+			}
+		}
+		SAFE_DELETE(byPalette);
+		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
+		return TRUE;
+	}
+	return FALSE;
 }
-*/
 BOOL ImgRGB::Assign(const CString sFilePath)
 {
 
 	this->Init();
 
-	BITMAPINFOHEADER bmih;
 	CFileFind cf;
 	BOOL bRet;
 
 	CFile f;
-	BITMAPFILEHEADER bmfh;
 	ULONGLONG ullSize;
 	ULONG ulSize;
-	BYTE* byData;
 
 	bRet = cf.FindFile(sFilePath);
 	if(bRet != TRUE){cf.Close(); return FALSE;}
@@ -154,80 +286,21 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 	if(ullSize>=ULONG_MAX){f.Close(); return FALSE;}
 	ulSize = (ULONG)ullSize;
 	f.SeekToBegin();
+
+	BYTE* byData;
 	byData = new BYTE[ulSize];
 	f.Read(byData, ulSize);
 	f.Close();
 
-	for(int i=0; i<sizeof(bmfh); i++)
+	if((byData[0] == 0x42) && (byData[1] == 0x4d))
 	{
-		((BYTE*)&bmfh)[i]=byData[i];
-	}
-	if(bmfh.bfType != 0x4d42){SAFE_DELETE(byData); return FALSE;}
-
-	for(int i=0; i<sizeof(bmih); i++)
-	{
-		((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
+		bRet = ReadBmp(byData, this);
+		SAFE_DELETE(byData);
+		return bRet;
 	}
 
-
-	int iWidthLocal;
-	int iHeightLocal;
-
-	iWidthLocal = bmih.biWidth;
-	if(bmih.biHeight<0){iHeightLocal=-1*(bmih.biHeight);}
-	else{iHeightLocal=(bmih.biHeight);}
-
-	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8RGB);
-
-	int iBitCount = bmih.biBitCount;
-	BYTE* byPalette=NULL;
-	if(iBitCount == 24){}
-	else if (iBitCount == 8)
-	{
-		int iPaletteSize = ((bmih.biClrUsed == 0) ? 256 : bmih.biClrUsed);
-		byPalette = new BYTE[iPaletteSize *4];
-		for(int i=0; i<iPaletteSize*4; i++)
-		{
-			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
-		}
-	}
-	else{SAFE_DELETE(byData); return FALSE;}
-
-	ULONG ulOffset;
-	ulOffset=bmfh.bfOffBits;
-	int iFiller;
-
-	iFiller = iWidth%4;
-
-	if (iBitCount == 24) 
-	{
-		for(int r=0; r<iHeightLocal; r++)
-		{
-			for(int c=0; c< iWidthLocal; c++)
-			{
-				(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c] = byData[ulOffset +3*(r*iWidthLocal + c)+r*iFiller+0];
-				(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c] = byData[ulOffset +3*(r*iWidthLocal + c)+r*iFiller+1];
-				(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c] = byData[ulOffset +3*(r*iWidthLocal + c)+r*iFiller+2];
-			}
-		}
-	}
-	else if(iBitCount==8)
-	{
-		for(int r=0; r<iHeightLocal; r++)
-		{
-			for(int c=0; c< iWidthLocal; c++)
-			{
-				int iIndex = byData[ulOffset + (r*iWidthLocal + c)+r*iFiller];
-				(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c] = byPalette[4*iIndex + 0];
-				(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c] = byPalette[4*iIndex + 1];
-				(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c] = byPalette[4*iIndex + 2];
-			}
-		}
-	}
-	SAFE_DELETE(byPalette);
 	SAFE_DELETE(byData);
-	GenRectangle1(&(this->objDomain), 0, 0, iHeightLocal-1, iWidthLocal-1);
-	return TRUE;
+	return FALSE;
 }
 
 
