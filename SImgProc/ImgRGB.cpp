@@ -66,7 +66,8 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	}
 	else
 	{
-		ulInfoOffset=sizeof(BITMAPFILEHEADER);
+		ulInfoOffset=sizeof(BITMAPFILEHEADER) ;
+
 	}
 
 	for(int i=0; i<sizeof(bmih); i++)
@@ -77,7 +78,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	
 	if(bHeader==FALSE)
 	{
-		ulDataOffset = bmih.biSize;
+		ulDataOffset = bmih.biSize+((BITMAPINFOHEADER*)byData)->biClrUsed*4;
 	}
 	else
 	{
