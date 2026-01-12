@@ -139,7 +139,7 @@ struct ImgMap
 
 
 BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
-BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB);
+BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB);
 BOOL DLL_IE ReadImage(const CString sFilePath, ImgRGB* imgRGB);
 BOOL DLL_IE ConvertImage(const ImgRGB* imgIn, ImgRGB* imgOut, const CString sDstColor);
 BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);

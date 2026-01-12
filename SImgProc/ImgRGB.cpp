@@ -55,19 +55,33 @@ BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 	return TRUE;
 }
 
-BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
+BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 {
-	
-	BITMAPFILEHEADER bmfh;
-	for(int i=0; i<sizeof(bmfh); i++)
+	ULONG ulInfoOffset;
+	BITMAPINFOHEADER bmih;
+
+	if(bHeader==FALSE)
 	{
-		((BYTE*)&bmfh)[i] = byData[i];
+		ulInfoOffset=0;
+	}
+	else
+	{
+		ulInfoOffset=sizeof(BITMAPFILEHEADER);
 	}
 
-	BITMAPINFOHEADER bmih;
 	for(int i=0; i<sizeof(bmih); i++)
 	{
-		((BYTE*)&bmih)[i] = byData[sizeof(bmfh)+i];
+		((BYTE*)&bmih)[i] = byData[ulInfoOffset+i];
+	}
+	ULONG ulDataOffset;
+	
+	if(bHeader==FALSE)
+	{
+		ulDataOffset = bmih.biSize;
+	}
+	else
+	{
+		ulDataOffset = ((BITMAPFILEHEADER*)byData)->bfOffBits;
 	}
 
 
@@ -81,7 +95,6 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 	imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 
 	int iBitCount = bmih.biBitCount;
-	ULONG ulOffset = bmfh.bfOffBits;
 
 	if (iBitCount == 24) 
 	{
@@ -90,9 +103,9 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 		{
 			for(int c=0; c< iWidth; c++)
 			{
-				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 0];
-				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 1];
-				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byData[ulOffset +r*iRowSize +3*c + 2];
+				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +3*c + 0];
+				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +3*c + 1];
+				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +3*c + 2];
 			}
 		}
 		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
@@ -107,7 +120,7 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 		byPalette = new BYTE[iPaletteSize *4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+ sizeof(bmih)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
@@ -117,7 +130,7 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 				for(int iDataPos = 0; iDataPos<8; iDataPos++)
 				{
 					if(c8*8 + iDataPos >= iWidth){break;}
-					BYTE iIndex = ((byData[ulOffset + r*iRowSize + c8]) >> ((7 - iDataPos)*0x01)) & 0x01;
+					BYTE iIndex = ((byData[ulDataOffset + r*iRowSize + c8]) >> ((7 - iDataPos)*0x01)) & 0x01;
 
 					(imgRGB->byImgB)[(iHeight - r -1) *iWidth+(c8*8+iDataPos)] = byPalette[4*iIndex + 0];
 					(imgRGB->byImgG)[(iHeight - r -1) *iWidth+(c8*8+iDataPos)] = byPalette[4*iIndex + 1];
@@ -138,7 +151,7 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 		byPalette = new BYTE[iPaletteSize *4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+sizeof(bmih)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
@@ -148,7 +161,7 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 				for(int iDataPos = 0; iDataPos<2; iDataPos++)
 				{
 					if(c2*2 + iDataPos >= iWidth){break;}
-					BYTE iIndex = ((byData[ulOffset + r*iRowSize + c2]) >> ((1-iDataPos)*0x04)) & 0x0F;
+					BYTE iIndex = ((byData[ulDataOffset + r*iRowSize + c2]) >> ((1-iDataPos)*0x04)) & 0x0F;
 
 					(imgRGB->byImgB)[(iHeight - r -1) *iWidth+2*c2+iDataPos] = byPalette[4*iIndex + 0];
 					(imgRGB->byImgG)[(iHeight - r -1) *iWidth+2*c2+iDataPos] = byPalette[4*iIndex + 1];
@@ -169,14 +182,14 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 		byPalette = new BYTE[iPaletteSize *4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[sizeof(bmfh)+sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+sizeof(bmih)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
 		{
 			for(int c=0; c< iWidth; c++)
 			{
-				int iIndex = byData[ulOffset + r*iRowSize + c];
+				int iIndex = byData[ulDataOffset + r*iRowSize + c];
 				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 0];
 				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 1];
 				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byPalette[4*iIndex + 2];
@@ -188,6 +201,8 @@ BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 	}
 	return FALSE;
 }
+
+
 BOOL ImgRGB::Assign(const CString sFilePath)
 {
 
@@ -219,7 +234,7 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 
 	if((byData[0] == 0x42) && (byData[1] == 0x4d))
 	{
-		bRet = ReadBmpFromRawData(byData, this);
+		bRet = ReadBmpFromData(TRUE, byData,  this);
 		SAFE_DELETE(byData);
 		return bRet;
 	}

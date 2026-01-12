@@ -862,40 +862,40 @@ BOOL FleReadTest()
 
 	sFilePath.Format(_T("%s\\bmp\\test_24bit.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){AfxMessageBox(_T("test_24bit")); return FALSE;}
 
 	sFilePath.Format(_T("%s\\bmp\\test2_24bit.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){AfxMessageBox(_T("test2_24bit")); return FALSE;}
 	
 	
 	sFilePath.Format(_T("%s\\bmp\\test_256.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData1_256)!= TRUE){AfxMessageBox(_T("test_256")); return FALSE;}
 	
 	sFilePath.Format(_T("%s\\bmp\\test2_256.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData2_256)!= TRUE){AfxMessageBox(_T("test2_256t")); return FALSE;}
 
 	
 	
 	sFilePath.Format(_T("%s\\bmp\\test_016.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData1_16)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData1_16)!= TRUE){AfxMessageBox(_T("test_16")); return FALSE;}
 	
 	sFilePath.Format(_T("%s\\bmp\\test2_016.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData2_16)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData2_16)!= TRUE){AfxMessageBox(_T("test2_1")); return FALSE;}
 
 	
 
 	sFilePath.Format(_T("%s\\bmp\\test_002.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData1_2)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData1_2)!= TRUE){AfxMessageBox(_T("test_002")); return FALSE;}
 
 	sFilePath.Format(_T("%s\\bmp\\test2_002.bmp"),tchBuf);
 	imgRGB.Assign(sFilePath);
-	if(IsDataOK(&imgRGB,g_byBmpData2_2)!= TRUE){return FALSE;}
+	if(IsDataOK(&imgRGB,g_byBmpData2_2)!= TRUE){AfxMessageBox(_T("test2_002")); return FALSE;}
 
 	return TRUE;
 }
