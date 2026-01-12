@@ -55,82 +55,7 @@ BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 	return TRUE;
 }
 
-/*
-BOOL ImgRGB::Assign(const CString sFilePath)
-{
-
-	this->Init();
-
-	BITMAPINFOHEADER bmih;
-	CFileFind cf;
-	BOOL bRet;
-
-	CFile f;
-	BITMAPFILEHEADER bmfh;
-	ULONGLONG ullSize;
-	ULONG ulSize;
-	BYTE* byData;
-
-	bRet = cf.FindFile(sFilePath);
-	if(bRet != TRUE){cf.Close(); return FALSE;}
-	cf.Close();
-
-	bRet = f.Open(sFilePath, CFile::modeRead);
-	if(bRet != TRUE){return FALSE;}
-
-	ullSize = f.SeekToEnd();
-	if(ullSize>=ULONG_MAX){f.Close(); return FALSE;}
-	ulSize = (ULONG)ullSize;
-	f.SeekToBegin();
-	byData = new BYTE[ulSize];
-	f.Read(byData, ulSize);
-	f.Close();
-
-	for(int i=0; i<sizeof(bmfh); i++)
-	{
-	((BYTE*)&bmfh)[i]=byData[i];
-	}
-	if(bmfh.bfType != 0x4d42){SAFE_DELETE(byData); return FALSE;}
-
-	for(int i=0; i<sizeof(bmih); i++)
-	{
-	((BYTE*)&bmih)[i]=byData[sizeof(bmfh)+i];
-	}
-
-
-	int iWidthLocal;
-	int iHeightLocal;
-
-	iWidthLocal = bmih.biWidth;
-	if(bmih.biHeight<0){iHeightLocal=-1*(bmih.biHeight);}
-	else{iHeightLocal=(bmih.biHeight);}
-
-	this->Set(iWidthLocal, iHeightLocal, CHANNEL_3_8RGB);
-
-	ULONG ulOffset;
-	ulOffset=bmfh.bfOffBits;
-	int iFiller;
-
-	iFiller = iWidth%4;
-
-	for(int r=0; r<iHeightLocal; r++)
-	{
-	for(int c=0; c< iWidthLocal; c++)
-	{
-	(this->byImgB)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+0];
-	(this->byImgG)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+1];
-	(this->byImgR)[(this->iHeight - r -1) *this->iWidth+c]=byData[ulOffset +3*( r*iWidthLocal + c)+r*iFiller+2];
-	}
-	}
-
-	SAFE_DELETE(byData);
-	GenRectangle1(&(this->objDomain), 0, 0, iHeightLocal-1, iWidthLocal-1);
-	return TRUE;
-	}
-	*/
-
-
-BOOL ReadBmp(BYTE* byData, ImgRGB* imgRGB)
+BOOL DLL_IE ReadBmpFromRawData(BYTE* byData, ImgRGB* imgRGB)
 {
 	
 	BITMAPFILEHEADER bmfh;
@@ -294,7 +219,7 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 
 	if((byData[0] == 0x42) && (byData[1] == 0x4d))
 	{
-		bRet = ReadBmp(byData, this);
+		bRet = ReadBmpFromRawData(byData, this);
 		SAFE_DELETE(byData);
 		return bRet;
 	}
