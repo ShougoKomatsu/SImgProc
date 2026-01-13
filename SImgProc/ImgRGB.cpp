@@ -58,48 +58,38 @@ BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 {
 	ULONG ulInfoOffset;
-	BITMAPINFOHEADER bmih;
-
-	if(bHeader==FALSE)
-	{
-		ulInfoOffset=0;
-	}
-	else
-	{
-		ulInfoOffset=sizeof(BITMAPFILEHEADER) ;
-
-	}
-
-	for(int i=0; i<sizeof(bmih); i++)
-	{
-		((BYTE*)&bmih)[i] = byData[ulInfoOffset+i];
-	}
+	BITMAPINFOHEADER* bmih;
 	ULONG ulDataOffset;
-	
-	if(bHeader==FALSE)
+
+	if(bHeader == FALSE)
 	{
-		ulDataOffset = bmih.biSize+((BITMAPINFOHEADER*)byData)->biClrUsed*4;
+		ulInfoOffset = 0;
+		bmih = (BITMAPINFOHEADER*)&byData[ulInfoOffset];
+		ulDataOffset = bmih->biSize + bmih->biClrUsed*4;
 	}
 	else
 	{
-		ulDataOffset = ((BITMAPFILEHEADER*)byData)->bfOffBits;
+		BITMAPFILEHEADER* bmfh;
+		ulInfoOffset = sizeof(BITMAPFILEHEADER);
+		bmfh = (BITMAPFILEHEADER*)byData;
+		bmih = (BITMAPINFOHEADER*)&byData[ulInfoOffset];
+		ulDataOffset = bmfh->bfOffBits;
 	}
-
 
 	int iWidth;
 	int iHeight;
 
-	iWidth = bmih.biWidth;
-	if(bmih.biHeight<0){iHeight = -1*(bmih.biHeight);}
-	else{iHeight = (bmih.biHeight);}
+	iWidth = bmih->biWidth;
+	if(bmih->biHeight<0){iHeight = -1*(bmih->biHeight);}
+	else{iHeight = (bmih->biHeight);}
 
 	imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 
-	int iBitCount = bmih.biBitCount;
+	int iBitCount = bmih->biBitCount;
 
 	if (iBitCount == 24) 
 	{
-		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
+		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
 		for(int r=0; r<iHeight; r++)
 		{
 			for(int c=0; c< iWidth; c++)
@@ -115,13 +105,13 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if(iBitCount==1)
 	{
-		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
-		int iPaletteSize = ((bmih.biClrUsed == 0) ? 2 : bmih.biClrUsed);
+		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
+		int iPaletteSize = ((bmih->biClrUsed == 0) ? 2 : bmih->biClrUsed);
 		BYTE* byPalette=NULL;
-		byPalette = new BYTE[iPaletteSize *4];
+		byPalette = new BYTE[iPaletteSize * 4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[ulInfoOffset+ sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+ sizeof(BITMAPINFOHEADER)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
@@ -147,12 +137,12 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	if(iBitCount==4)
 	{
 		int iRowSize = (( (iWidth+1) / 2 + 3) / 4) * 4;
-		int iPaletteSize = ((bmih.biClrUsed == 0) ? 16 : bmih.biClrUsed);
+		int iPaletteSize = ((bmih->biClrUsed == 0) ? 16 : bmih->biClrUsed);
 		BYTE* byPalette=NULL;
-		byPalette = new BYTE[iPaletteSize *4];
+		byPalette = new BYTE[iPaletteSize * 4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[ulInfoOffset+sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+sizeof(BITMAPINFOHEADER)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
@@ -177,13 +167,13 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if(iBitCount==8)
 	{
-		int iRowSize = ((bmih.biBitCount * iWidth + 31) / 32)*4;
-		int iPaletteSize = ((bmih.biClrUsed == 0) ? 256 : bmih.biClrUsed);
-		BYTE* byPalette=NULL;
-		byPalette = new BYTE[iPaletteSize *4];
+		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
+		int iPaletteSize = ((bmih->biClrUsed == 0) ? 256 : bmih->biClrUsed);
+		BYTE* byPalette = NULL;
+		byPalette = new BYTE[iPaletteSize * 4];
 		for(int i=0; i<iPaletteSize*4; i++)
 		{
-			byPalette[i]=byData[ulInfoOffset+sizeof(bmih)+i];
+			byPalette[i]=byData[ulInfoOffset+sizeof(BITMAPINFOHEADER)+i];
 		}
 
 		for(int r=0; r<iHeight; r++)
@@ -225,6 +215,8 @@ BOOL ImgRGB::Assign(const CString sFilePath)
 
 	ullSize = f.SeekToEnd();
 	if(ullSize>=ULONG_MAX){f.Close(); return FALSE;}
+	if(ullSize<2){f.Close(); return FALSE;}
+
 	ulSize = (ULONG)ullSize;
 	f.SeekToBegin();
 
