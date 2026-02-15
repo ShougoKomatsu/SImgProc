@@ -178,6 +178,7 @@ BOOL DLL_IE SubImage(ImgRGB* img1, ImgRGB* img2, ImgRGB* imgResult, double dMult
 BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
 BOOL DLL_IE MaxImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int C0, const int R1, const int C1, const int iFilterWidth, const int iFilterHeight);
 BOOL DLL_IE MinImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight);
+BOOL DLL_IE ScaleImageMax(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1);
 
 
 struct DLL_IE Camera

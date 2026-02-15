@@ -711,3 +711,5 @@ BOOL ExtractData(const CString sInput, const CString sDelim, CString* sOut, CStr
 	}
 	return TRUE;
 }
+
+

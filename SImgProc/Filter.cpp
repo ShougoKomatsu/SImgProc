@@ -763,3 +763,136 @@ BOOL DLL_IE MaxImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, cons
 
 		return FALSE;
 	}
+
+	void GenScaledMap(const int iMin, const int iMax, BYTE* byMap)
+	{
+
+		if(iMin==iMax)
+		{
+			for(int i=0; i<256; i++){byMap[i]=i;}
+		}
+		else
+		{
+			for(int i=0; i<256; i++){byMap[i]=min(max(0,255/(iMax-iMin)*(i-iMin)),255);}
+		}
+	}
+BOOL DLL_IE ScaleImageMax(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1)
+{
+	int iR0Local = max(0, min(r0, r1));
+	int iR1Local = min(max(r0,r1), imgIn->iHeight-1);
+	int iC0Local = max(0, min(c0, c1));
+	int iC1Local = min(max(c0,c1), imgIn->iWidth-1);
+
+	if(imgIn->iChannel==CHANNEL_1_8)
+	{
+		int iWidth=imgIn->iWidth;
+		int iMax=0;
+		int iMin=255;
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iMax=max(iMax,imgIn->byImg[r*iWidth+c]);
+				iMin=min(iMin,imgIn->byImg[r*iWidth+c]);
+			}
+		}
+		BYTE byMap[256];
+		GenScaledMap(iMin, iMax, byMap);
+
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImg[r*iWidth+c]=byMap[imgResult->byImg[r*iWidth+c]];
+			}
+		}
+		return TRUE;
+	}
+	
+	if(imgIn->iChannel==CHANNEL_3_8RGB)
+	{
+		int iWidth=imgIn->iWidth;
+		int iMaxR=0;
+		int iMaxG=0;
+		int iMaxB=0;
+		int iMinR=255;
+		int iMinG=255;
+		int iMinB=255;
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iMaxR=max(iMaxR,imgIn->byImgR[r*iWidth+c]);
+				iMaxG=max(iMaxG,imgIn->byImgG[r*iWidth+c]);
+				iMaxB=max(iMaxB,imgIn->byImgB[r*iWidth+c]);
+				iMinR=min(iMinR,imgIn->byImgR[r*iWidth+c]);
+				iMinG=min(iMinG,imgIn->byImgG[r*iWidth+c]);
+				iMinB=min(iMinB,imgIn->byImgB[r*iWidth+c]);
+			}
+		}
+		BYTE byMapR[256];
+		BYTE byMapG[256];
+		BYTE byMapB[256];
+		
+		GenScaledMap(iMinR, iMaxR, byMapR);
+		GenScaledMap(iMinG, iMaxG, byMapG);
+		GenScaledMap(iMinB, iMaxB, byMapB);
+
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byMapR[imgResult->byImgR[r*iWidth+c]];
+				imgResult->byImgG[r*iWidth+c]=byMapG[imgResult->byImgG[r*iWidth+c]];
+				imgResult->byImgB[r*iWidth+c]=byMapB[imgResult->byImgB[r*iWidth+c]];
+			}
+		}
+		return TRUE;
+	}
+	
+	if(imgIn->iChannel==CHANNEL_1_24BGR)
+	{
+		int iWidth=imgIn->iWidth;
+		int iMaxR=0;
+		int iMaxG=0;
+		int iMaxB=0;
+		int iMinR=255;
+		int iMinG=255;
+		int iMinB=255;
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iMaxR=max(iMaxR,imgIn->byImg[(r*iWidth+c)*3+2]);
+				iMaxG=max(iMaxG,imgIn->byImg[(r*iWidth+c)*3+1]);
+				iMaxB=max(iMaxB,imgIn->byImg[(r*iWidth+c)*3+0]);
+				iMinR=min(iMinR,imgIn->byImg[(r*iWidth+c)*3+2]);
+				iMinG=min(iMinG,imgIn->byImg[(r*iWidth+c)*3+1]);
+				iMinB=min(iMinB,imgIn->byImg[(r*iWidth+c)*3+0]);
+			}
+		}
+		BYTE byMapR[256];
+		BYTE byMapG[256];
+		BYTE byMapB[256];
+		
+		GenScaledMap(iMinR, iMaxR, byMapR);
+		GenScaledMap(iMinG, iMaxG, byMapG);
+		GenScaledMap(iMinB, iMaxB, byMapB);
+
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byMapR[imgResult->byImgR[r*iWidth+c]];
+				imgResult->byImgG[r*iWidth+c]=byMapG[imgResult->byImgG[r*iWidth+c]];
+				imgResult->byImgB[r*iWidth+c]=byMapB[imgResult->byImgB[r*iWidth+c]];
+			}
+		}
+		return TRUE;
+	}
+
+	return FALSE;
+}

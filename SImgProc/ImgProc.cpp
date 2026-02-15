@@ -485,7 +485,6 @@ BOOL Screenshot(ImgRGB* imgRGB)
 
 	return TRUE;
 }
-
 BOOL IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, const int iC0, const int iR1, const int iC1, int* iFoundR, int* iFoundC)
 {
 	int iModelHeight;
@@ -2597,3 +2596,80 @@ for(int c=0;c<iSearchWidth;c++){}
 }
 */
 
+
+BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHistR, int* iHistG, int* iHistB)
+{
+	if(iHistR == NULL){return FALSE;}
+	if(iHistG == NULL){return FALSE;}
+	if(iHistB == NULL){return FALSE;}
+
+	int iR0Local = max(0, min(r0, r1));
+	int iR1Local = min(max(r0,r1), imgRGB->iHeight-1);
+	int iC0Local = max(0, min(c0, c1));
+	int iC1Local = min(max(c0,c1), imgRGB->iWidth-1);
+	for(int i=0; i<256; i++)
+	{
+		iHistR[i]=0;
+		iHistG[i]=0;
+		iHistB[i]=0;
+	}
+	int iWidth=imgRGB->iWidth;
+
+	if(imgRGB->iChannel==CHANNEL_1_24BGR)
+	{
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iHistB[imgRGB->byImg[3*(r*iWidth+c)+0]]++;
+				iHistG[imgRGB->byImg[3*(r*iWidth+c)+1]]++;
+				iHistR[imgRGB->byImg[3*(r*iWidth+c)+2]]++;
+			}
+		}
+		return TRUE;
+	}
+	
+	if(imgRGB->iChannel==CHANNEL_3_8RGB)
+	{
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iHistB[imgRGB->byImgB[r*iWidth+c]]++;
+				iHistG[imgRGB->byImgG[r*iWidth+c]]++;
+				iHistR[imgRGB->byImgR[r*iWidth+c]]++;
+			}
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHist)
+{
+	if(iHist == NULL){return FALSE;}
+	int iR0Local = max(0, min(r0, r1));
+	int iR1Local = min(max(r0,r1), imgRGB->iHeight-1);
+	int iC0Local = max(0, min(c0, c1));
+	int iC1Local = min(max(c0,c1), imgRGB->iWidth-1);
+	for(int i=0; i<256; i++)
+	{
+		iHist[i]=0;
+	}
+	int iWidth=imgRGB->iWidth;
+
+	if(imgRGB->iChannel==CHANNEL_1_8)
+	{
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				iHist[imgRGB->byImg[3*(r*iWidth+c)+0]]++;
+			}
+		}
+		return TRUE;
+	}
+	
+	return FALSE;
+}
