@@ -65,7 +65,13 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	{
 		ulInfoOffset = 0;
 		bmih = (BITMAPINFOHEADER*)&byData[ulInfoOffset];
-		ulDataOffset = bmih->biSize + bmih->biClrUsed*4;
+		
+		int iOffsetMask;
+		if(bmih->biCompression == BI_BITFIELDS)
+		{
+			iOffsetMask = 3 * sizeof(DWORD);
+		}
+		ulDataOffset = bmih->biSize + iOffsetMask + bmih->biClrUsed*4;
 	}
 	else
 	{
