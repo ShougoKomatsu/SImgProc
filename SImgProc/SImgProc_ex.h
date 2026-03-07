@@ -181,6 +181,7 @@ BOOL DLL_IE MinImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, cons
 BOOL DLL_IE ScaleImageMax(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1);
 BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1);
 BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dBrightness, const double dContrastAngleDegree);
+BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dGamma);
 
 struct DLL_IE Camera
 {
