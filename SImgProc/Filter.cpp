@@ -896,6 +896,7 @@ BOOL DLL_IE ScaleImageMax(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, 
 
 	return FALSE;
 }
+
 BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1)
 {
 	int iR0Local = max(0, min(r0, r1));
@@ -999,6 +1000,81 @@ BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, c
 				imgResult->byImgR[r*iWidth+c]=byMapR[imgResult->byImgR[r*iWidth+c]];
 				imgResult->byImgG[r*iWidth+c]=byMapG[imgResult->byImgG[r*iWidth+c]];
 				imgResult->byImgB[r*iWidth+c]=byMapB[imgResult->byImgB[r*iWidth+c]];
+			}
+		}
+		return TRUE;
+	}
+
+	return FALSE;
+}
+#include "math.h"
+BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dBrightness, const double dContrastAngleDegree)
+{
+	int iR0Local = max(0, min(r0, r1));
+	int iR1Local = min(max(r0,r1), imgIn->iHeight-1);
+	int iC0Local = max(0, min(c0, c1));
+	int iC1Local = min(max(c0,c1), imgIn->iWidth-1);
+	int iWidth=imgIn->iWidth;
+
+	double dContrastSlope;
+	
+	if(dContrastAngleDegree>=90)
+	{
+		dContrastSlope=256;
+	}
+	else if(dContrastAngleDegree==45.0)
+	{
+		dContrastSlope=1.0;
+	}
+	else
+	{
+		dContrastSlope = tan(dContrastAngleDegree*3.14159265359/180.0);
+	}
+
+	BYTE byContrastMap[256];
+	for(int i=0; i<256; i++)
+	{
+		byContrastMap[i]=min(255,max(0,int((i-127.5)*dContrastSlope+127.5)));
+	}
+
+	if(imgIn->iChannel==CHANNEL_1_8)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImg[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[r*iWidth+c]+dBrightness)))];
+			}
+		}
+		return TRUE;
+	}
+
+	if(imgIn->iChannel==CHANNEL_3_8RGB)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgR[r*iWidth+c]+dBrightness)))];
+				imgResult->byImgG[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgG[r*iWidth+c]+dBrightness)))];
+				imgResult->byImgB[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgB[r*iWidth+c]+dBrightness)))];
+			}
+		}
+		return TRUE;
+	}
+
+	if(imgIn->iChannel==CHANNEL_1_24BGR)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
+				imgResult->byImgG[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
+				imgResult->byImgB[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
 			}
 		}
 		return TRUE;

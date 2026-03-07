@@ -104,7 +104,8 @@
     <PostBuildEvent>
       <Message>
       </Message>
-      <Command>copy ..\simgproc.dll SImgProcTest</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -866,6 +866,51 @@ BYTE g_byClipBoadBMP[]=
 0x52, 0x00, 0xff, 0x07, 0xa4, 0x52, 0x00, 0x52
 };
 
+BOOL BrightNessContrastTest()
+{
+	BYTE byImg[256];
+	for(int i=0; i<256; i++)
+	{
+		byImg[i]=i;
+	}
+	ImgRGB imgTest;
+	ImgRGB imgResult;
+	imgTest.Assign(byImg,16,16);
+	
+	BOOL bRet = BrightnessContrast(&imgTest, &imgResult, 0, 0, 15, 15,  10, 45);
+	for(int i=0; i<256; i++)
+	{
+		if(imgResult.byImg[i] != min(255,i+10)){return FALSE;}
+	}
+	
+
+
+	bRet = BrightnessContrast(&imgTest, &imgResult, 0, 0, 15, 15,  0, 45);
+	for(int i=0; i<256; i++)
+	{
+		if(imgResult.byImg[i] != i){return FALSE;}
+	}
+	
+	bRet = BrightnessContrast(&imgTest, &imgResult, 0, 0, 15, 15,  0, 0);
+	for(int i=0; i<256; i++)
+	{
+		if(imgResult.byImg[i] != 127){return FALSE;}
+	}
+	
+	bRet = BrightnessContrast(&imgTest, &imgResult, 0, 0, 15, 15,  0, 90);
+	for(int i=0; i<128; i++)
+	{
+		if(imgResult.byImg[i] != 0){return FALSE;}
+	}
+	for(int i=129; i<256; i++)
+	{
+		if(imgResult.byImg[i] != 255){return FALSE;}
+	}
+
+
+	return TRUE;
+}
+
 BOOL MaxFilterTest()
 {
 	
@@ -989,6 +1034,7 @@ BOOL FleReadTest()
 }
 void CSImgProcTestDlg::OnBnClickedButton1()
 {		
+if(BrightNessContrastTest()!= TRUE){AfxMessageBox(_T("BrightNessContrastTest Failed"));return;}
 	if(FleReadTest()!=TRUE){AfxMessageBox(_T("FleReadTest Failed"));return;}
 	if(MaxFilterTest()!=TRUE){AfxMessageBox(_T("MaxFilter Failed"));return;}
 	AfxMessageBox(_T("ok"));
