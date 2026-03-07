@@ -86,6 +86,22 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 
 	int iBitCount = bmih->biBitCount;
+	
+	if (iBitCount == 32) 
+	{
+		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c< iWidth; c++)
+			{
+				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 0];
+				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 1];
+				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 2];
+			}
+		}
+		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
+		return TRUE;
+	}
 
 	if (iBitCount == 24) 
 	{
