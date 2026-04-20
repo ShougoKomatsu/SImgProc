@@ -1444,3 +1444,216 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 	return FALSE;
 }
 
+
+BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM_COLOR color)
+{
+	int iWidthSrc = imgIn->iWidth;
+	int iHeightSrc = imgIn->iHeight;
+	int iWidthDst = iWidthSrc;
+	int iHeightDst = iHeightSrc;
+	imgResult->Set(iWidthDst, iHeightDst, CHANNEL_1_8); 
+
+	switch(color)
+	{
+	case COLOR_HUE:
+		{
+			if(imgIn->iChannel==CHANNEL_1_8)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[r*iWidthDst+c]=0;
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImgR[r*iWidthDst+c];
+						BYTE byG=imgIn->byImgG[r*iWidthDst+c];
+						BYTE byB=imgIn->byImgB[r*iWidthDst+c];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=0; continue;}
+						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin); continue;}
+						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin); continue;}
+						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin); continue;}
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=0; continue;}
+						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin); continue;}
+						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin); continue;}
+						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin); continue;}
+					}
+				}
+				return TRUE;
+			}
+		}
+		
+	case COLOR_HUE180:
+		{
+			if(imgIn->iChannel==CHANNEL_1_8)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[r*iWidthDst+c]=128;
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImgR[r*iWidthDst+c];
+						BYTE byG=imgIn->byImgG[r*iWidthDst+c];
+						BYTE byB=imgIn->byImgB[r*iWidthDst+c];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=128; continue;}
+						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin)))%256; continue;}
+						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin)))%256; continue;}
+						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin)))%256; continue;}
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=128; continue;}
+						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin)))%256; continue;}
+						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin)))%256; continue;}
+						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin)))%256; continue;}
+					}
+				}
+				return TRUE;
+			}
+		}
+		
+	case COLOR_SATUATION:
+		{
+			if(imgIn->iChannel==CHANNEL_1_8)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[r*iWidthDst+c]=0;
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImgR[r*iWidthDst+c];
+						BYTE byG=imgIn->byImgG[r*iWidthDst+c];
+						BYTE byB=imgIn->byImgB[r*iWidthDst+c];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==0){imgResult->byImg[r*iWidthDst+c]=0; continue;}
+						imgResult->byImg[r*iWidthDst+c]=min(255,255*(byMax-byMin)/byMax);
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byMax=max(max(byR,byG),byB);
+						BYTE byMin=min(min(byR,byG),byB);
+						if(byMax==0){imgResult->byImg[r*iWidthDst+c]=0; continue;}
+						imgResult->byImg[r*iWidthDst+c]=min(255,255*(byMax-byMin)/byMax);
+					}
+				}
+				return TRUE;
+			}
+		}
+		
+	case COLOR_BRIGHTNESS:
+		{
+			if(imgIn->iChannel==CHANNEL_1_8)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[r*iWidthDst+c]=imgIn->byImg[r*iWidthDst+c];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImgR[r*iWidthDst+c];
+						BYTE byG=imgIn->byImgG[r*iWidthDst+c];
+						BYTE byB=imgIn->byImgB[r*iWidthDst+c];
+						BYTE byMax=max(max(byR,byG),byB);
+						imgResult->byImg[r*iWidthDst+c]=byMax;
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byMax=max(max(byR,byG),byB);
+						imgResult->byImg[r*iWidthDst+c]=byMax;
+					}
+				}
+				return TRUE;
+			}
+		}
+	}
+				return FALSE;
+}
