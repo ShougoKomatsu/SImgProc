@@ -117,7 +117,7 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 					imgOut->byImgR[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*0 + r*m_iWidth+c];
 					imgOut->byImgG[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*1 + r*m_iWidth+c];
 					imgOut->byImgB[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*2 + r*m_iWidth+c];
-					imgOut->byImgA[r*m_iWidth+c]=0;
+					imgOut->byImgA[r*m_iWidth+c]=255;
 				}
 			}
 			break;

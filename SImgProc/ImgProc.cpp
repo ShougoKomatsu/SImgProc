@@ -2588,7 +2588,7 @@ BOOL ConvertImageCHANNEL_4_8RGBA(const ImgRGB* imgIn, ImgRGB* imgOut)
 				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+0];
 				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+1];
 				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+2];
-				imgOut->byImgA[r*imgIn->iWidth+c]=0;
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
 			}
 		}
 		return TRUE;
@@ -2603,7 +2603,7 @@ BOOL ConvertImageCHANNEL_4_8RGBA(const ImgRGB* imgIn, ImgRGB* imgOut)
 				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImgB[r*imgIn->iWidth+c];
 				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImgG[r*imgIn->iWidth+c];
 				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImgR[r*imgIn->iWidth+c];
-				imgOut->byImgA[r*imgIn->iWidth+c]=0;
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
 			}
 		}
 		return TRUE;
@@ -2618,7 +2618,7 @@ BOOL ConvertImageCHANNEL_4_8RGBA(const ImgRGB* imgIn, ImgRGB* imgOut)
 				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
 				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
 				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
-				imgOut->byImgA[r*imgIn->iWidth+c]=0;
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
 			}
 		}
 		return TRUE;
