@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "SImgProc_ex.h"
 #include "CommonFunction.h"
-ImgRGB::ImgRGB(){byImg = NULL; byImgR=NULL; byImgG=NULL; byImgB=NULL; dImg1=NULL; dImg2=NULL; dImg3=NULL;Init();}
+ImgRGB::ImgRGB()
+{
+	byImg = NULL; byImgR=NULL; byImgG=NULL; byImgB=NULL;  byImgA=NULL; dImg1=NULL; dImg2=NULL; dImg3=NULL;Init();}
 
 ImgRGB::~ImgRGB(){Init();}
 BOOL ImgRGB::Init()
