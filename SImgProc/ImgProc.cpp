@@ -133,9 +133,10 @@ BOOL ConvertImage(const ImgRGB* imgIn, ImgRGB* imgOut, const CString sDstColor)
 	return TRUE;
 }
 
-BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB)
+BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgA)
 {
-	if((imgIn->iChannel != CHANNEL_3_8RGB) && (imgIn->iChannel != CHANNEL_1_24BGR)){return FALSE;}
+	if((imgIn->iChannel != CHANNEL_3_8RGB) && (imgIn->iChannel != CHANNEL_1_24BGR) && (imgIn->iChannel != CHANNEL_1_32BGRA) && (imgIn->iChannel != CHANNEL_4_8RGBA)){return FALSE;}
+
 	imgR->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 	imgG->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
 	imgB->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);
@@ -170,21 +171,89 @@ BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* 
 		}
 		return TRUE;
 	}
+
+	
+	if(imgA != NULL){imgA->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_1_8);}else{return FALSE;}
+	
+	if(imgIn->iChannel==CHANNEL_4_8RGBA)
+	{
+		for(int r=0; r<imgIn->iHeight; r++)
+		{
+			for(int c=0; c<imgIn->iWidth; c++)
+			{
+				imgR->byImg[r*imgR->iWidth+c]=imgIn->byImgR[r*imgIn->iWidth+c];
+				imgG->byImg[r*imgG->iWidth+c]=imgIn->byImgG[r*imgIn->iWidth+c];
+				imgB->byImg[r*imgB->iWidth+c]=imgIn->byImgB[r*imgIn->iWidth+c];
+				imgA->byImg[r*imgB->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
+			}
+		}
+		return TRUE;
+	}
+
+	if(imgIn->iChannel==CHANNEL_1_32BGRA)
+	{
+		for(int r=0; r<imgIn->iHeight; r++)
+		{
+			for(int c=0; c<imgIn->iWidth; c++)
+			{
+				imgB->byImg[r*imgB->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+0];
+				imgG->byImg[r*imgG->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+1];
+				imgR->byImg[r*imgR->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+2];
+				imgA->byImg[r*imgR->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+3];
+			}
+		}
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
-BOOL Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, ImgRGB* imgOut)
+BOOL Compose4(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, const ImgRGB* imgA, ImgRGB* imgOut)
 {
 	if(imgR->iChannel != CHANNEL_1_8){return FALSE;}
 	if(imgG->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgB->iChannel != CHANNEL_1_8){return FALSE;}
 	if(imgB->iChannel != CHANNEL_1_8){return FALSE;}
 	if(imgR->iHeight != imgG->iHeight){return FALSE;}
 	if(imgR->iHeight != imgB->iHeight){return FALSE;}
 	if(imgR->iWidth != imgG->iWidth){return FALSE;}
 	if(imgR->iWidth != imgB->iWidth){return FALSE;}
 
-	imgOut->Set(imgR->iWidth, imgR->iHeight, CHANNEL_3_8RGB);
+	if(imgA->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgR->iHeight != imgA->iHeight){return FALSE;}
+	if(imgR->iWidth != imgA->iWidth){return FALSE;}
 
+	imgOut->Set(imgR->iWidth, imgR->iHeight, CHANNEL_4_8RGBA);
+
+	for(int r=0; r<imgR->iHeight; r++)
+	{
+		for(int c=0; c<imgR->iWidth; c++)
+		{
+			imgOut->byImgR[r*imgOut->iWidth+c]=imgR->byImg[r*imgR->iWidth+c];
+			imgOut->byImgG[r*imgOut->iWidth+c]=imgG->byImg[r*imgG->iWidth+c];
+			imgOut->byImgB[r*imgOut->iWidth+c]=imgB->byImg[r*imgB->iWidth+c];
+			imgOut->byImgA[r*imgOut->iWidth+c]=imgA->byImg[r*imgB->iWidth+c];
+		}
+	}
+	return TRUE;
+}
+
+BOOL Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, const ImgRGB* imgA, ImgRGB* imgOut)
+{
+	if(imgA != NULL)
+	{
+		return Compose4(imgR, imgG, imgB, imgA, imgOut);
+	}
+
+	if(imgR->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgG->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgB->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgB->iChannel != CHANNEL_1_8){return FALSE;}
+	if(imgR->iHeight != imgG->iHeight){return FALSE;}
+	if(imgR->iHeight != imgB->iHeight){return FALSE;}
+	if(imgR->iWidth != imgG->iWidth){return FALSE;}
+	if(imgR->iWidth != imgB->iWidth){return FALSE;}
+		
 	for(int r=0; r<imgR->iHeight; r++)
 	{
 		for(int c=0; c<imgR->iWidth; c++)
@@ -267,19 +336,35 @@ BOOL SelectObj(const Object* objIn, const int iLabel, Object* objOut)
 		}
 	}
 	return TRUE;
-}BOOL GetValue(const ImgRGB* imgRGBin, const int iR, const int iC, int* iValueR, int* iValueG, int* iValueB)
+}BOOL GetValue(const ImgRGB* imgRGBin, const int iR, const int iC, int* iValueR, int* iValueG, int* iValueB, int* iValueA)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(iR<0){return FALSE;}
 	if(iC<0){return FALSE;}
 	if(iR>=imgRGBin->iHeight){return FALSE;}
 	if(iC>=imgRGBin->iWidth){return FALSE;}
-
+	
+	if(imgRGBin->iChannel==CHANNEL_1_32BGRA)
+	{
+		*iValueB=imgRGBin->byImg[4*(iR*imgRGBin->iWidth+iC)+0];
+		*iValueG=imgRGBin->byImg[4*(iR*imgRGBin->iWidth+iC)+1];
+		*iValueR=imgRGBin->byImg[4*(iR*imgRGBin->iWidth+iC)+2];
+		*iValueA=imgRGBin->byImg[4*(iR*imgRGBin->iWidth+iC)+3];
+		return TRUE;
+	}
 	if(imgRGBin->iChannel==CHANNEL_1_24BGR)
 	{
 		*iValueB=imgRGBin->byImg[3*(iR*imgRGBin->iWidth+iC)+0];
 		*iValueG=imgRGBin->byImg[3*(iR*imgRGBin->iWidth+iC)+1];
 		*iValueR=imgRGBin->byImg[3*(iR*imgRGBin->iWidth+iC)+2];
+		return TRUE;
+	}
+	if(imgRGBin->iChannel==CHANNEL_4_8RGBA)
+	{
+		*iValueB=imgRGBin->byImgB[iR*imgRGBin->iWidth+iC];
+		*iValueG=imgRGBin->byImgG[iR*imgRGBin->iWidth+iC];
+		*iValueR=imgRGBin->byImgR[iR*imgRGBin->iWidth+iC];
+		*iValueA=imgRGBin->byImgA[iR*imgRGBin->iWidth+iC];
 		return TRUE;
 	}
 	if(imgRGBin->iChannel==CHANNEL_3_8RGB)
@@ -299,7 +384,8 @@ BOOL SelectObj(const Object* objIn, const int iLabel, Object* objOut)
 	return FALSE;
 }
 
-BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, const int iR1, const int iC1, double* dValueR, double* dValueG, double* dValueB)
+
+BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, const int iR1, const int iC1, double* dValueR, double* dValueG, double* dValueB, double* dValueA)
 {
 	if(imgRGBin==NULL){return FALSE;}
 	if(iR0>iR1){return FALSE;}
@@ -312,6 +398,7 @@ BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, cons
 	ULONGLONG ullSumR=0;
 	ULONGLONG ullSumG=0;
 	ULONGLONG ullSumB=0;
+	ULONGLONG ullSumA=0;
 	if(imgRGBin->iChannel==CHANNEL_1_24BGR)
 	{
 		for(int r=iR0; r<=iR1; r++)
@@ -326,6 +413,25 @@ BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, cons
 		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		*dValueG=ullSumG/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		*dValueR=ullSumR/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		return TRUE;
+	}
+	
+	if(imgRGBin->iChannel==CHANNEL_1_32BGRA)
+	{
+		for(int r=iR0; r<=iR1; r++)
+		{
+			for(int c=iC0; c<=iC1; c++)
+			{
+				ullSumB+=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+				ullSumG+=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+				ullSumR+=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+				ullSumA+=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+			}
+		}
+		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueG=ullSumG/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueR=ullSumR/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueA=ullSumA/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		return TRUE;
 	}
 
@@ -345,6 +451,25 @@ BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, cons
 		*dValueR=ullSumR/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		return TRUE;
 	}
+	
+	if(imgRGBin->iChannel==CHANNEL_4_8RGBA)
+	{
+		for(int r=iR0; r<=iR1; r++)
+		{
+			for(int c=iC0; c<=iC1; c++)
+			{
+				ullSumB+=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+				ullSumG+=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+				ullSumR+=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+				ullSumA+=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
+			}
+		}
+		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueG=ullSumG/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueR=ullSumR/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		*dValueA=ullSumA/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
+		return TRUE;
+	}
 
 	if(imgRGBin->iChannel==CHANNEL_1_8)
 	{
@@ -358,6 +483,7 @@ BOOL GetValueInRegion(const ImgRGB* imgRGBin, const int iR0, const int iC0, cons
 		*dValueB=ullSumB/((iR1-iR0+1)*(iC1-iC0+1)*1.0);
 		*dValueG=(*dValueB);
 		*dValueR=(*dValueB);
+		if(dValueA != NULL){dValueA=0;}
 		return TRUE;
 	}
 	return FALSE;
@@ -393,6 +519,18 @@ BOOL CropImage(const ImgRGB* imgRGBin, ImgRGB* imgRGBout, const int iR0, const i
 				imgRGBout->byImg[3*((r-iR0)*imgRGBout->iWidth+(c-iC0))+2]=imgRGBin->byImg[3*(r*imgRGBin->iWidth+c)+2];
 			}}
 		}
+		if(imgRGBin->iChannel==CHANNEL_1_32BGRA)
+		{
+
+			for(int r=iR0; r<=iR1; r++)
+			{for(int c=iC0; c<=iC1; c++)
+			{
+				imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+0]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+				imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+1]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+				imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+2]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+				imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+3]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+			}}
+		}
 		if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 		{
 			for(int r=iR0; r<=iR1; r++)
@@ -401,6 +539,17 @@ BOOL CropImage(const ImgRGB* imgRGBin, ImgRGB* imgRGBout, const int iR0, const i
 				imgRGBout->byImgB[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
 				imgRGBout->byImgG[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
 				imgRGBout->byImgR[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+			}}
+		}
+		if(imgRGBin->iChannel==CHANNEL_4_8RGBA)
+		{
+			for(int r=iR0; r<=iR1; r++)
+			{for(int c=iC0; c<=iC1; c++)
+			{
+				imgRGBout->byImgB[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+				imgRGBout->byImgG[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+				imgRGBout->byImgR[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+				imgRGBout->byImgA[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
 			}}
 		}
 		if(imgRGBin->iChannel==CHANNEL_1_8)
@@ -589,8 +738,63 @@ BOOL IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, 
 			}
 		}
 	}
+	
+	if((imgTarget->iChannel==CHANNEL_1_32BGRA) && (imgModel->iChannel == CHANNEL_3_8RGB))
+	{
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
+		{
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
+			{
+				int iTargetC=iCStart+iIterC*iInclC;
+				bFound = TRUE;
+				for(int r=0; r<iModelHeight; r++)
+				{
+					for(int c=0; c<iModelWidth; c++)
+					{
+						iPtrTarget = 4*((iTargetR + r)*imgTarget->iWidth+(iTargetC+c));
+						iPtrModel = (r)*imgModel->iWidth+(c);
+						if(imgTarget->byImg[iPtrTarget + 0] != (imgModel->byImgB[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget + 1] != (imgModel->byImgG[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget + 2] != (imgModel->byImgR[iPtrModel])){bFound = FALSE; break;}
+					}
+					if(bFound == FALSE){break;}
+				}
+				if(bFound == TRUE){*iFoundR = iTargetR+iModelHeight/2; *iFoundC = iTargetC+iModelWidth/2; return TRUE;}
+			}
+		}
+	}
 
-	if((imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB))
+	if((imgTarget->iChannel==CHANNEL_1_32BGRA) && (imgModel->iChannel == CHANNEL_4_8RGBA))
+	{
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
+		{
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
+			{
+				int iTargetC=iCStart+iIterC*iInclC;
+				bFound = TRUE;
+				for(int r=0; r<iModelHeight; r++)
+				{
+					for(int c=0; c<iModelWidth; c++)
+					{
+						iPtrTarget = 4*((iTargetR + r)*imgTarget->iWidth+(iTargetC+c));
+						iPtrModel = (r)*imgModel->iWidth+(c);
+						if(imgTarget->byImg[iPtrTarget + 0] != (imgModel->byImgB[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget + 1] != (imgModel->byImgG[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget + 2] != (imgModel->byImgR[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget + 3] != (imgModel->byImgA[iPtrModel])){bFound = FALSE; break;}
+					}
+					if(bFound == FALSE){break;}
+				}
+				if(bFound == TRUE){*iFoundR = iTargetR+iModelHeight/2; *iFoundC = iTargetC+iModelWidth/2; return TRUE;}
+			}
+		}
+	}
+
+	if(
+		(imgTarget->iChannel==CHANNEL_3_8RGB) && (imgModel->iChannel == CHANNEL_3_8RGB)
+		||(imgTarget->iChannel==CHANNEL_4_8RGBA) && (imgModel->iChannel == CHANNEL_3_8RGB))
 	{
 		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
 		{
@@ -608,6 +812,34 @@ BOOL IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, 
 						if(imgTarget->byImgR[iPtrTarget] != (imgModel->byImgR[iPtrModel])){bFound = FALSE; break;}
 						if(imgTarget->byImgG[iPtrTarget] != (imgModel->byImgG[iPtrModel])){bFound = FALSE; break;}
 						if(imgTarget->byImgB[iPtrTarget] != (imgModel->byImgB[iPtrModel])){bFound = FALSE; break;}
+					}
+					if(bFound == FALSE){break;}
+				}
+				if(bFound == TRUE){*iFoundR = iTargetR+iModelHeight/2; *iFoundC = iTargetC+iModelWidth/2; return TRUE;}
+				break;
+			}
+		}
+	}
+	
+	if((imgTarget->iChannel==CHANNEL_4_8RGBA) && (imgModel->iChannel == CHANNEL_4_8RGBA))
+	{
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
+		{
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
+			{
+				int iTargetC=iCStart+iIterC*iInclC;
+				bFound = TRUE;
+				for(int r=0; r<iModelHeight; r++)
+				{
+					for(int c=0; c<iModelWidth; c++)
+					{
+						iPtrTarget = (iTargetR + r)*imgTarget->iWidth+(iTargetC+c);
+						iPtrModel = (r)*imgModel->iWidth+(c);
+						if(imgTarget->byImgR[iPtrTarget] != (imgModel->byImgR[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImgG[iPtrTarget] != (imgModel->byImgG[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImgB[iPtrTarget] != (imgModel->byImgB[iPtrModel])){bFound = FALSE; break;}
+						if(imgTarget->byImgA[iPtrTarget] != (imgModel->byImgA[iPtrModel])){bFound = FALSE; break;}
 					}
 					if(bFound == FALSE){break;}
 				}
@@ -635,6 +867,34 @@ BOOL IsInRegion(const ImgRGB* imgTarget, const ImgRGB* imgModel, const int iR0, 
 						if(imgTarget->byImg[iPtrTarget+0] != (imgModel->byImg[iPtrModel + 0])){bFound = FALSE; break;}
 						if(imgTarget->byImg[iPtrTarget+1] != (imgModel->byImg[iPtrModel + 1])){bFound = FALSE; break;}
 						if(imgTarget->byImg[iPtrTarget+2] != (imgModel->byImg[iPtrModel + 2])){bFound = FALSE; break;}
+					}
+					if(bFound == FALSE){break;}
+				}
+				if(bFound == TRUE){*iFoundR = iTargetR+iModelHeight/2; *iFoundC = iTargetC+iModelWidth/2; return TRUE;}
+				break;
+			}
+		}
+	}
+	
+	if((imgTarget->iChannel==CHANNEL_1_32BGRA) && (imgModel->iChannel == CHANNEL_1_32BGRA))
+	{
+		for(int iIterR = 0; iIterR<iScanHeight; iIterR++)
+		{
+			int iTargetR=iRStart+iIterR*iInclR;
+			for(int iIterC = 0; iIterC<iScanWidth; iIterC++)
+			{
+				int iTargetC=iCStart+iIterC*iInclC;
+				bFound = TRUE;
+				for(int r=0; r<iModelHeight; r++)
+				{
+					for(int c=0; c<iModelWidth; c++)
+					{
+						iPtrTarget = 4*((iTargetR + r)*imgTarget->iWidth+(iTargetC+c));
+						iPtrModel = 4*((r)*imgModel->iWidth+(c));
+						if(imgTarget->byImg[iPtrTarget+0] != (imgModel->byImg[iPtrModel + 0])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget+1] != (imgModel->byImg[iPtrModel + 1])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget+2] != (imgModel->byImg[iPtrModel + 2])){bFound = FALSE; break;}
+						if(imgTarget->byImg[iPtrTarget+3] != (imgModel->byImg[iPtrModel + 3])){bFound = FALSE; break;}
 					}
 					if(bFound == FALSE){break;}
 				}
@@ -716,6 +976,47 @@ BOOL CropImage2(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, 
 				}
 			}
 		}
+		if(imgRGBin->iChannel==CHANNEL_1_32BGRA)
+		{
+
+			for(int r=iR0; r<=iR1; r++)
+			{
+				for(int c=iC0; c<=iC1; c++)
+				{
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+0]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+1]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+2]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0))+3]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+				}
+				if(iWidthP1==1)
+				{
+					int c=iC1;
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0+1))+0]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0+1))+1]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0+1))+2]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+					imgRGBout->byImg[4*((r-iR0)*imgRGBout->iWidth+(c-iC0+1))+3]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+				}
+			}
+			if(iHeightP1==1)
+			{
+				int r=iR1;
+				for(int c=iC0; c<=iC1; c++)
+				{
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0))+0]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0))+1]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+					imgRGBout->byImg[3*((r+1-iR0)*imgRGBout->iWidth+(c-iC0))+2]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+					imgRGBout->byImg[3*((r+1-iR0)*imgRGBout->iWidth+(c-iC0))+3]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+				}
+				if(iWidthP1==1)
+				{
+					int c=iC1;
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0+1))+0]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+0];
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0+1))+1]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+1];
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0+1))+2]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+2];
+					imgRGBout->byImg[4*((r+1-iR0)*imgRGBout->iWidth+(c-iC0+1))+3]=imgRGBin->byImg[4*(r*imgRGBin->iWidth+c)+3];
+				}
+			}
+		}
 		if(imgRGBin->iChannel==CHANNEL_3_8RGB)
 		{
 			for(int r=iR0; r<=iR1; r++)
@@ -751,6 +1052,48 @@ BOOL CropImage2(ImgRGB* imgRGBin, ImgRGB* imgRGBout, int iR0, int iC0, int iR1, 
 					imgRGBout->byImgB[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
 					imgRGBout->byImgG[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
 					imgRGBout->byImgR[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+				}
+			}
+		}
+		if(imgRGBin->iChannel==CHANNEL_4_8RGBA)
+		{
+			for(int r=iR0; r<=iR1; r++)
+			{
+				for(int c=iC0; c<=iC1; c++)
+				{
+					imgRGBout->byImgB[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgG[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgR[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgA[(r-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
+
+				}
+				if(iWidthP1==1)
+				{
+					int c=iC1;
+					imgRGBout->byImgB[(r-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgG[(r-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgR[(r-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgA[(r-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
+				}
+			}
+			if(iHeightP1==1)
+			{
+				int r=iR1;
+				for(int c=iC0; c<=iC1; c++)
+				{
+					imgRGBout->byImgB[(r+1-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgG[(r+1-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgR[(r+1-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgA[(r+1-iR0)*imgRGBout->iWidth+(c-iC0)]=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
+
+				}
+				if(iWidthP1==1)
+				{
+					int c=iC1;
+					imgRGBout->byImgB[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgB[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgG[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgG[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgR[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgR[r*imgRGBin->iWidth+c];
+					imgRGBout->byImgA[(r+1-iR0)*imgRGBout->iWidth+(c-iC0+1)]=imgRGBin->byImgA[r*imgRGBin->iWidth+c];
 				}
 			}
 		}
@@ -965,6 +1308,8 @@ BOOL DLL_IE SubImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult, double
 		}
 		return FALSE;
 	}
+
+
 	return FALSE;
 }
 
@@ -2228,9 +2573,102 @@ BOOL ConvertImageCHANNEL_3_8RGB(const ImgRGB* imgIn, ImgRGB* imgOut)
 	return FALSE;
 }
 
+BOOL ConvertImageCHANNEL_4_8RGBA(const ImgRGB* imgIn, ImgRGB* imgOut)
+{
+	imgOut->Set(imgIn->iWidth, imgIn->iHeight, CHANNEL_4_8RGBA);
+
+	if(imgIn->iChannel==CHANNEL_4_8RGBA){imgOut->Assign(imgIn);return TRUE;}
+
+	if(imgIn->iChannel==CHANNEL_1_24BGR)
+	{
+		for(int r=0; r<imgIn->iHeight; r++)
+		{
+			for(int c=0; c<imgIn->iWidth; c++)
+			{
+				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+0];
+				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+1];
+				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+2];
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
+			}
+		}
+		return TRUE;
+	}
+	
+	if(imgIn->iChannel==CHANNEL_3_8RGB)
+	{
+		for(int r=0; r<imgIn->iHeight; r++)
+		{
+			for(int c=0; c<imgIn->iWidth; c++)
+			{
+				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImgB[r*imgIn->iWidth+c];
+				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImgG[r*imgIn->iWidth+c];
+				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImgR[r*imgIn->iWidth+c];
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
+			}
+		}
+		return TRUE;
+	}
+
+	if(imgIn->iChannel==CHANNEL_1_8)
+	{
+		for(int r=0; r<imgIn->iHeight; r++)
+		{
+			for(int c=0; c<imgIn->iWidth; c++)
+			{
+				imgOut->byImgB[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+				imgOut->byImgG[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+				imgOut->byImgR[r*imgIn->iWidth+c]=imgIn->byImg[r*imgIn->iWidth+c];
+				imgOut->byImgA[r*imgIn->iWidth+c]=255;
+			}
+		}
+		return TRUE;
+	}
+
+	return FALSE;
+}
 BOOL PaintRegion(const ImgRGB* imgIn, const Object* objIn, ImgRGB* imgOut, const BYTE byR, const BYTE byG, const BYTE byB)
 {
 	BOOL bRet;
+
+	if(imgIn->iChannel==CHANNEL_1_32BGRA)
+	{
+		bRet = ConvertImageCHANNEL_4_8RGBA(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int iID=0; iID<= objIn->m_iMaxID; iID++)
+		{
+			int r=objIn->runLength[iID].iR;
+			for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
+			{
+				imgOut->byImgR[r*imgOut->iWidth+c]=byR;
+				imgOut->byImgG[r*imgOut->iWidth+c]=byG;
+				imgOut->byImgB[r*imgOut->iWidth+c]=byB;
+				imgOut->byImgA[r*imgOut->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
+			}
+		}
+
+		return TRUE;
+	}
+	if(imgIn->iChannel==CHANNEL_4_8RGBA)
+	{
+		bRet = ConvertImageCHANNEL_4_8RGBA(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int iID=0; iID<= objIn->m_iMaxID; iID++)
+		{
+			int r=objIn->runLength[iID].iR;
+			for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
+			{
+				imgOut->byImgR[r*imgOut->iWidth+c]=byR;
+				imgOut->byImgG[r*imgOut->iWidth+c]=byG;
+				imgOut->byImgB[r*imgOut->iWidth+c]=byB;
+				imgOut->byImgA[r*imgOut->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+3];
+			}
+		}
+
+		return TRUE;
+	}
+
 	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
@@ -2256,6 +2694,63 @@ UINT g_uiColored=3;
 BOOL PaintRegion(const ImgRGB* imgIn, Object* objIn, ImgRGB* imgOut)
 {
 	BOOL bRet;
+
+	if(imgIn->iChannel==CHANNEL_1_32BGRA)
+	{
+		bRet = ConvertImageCHANNEL_4_8RGBA(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int iID=0; iID<= objIn->m_iMaxID; iID++)
+		{
+			int r=objIn->runLength[iID].iR;
+			for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
+			{
+				if(objIn->runLength[iID].uiLabel==0)
+				{
+					imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
+					imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
+					imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
+				imgOut->byImgB[r*imgOut->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+3];
+					continue;
+				}
+				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgB[r*imgOut->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+3];
+			}
+		}
+		return TRUE;
+	}
+	if(imgIn->iChannel==CHANNEL_4_8RGBA)
+	{
+		bRet = ConvertImageCHANNEL_4_8RGBA(imgIn, imgOut);
+		if(bRet != TRUE){return FALSE;}
+
+		for(int iID=0; iID<= objIn->m_iMaxID; iID++)
+		{
+			int r=objIn->runLength[iID].iR;
+			for(int c= objIn->runLength[iID].iCStart; c<= objIn->runLength[iID].iCEnd; c++)
+			{
+				if(objIn->runLength[iID].uiLabel==0)
+				{
+					imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[0];
+					imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[0];
+					imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[0];
+					imgOut->byImgA[r*imgOut->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
+					continue;
+				}
+				imgOut->byImgR[r*imgOut->iWidth+c]=g_byR[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgG[r*imgOut->iWidth+c]=g_byG[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgB[r*imgOut->iWidth+c]=g_byB[(objIn->runLength[iID].uiLabel-1)%g_uiColored];
+				imgOut->byImgA[r*imgOut->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
+			}
+		}
+
+		return TRUE;
+	}
+
+
+
 	bRet = ConvertImageCHANNEL_3_8RGB(imgIn, imgOut);
 	if(bRet != TRUE){return FALSE;}
 
@@ -2557,6 +3052,19 @@ BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
 			}
 		}
 	}
+	if(imgRGB->iChannel==CHANNEL_4_8RGBA)
+	{
+		for(int r=0; r<imgRGB->iHeight; r++)
+		{
+			for(int c=0; c<imgRGB->iWidth; c++)
+			{
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImgB[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImgG[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImgR[(imgRGB->iHeight-r-1)*imgRGB->iWidth+c];
+			}
+		}
+	}
+
 
 	if(imgRGB->iChannel==CHANNEL_1_24BGR)
 	{
@@ -2567,6 +3075,18 @@ BOOL WriteImage(const ImgRGB* imgRGB, CString sFilePath)
 				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+0];
 				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+1];
 				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImg[3*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+2];
+			}
+		}
+	}
+	if(imgRGB->iChannel==CHANNEL_1_32BGRA)
+	{
+		for(int r=0; r<imgRGB->iHeight; r++)
+		{
+			for(int c=0; c<imgRGB->iWidth; c++)
+			{
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+0] = imgRGB->byImg[4*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+0];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+1] = imgRGB->byImg[4*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+1];
+				byOutBuf[3*(r*imgRGB->iWidth+c)+r*iFillerSize+2] = imgRGB->byImg[4*((imgRGB->iHeight-r-1)*imgRGB->iWidth+c)+2];
 			}
 		}
 	}
