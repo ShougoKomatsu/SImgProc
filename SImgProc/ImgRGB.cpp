@@ -3,7 +3,16 @@
 #include "CommonFunction.h"
 ImgRGB::ImgRGB()
 {
-	byImg = NULL; byImgR=NULL; byImgG=NULL; byImgB=NULL;  byImgA=NULL; dImg1=NULL; dImg2=NULL; dImg3=NULL;Init();}
+	byImg = NULL;
+	byImgR=NULL; 
+	byImgG=NULL; 
+	byImgB=NULL;  
+	byImgA=NULL;
+	dImg1=NULL;
+	dImg2=NULL; 
+	dImg3=NULL;
+	Init();
+}
 
 ImgRGB::~ImgRGB(){Init();}
 BOOL ImgRGB::Init()
@@ -32,39 +41,59 @@ BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 	iWidth = iWidthIn;
 	iHeight = iHeightIn;
 	iChannel = iChannelIn;
-	if(iChannel == CHANNEL_3_FLOAT)
+
+	switch(iChannel)
 	{
-		dImg1 = new double[iWidth*iHeight];
-		dImg2 = new double[iWidth*iHeight];
-		dImg3 = new double[iWidth*iHeight];
-	}
-	if(iChannel == CHANNEL_1_8)
-	{
-		byImg = new BYTE[iWidth*iHeight];
-		memset(byImg,0,iWidth*iHeight);
-	}
-	if(iChannel == CHANNEL_3_8RGB)
-	{
-		byImgR = new BYTE[iWidth*iHeight];
-		byImgG = new BYTE[iWidth*iHeight];
-		byImgB = new BYTE[iWidth*iHeight];
-		byImg=NULL;
-	}
-	if(iChannel == CHANNEL_1_24BGR)
-	{
-		byImg = new BYTE[iWidth*iHeight*3];
-	}
-	if(iChannel == CHANNEL_1_32BGRA)
-	{
-		byImg = new BYTE[iWidth*iHeight*4];
-	}
-	if(iChannel == CHANNEL_4_8RGBA)
-	{
-		byImgR = new BYTE[iWidth*iHeight];
-		byImgG = new BYTE[iWidth*iHeight];
-		byImgB = new BYTE[iWidth*iHeight];
-		byImgA = new BYTE[iWidth*iHeight];
-		byImg=NULL;
+	case CHANNEL_3_FLOAT:
+		{
+			dImg1 = new double[iWidth*iHeight];
+			dImg2 = new double[iWidth*iHeight];
+			dImg3 = new double[iWidth*iHeight];
+			break;
+		}
+	case CHANNEL_1_8:
+		{
+			byImg = new BYTE[iWidth*iHeight];
+			memset(byImg,0,iWidth*iHeight);
+			break;
+		}
+	case CHANNEL_3_8RGB:
+		{
+			byImgR = new BYTE[iWidth*iHeight];
+			byImgG = new BYTE[iWidth*iHeight];
+			byImgB = new BYTE[iWidth*iHeight];
+			memset(byImgR,0,iWidth*iHeight);
+			memset(byImgG,0,iWidth*iHeight);
+			memset(byImgB,0,iWidth*iHeight);
+			byImg=NULL;
+			break;
+		}
+	case CHANNEL_1_24BGR:
+		{
+			byImg = new BYTE[iWidth*iHeight*3];
+			memset(byImg,0,iWidth*iHeight*3);
+			break;
+		}
+	case CHANNEL_1_32BGRA:
+		{
+			byImg = new BYTE[iWidth*iHeight*4];
+			memset(byImg,0,iWidth*iHeight*4);
+			break;
+		}
+	case CHANNEL_4_8RGBA:
+		{
+			byImgR = new BYTE[iWidth*iHeight];
+			byImgG = new BYTE[iWidth*iHeight];
+			byImgB = new BYTE[iWidth*iHeight];
+			byImgA = new BYTE[iWidth*iHeight];
+			memset(byImgR,0,iWidth*iHeight);
+			memset(byImgG,0,iWidth*iHeight);
+			memset(byImgB,0,iWidth*iHeight);
+			memset(byImgA,0,iWidth*iHeight);
+			byImg=NULL;
+			break;
+		}
+	default:{return FALSE;}
 	}
 	GenRectangle1(&(this->objDomain), 0, 0, iHeight-1, iWidth-1);
 	return TRUE;
