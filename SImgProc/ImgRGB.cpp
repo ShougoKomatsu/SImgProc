@@ -10,6 +10,7 @@ BOOL ImgRGB::Init()
 	if(byImgR!=NULL){SAFE_DELETE(byImgR); byImgR=NULL;}
 	if(byImgG!=NULL){SAFE_DELETE(byImgG); byImgG=NULL;}
 	if(byImgB!=NULL){SAFE_DELETE(byImgB); byImgB=NULL;}
+	if(byImgA!=NULL){SAFE_DELETE(byImgA); byImgA=NULL;}
 	if(dImg1!=NULL){SAFE_DELETE(dImg1); dImg1=NULL;}
 	if(dImg2!=NULL){SAFE_DELETE(dImg2); dImg2=NULL;}
 	if(dImg3!=NULL){SAFE_DELETE(dImg3); dImg3=NULL;}
@@ -50,6 +51,18 @@ BOOL ImgRGB::Set(const int iWidthIn, const int iHeightIn, const int iChannelIn)
 	if(iChannel == CHANNEL_1_24BGR)
 	{
 		byImg = new BYTE[iWidth*iHeight*3];
+	}
+	if(iChannel == CHANNEL_1_32BGRA)
+	{
+		byImg = new BYTE[iWidth*iHeight*4];
+	}
+	if(iChannel == CHANNEL_4_8RGBA)
+	{
+		byImgR = new BYTE[iWidth*iHeight];
+		byImgG = new BYTE[iWidth*iHeight];
+		byImgB = new BYTE[iWidth*iHeight];
+		byImgA = new BYTE[iWidth*iHeight];
+		byImg=NULL;
 	}
 	GenRectangle1(&(this->objDomain), 0, 0, iHeight-1, iWidth-1);
 	return TRUE;
@@ -103,6 +116,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 				(imgRGB->byImgB)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 0];
 				(imgRGB->byImgG)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 1];
 				(imgRGB->byImgR)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 2];
+				(imgRGB->byImgA)[(iHeight - r -1) *iWidth+c] = byData[ulDataOffset +r*iRowSize +4*c + 3];
 			}
 		}
 		GenRectangle1(&(imgRGB->objDomain), 0, 0, iHeight-1, iWidth-1);
@@ -279,6 +293,20 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 		}
 		return TRUE;
 	}
+	if(iChannel==CHANNEL_1_32BGRA)
+	{
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				this->byImg[4*(r*iWidth+c)+0]=imgRGBIn->byImg[4*(r*iWidth+c)+0];
+				this->byImg[4*(r*iWidth+c)+1]=imgRGBIn->byImg[4*(r*iWidth+c)+1];
+				this->byImg[4*(r*iWidth+c)+2]=imgRGBIn->byImg[4*(r*iWidth+c)+2];
+				this->byImg[4*(r*iWidth+c)+3]=imgRGBIn->byImg[4*(r*iWidth+c)+3];
+			}
+		}
+		return TRUE;
+	}
 	if(iChannel==CHANNEL_1_8)
 	{
 		for(int r=0; r<iHeight; r++)
@@ -299,6 +327,20 @@ BOOL ImgRGB::Assign(const ImgRGB* imgRGBIn)
 				this->byImgB[r*iWidth+c]=imgRGBIn->byImgB[r*iWidth+c];
 				this->byImgG[r*iWidth+c]=imgRGBIn->byImgG[r*iWidth+c];
 				this->byImgR[r*iWidth+c]=imgRGBIn->byImgR[r*iWidth+c];
+			}
+		}
+		return TRUE;
+	}
+	if(iChannel==CHANNEL_4_8RGBA)
+	{
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				this->byImgB[r*iWidth+c]=imgRGBIn->byImgB[r*iWidth+c];
+				this->byImgG[r*iWidth+c]=imgRGBIn->byImgG[r*iWidth+c];
+				this->byImgR[r*iWidth+c]=imgRGBIn->byImgR[r*iWidth+c];
+				this->byImgA[r*iWidth+c]=imgRGBIn->byImgA[r*iWidth+c];
 			}
 		}
 		return TRUE;

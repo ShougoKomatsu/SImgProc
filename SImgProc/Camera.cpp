@@ -51,6 +51,8 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	if(sOut.Compare(_T("CHANNEL_1_24BGR"))==0){m_iChannel=CHANNEL_1_24BGR;}
 	if(sOut.Compare(_T("CHANNEL_3_8RGB"))==0){m_iChannel=CHANNEL_3_8RGB;}
 	if(sOut.Compare(_T("CHANNEL_1_8"))==0){m_iChannel=CHANNEL_1_8;}
+	if(sOut.Compare(_T("CHANNEL_1_32BGRA"))==0){m_iChannel=CHANNEL_1_32BGRA;}
+	if(sOut.Compare(_T("CHANNEL_4_8RGBA"))==0){m_iChannel=CHANNEL_4_8RGBA;}
 
 	bRet = ExtractData(sRemin, _T(","), &sOut, &sRemin);
 	m_iWidth=_ttoi(sOut);
@@ -62,6 +64,8 @@ int CameraLocal::OpenCamera(CString sPipeName)
 	case CHANNEL_1_8:{iColorsPerPixel=1; break;}
 	case CHANNEL_3_8RGB:{iColorsPerPixel=3; break;}
 	case CHANNEL_1_24BGR:{iColorsPerPixel=3; break;}
+	case CHANNEL_1_32BGRA:{iColorsPerPixel=3; break;}
+	case CHANNEL_4_8RGBA:{iColorsPerPixel=3; break;}
 	}
 
 	if(m_hSharedMemory != INVALID_HANDLE_VALUE){CloseHandle(m_hSharedMemory); m_hSharedMemory = INVALID_HANDLE_VALUE;}
@@ -104,7 +108,22 @@ int CameraLocal::GrabImage(ImgRGB* imgOut)
 			}
 			break;
 		}
+	case CHANNEL_4_8RGBA:
+		{
+			for(int r=0; r<m_iHeight; r++)
+			{
+				for(int c=0; c<m_iWidth; c++)
+				{
+					imgOut->byImgR[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*0 + r*m_iWidth+c];
+					imgOut->byImgG[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*1 + r*m_iWidth+c];
+					imgOut->byImgB[r*m_iWidth+c]=m_pbyMemory[m_iWidth*m_iHeight*2 + r*m_iWidth+c];
+					imgOut->byImgA[r*m_iWidth+c]=0;
+				}
+			}
+			break;
+		}
 	case CHANNEL_1_24BGR:{break;}
+	case CHANNEL_1_32BGRA:{break;}
 	}
 
 	return 0;
