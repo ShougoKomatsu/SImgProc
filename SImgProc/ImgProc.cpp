@@ -184,7 +184,7 @@ BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* 
 				imgR->byImg[r*imgR->iWidth+c]=imgIn->byImgR[r*imgIn->iWidth+c];
 				imgG->byImg[r*imgG->iWidth+c]=imgIn->byImgG[r*imgIn->iWidth+c];
 				imgB->byImg[r*imgB->iWidth+c]=imgIn->byImgB[r*imgIn->iWidth+c];
-				imgA->byImg[r*imgB->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
+				imgA->byImg[r*imgA->iWidth+c]=imgIn->byImgA[r*imgIn->iWidth+c];
 			}
 		}
 		return TRUE;
@@ -199,7 +199,7 @@ BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* 
 				imgB->byImg[r*imgB->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+0];
 				imgG->byImg[r*imgG->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+1];
 				imgR->byImg[r*imgR->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+2];
-				imgA->byImg[r*imgR->iWidth+c]=imgIn->byImg[3*(r*imgIn->iWidth+c)+3];
+				imgA->byImg[r*imgA->iWidth+c]=imgIn->byImg[4*(r*imgIn->iWidth+c)+3];
 			}
 		}
 		return TRUE;
@@ -232,7 +232,7 @@ BOOL Compose4(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, const 
 			imgOut->byImgR[r*imgOut->iWidth+c]=imgR->byImg[r*imgR->iWidth+c];
 			imgOut->byImgG[r*imgOut->iWidth+c]=imgG->byImg[r*imgG->iWidth+c];
 			imgOut->byImgB[r*imgOut->iWidth+c]=imgB->byImg[r*imgB->iWidth+c];
-			imgOut->byImgA[r*imgOut->iWidth+c]=imgA->byImg[r*imgB->iWidth+c];
+			imgOut->byImgA[r*imgOut->iWidth+c]=imgA->byImg[r*imgA->iWidth+c];
 		}
 	}
 	return TRUE;

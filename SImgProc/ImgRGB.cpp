@@ -133,12 +133,12 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 	if(bmih->biHeight<0){iHeight = -1*(bmih->biHeight);}
 	else{iHeight = (bmih->biHeight);}
 
-	imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 
 	int iBitCount = bmih->biBitCount;
-	
+
 	if (iBitCount == 32) 
 	{
+		imgRGB->Set(iWidth, iHeight, CHANNEL_4_8RGBA);
 		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
 		for(int r=0; r<iHeight; r++)
 		{
@@ -156,6 +156,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if (iBitCount == 24) 
 	{
+		imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
 		for(int r=0; r<iHeight; r++)
 		{
@@ -172,6 +173,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if(iBitCount==1)
 	{
+		imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
 		int iPaletteSize = ((bmih->biClrUsed == 0) ? 2 : bmih->biClrUsed);
 		BYTE* byPalette=NULL;
@@ -203,6 +205,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if(iBitCount==4)
 	{
+		imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 		int iRowSize = (( (iWidth+1) / 2 + 3) / 4) * 4;
 		int iPaletteSize = ((bmih->biClrUsed == 0) ? 16 : bmih->biClrUsed);
 		BYTE* byPalette=NULL;
@@ -234,6 +237,7 @@ BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB)
 
 	if(iBitCount==8)
 	{
+		imgRGB->Set(iWidth, iHeight, CHANNEL_3_8RGB);
 		int iRowSize = ((bmih->biBitCount * iWidth + 31) / 32)*4;
 		int iPaletteSize = ((bmih->biClrUsed == 0) ? 256 : bmih->biClrUsed);
 		BYTE* byPalette = NULL;
