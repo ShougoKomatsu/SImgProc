@@ -1648,7 +1648,7 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 			}
 		}
 		
-	case COLOR_SATUATION:
+	case COLOR_SATURATION:
 		{
 			if(imgIn->iChannel==CHANNEL_1_8)
 			{
