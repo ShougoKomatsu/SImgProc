@@ -1151,6 +1151,22 @@ BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int
 		}
 		return TRUE;
 	}
+	if(imgIn->iChannel==CHANNEL_4_8RGBA)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgR[r*iWidth+c]+dBrightness)))];
+				imgResult->byImgG[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgG[r*iWidth+c]+dBrightness)))];
+				imgResult->byImgB[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgB[r*iWidth+c]+dBrightness)))];
+				imgResult->byImgA[r*iWidth+c]=imgIn->byImgB[r*iWidth+c];
+			}
+		}
+		return TRUE;
+	}
+
 
 	if(imgIn->iChannel==CHANNEL_1_24BGR)
 	{
@@ -1159,9 +1175,24 @@ BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int
 		{
 			for(int c=iC0Local; c<=iC1Local; c++)
 			{
-				imgResult->byImgR[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
-				imgResult->byImgG[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
-				imgResult->byImgB[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
+				imgResult->byImg[3*(r*iWidth+c)+2]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+2]+dBrightness)))];
+				imgResult->byImg[3*(r*iWidth+c)+1]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+1]+dBrightness)))];
+				imgResult->byImg[3*(r*iWidth+c)+0]=byContrastMap[min(255,max(0,int(imgIn->byImg[3*(r*iWidth+c)+0]+dBrightness)))];
+			}
+		}
+		return TRUE;
+	}
+	if(imgIn->iChannel==CHANNEL_1_32BGRA)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImg[4*(r*iWidth+c)+2]=byContrastMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+2]+dBrightness)))];
+				imgResult->byImg[4*(r*iWidth+c)+1]=byContrastMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+1]+dBrightness)))];
+				imgResult->byImg[4*(r*iWidth+c)+0]=byContrastMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+0]+dBrightness)))];
+				imgResult->byImg[4*(r*iWidth+c)+3]=imgIn->byImg[4*(r*iWidth+c)+3];
 			}
 		}
 		return TRUE;
@@ -1211,6 +1242,22 @@ BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const in
 		}
 		return TRUE;
 	}
+	if(imgIn->iChannel==CHANNEL_4_8RGBA)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImgR[r*iWidth+c]=byGammaMap[min(255,max(0,int(imgIn->byImgR[r*iWidth+c])))];
+				imgResult->byImgG[r*iWidth+c]=byGammaMap[min(255,max(0,int(imgIn->byImgG[r*iWidth+c])))];
+				imgResult->byImgB[r*iWidth+c]=byGammaMap[min(255,max(0,int(imgIn->byImgB[r*iWidth+c])))];
+				imgResult->byImgA[r*iWidth+c]=imgIn->byImgA[r*iWidth+c];
+			}
+		}
+		return TRUE;
+	}
+
 
 	if(imgIn->iChannel==CHANNEL_1_24BGR)
 	{
@@ -1226,7 +1273,22 @@ BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const in
 		}
 		return TRUE;
 	}
-
+	
+	if(imgIn->iChannel==CHANNEL_1_32BGRA)
+	{
+		imgResult->Assign(imgIn);
+		for(int r=iR0Local; r<=iR1Local; r++)
+		{
+			for(int c=iC0Local; c<=iC1Local; c++)
+			{
+				imgResult->byImg[4*(r*iWidth+c)+2]=byGammaMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+2])))];
+				imgResult->byImg[4*(r*iWidth+c)+1]=byGammaMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+1])))];
+				imgResult->byImg[4*(r*iWidth+c)+0]=byGammaMap[min(255,max(0,int(imgIn->byImg[4*(r*iWidth+c)+0])))];
+				imgResult->byImg[4*(r*iWidth+c)+3]=imgIn->byImg[4*(r*iWidth+c)+3];
+			}
+		}
+		return TRUE;
+	}
 	return FALSE;
 }
 BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate rotate)
