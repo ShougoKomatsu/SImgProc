@@ -1096,6 +1096,7 @@ BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, c
 }
 #include "math.h"
 BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dBrightness, const double dContrastAngleDegree)
+
 {
 	int iR0Local = max(0, min(r0, r1));
 	int iR1Local = min(max(r0,r1), imgIn->iHeight-1);
@@ -1161,7 +1162,7 @@ BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int
 				imgResult->byImgR[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgR[r*iWidth+c]+dBrightness)))];
 				imgResult->byImgG[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgG[r*iWidth+c]+dBrightness)))];
 				imgResult->byImgB[r*iWidth+c]=byContrastMap[min(255,max(0,int(imgIn->byImgB[r*iWidth+c]+dBrightness)))];
-				imgResult->byImgA[r*iWidth+c]=imgIn->byImgB[r*iWidth+c];
+				imgResult->byImgA[r*iWidth+c]=imgIn->byImgA[r*iWidth+c];
 			}
 		}
 		return TRUE;
@@ -1242,6 +1243,7 @@ BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const in
 		}
 		return TRUE;
 	}
+
 	if(imgIn->iChannel==CHANNEL_4_8RGBA)
 	{
 		imgResult->Assign(imgIn);
