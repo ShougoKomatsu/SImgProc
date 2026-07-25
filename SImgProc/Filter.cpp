@@ -1330,6 +1330,21 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				imgResult->Assign(imgIn);
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[r*iWidthSrc+c];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[r*iWidthSrc+c];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[r*iWidthSrc+c];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[r*iWidthSrc+c];
+					}
+				}
+				return TRUE;
+			}
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1341,6 +1356,21 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)*2]=imgIn->byImg[3*(r*iWidthSrc+c)+2];
 						imgResult->byImg[3*(r*iWidthDst+c)*1]=imgIn->byImg[3*(r*iWidthSrc+c)+1];
 						imgResult->byImg[3*(r*iWidthDst+c)*0]=imgIn->byImg[3*(r*iWidthSrc+c)+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				imgResult->Assign(imgIn);
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[4*(r*iWidthDst+c)*2]=imgIn->byImg[4*(r*iWidthSrc+c)+2];
+						imgResult->byImg[4*(r*iWidthDst+c)*1]=imgIn->byImg[4*(r*iWidthSrc+c)+1];
+						imgResult->byImg[4*(r*iWidthDst+c)*0]=imgIn->byImg[4*(r*iWidthSrc+c)+0];
+						imgResult->byImg[4*(r*iWidthDst+c)*3]=imgIn->byImg[4*(r*iWidthSrc+c)+3];
 					}
 				}
 				return TRUE;
@@ -1380,6 +1410,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[(iHeightSrc-c-1)*iWidthSrc+r];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[(iHeightSrc-c-1)*iWidthSrc+r];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[(iHeightSrc-c-1)*iWidthSrc+r];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[(iHeightSrc-c-1)*iWidthSrc+r];
+					}
+				}
+				return TRUE;
+			}
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1390,6 +1434,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)+2]=imgIn->byImg[3*((iHeightSrc-c-1)*iWidthSrc+r)+2];
 						imgResult->byImg[3*(r*iWidthDst+c)+1]=imgIn->byImg[3*((iHeightSrc-c-1)*iWidthSrc+r)+1];
 						imgResult->byImg[3*(r*iWidthDst+c)+0]=imgIn->byImg[3*((iHeightSrc-c-1)*iWidthSrc+r)+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[4*(r*iWidthDst+c)+2]=imgIn->byImg[4*((iHeightSrc-c-1)*iWidthSrc+r)+2];
+						imgResult->byImg[4*(r*iWidthDst+c)+1]=imgIn->byImg[4*((iHeightSrc-c-1)*iWidthSrc+r)+1];
+						imgResult->byImg[4*(r*iWidthDst+c)+0]=imgIn->byImg[4*((iHeightSrc-c-1)*iWidthSrc+r)+0];
+						imgResult->byImg[4*(r*iWidthDst+c)+3]=imgIn->byImg[4*((iHeightSrc-c-1)*iWidthSrc+r)+3];
 					}
 				}
 				return TRUE;
@@ -1428,6 +1486,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[(iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[(iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[(iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[(iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1)];
+					}
+				}
+				return TRUE;
+			}
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1439,6 +1511,21 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)+2]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+2];
 						imgResult->byImg[3*(r*iWidthDst+c)+1]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+1];
 						imgResult->byImg[3*(r*iWidthDst+c)+0]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+
+						imgResult->byImg[4*(r*iWidthDst+c)+2]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+2];
+						imgResult->byImg[4*(r*iWidthDst+c)+1]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+1];
+						imgResult->byImg[4*(r*iWidthDst+c)+0]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+0];
+						imgResult->byImg[4*(r*iWidthDst+c)+3]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+(iWidthSrc-c-1))+3];
 					}
 				}
 				return TRUE;
@@ -1478,6 +1565,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[c*iWidthSrc+(iWidthSrc-r-1)];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[c*iWidthSrc+(iWidthSrc-r-1)];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[c*iWidthSrc+(iWidthSrc-r-1)];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[c*iWidthSrc+(iWidthSrc-r-1)];
+					}
+				}
+				return TRUE;
+			}
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1488,6 +1589,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)+2]=imgIn->byImg[3*(c*iWidthSrc+(iWidthSrc-r-1))+2];
 						imgResult->byImg[3*(r*iWidthDst+c)+1]=imgIn->byImg[3*(c*iWidthSrc+(iWidthSrc-r-1))+1];
 						imgResult->byImg[3*(r*iWidthDst+c)+0]=imgIn->byImg[3*(c*iWidthSrc+(iWidthSrc-r-1))+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[4*(r*iWidthDst+c)+2]=imgIn->byImg[4*(c*iWidthSrc+(iWidthSrc-r-1))+2];
+						imgResult->byImg[4*(r*iWidthDst+c)+1]=imgIn->byImg[4*(c*iWidthSrc+(iWidthSrc-r-1))+1];
+						imgResult->byImg[4*(r*iWidthDst+c)+0]=imgIn->byImg[4*(c*iWidthSrc+(iWidthSrc-r-1))+0];
+						imgResult->byImg[4*(r*iWidthDst+c)+3]=imgIn->byImg[4*(c*iWidthSrc+(iWidthSrc-r-1))+3];
 					}
 				}
 				return TRUE;
@@ -1527,6 +1642,21 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[(iHeightSrc-r-1)*iWidthSrc+c];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[(iHeightSrc-r-1)*iWidthSrc+c];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[(iHeightSrc-r-1)*iWidthSrc+c];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[(iHeightSrc-r-1)*iWidthSrc+c];
+					}
+				}
+				return TRUE;
+			}
+
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1537,6 +1667,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)+2]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+c)+2];
 						imgResult->byImg[3*(r*iWidthDst+c)+1]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+c)+1];
 						imgResult->byImg[3*(r*iWidthDst+c)+0]=imgIn->byImg[3*((iHeightSrc-r-1)*iWidthSrc+c)+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[4*(r*iWidthDst+c)+2]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+c)+2];
+						imgResult->byImg[4*(r*iWidthDst+c)+1]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+c)+1];
+						imgResult->byImg[4*(r*iWidthDst+c)+0]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+c)+0];
+						imgResult->byImg[4*(r*iWidthDst+c)+3]=imgIn->byImg[4*((iHeightSrc-r-1)*iWidthSrc+c)+3];
 					}
 				}
 				return TRUE;
@@ -1576,6 +1720,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 				}
 				return TRUE;
 			}
+			if(imgIn->iChannel==CHANNEL_4_8RGBA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImgR[r*iWidthDst+c]=imgIn->byImgR[r*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgG[r*iWidthDst+c]=imgIn->byImgG[r*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgB[r*iWidthDst+c]=imgIn->byImgB[r*iWidthSrc+(iWidthSrc-c-1)];
+						imgResult->byImgA[r*iWidthDst+c]=imgIn->byImgA[r*iWidthSrc+(iWidthSrc-c-1)];
+					}
+				}
+				return TRUE;
+			}
 
 			if(imgIn->iChannel==CHANNEL_1_24BGR)
 			{
@@ -1586,6 +1744,20 @@ BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate
 						imgResult->byImg[3*(r*iWidthDst+c)+2]=imgIn->byImg[3*(r*iWidthSrc+(iWidthSrc-c-1))+2];
 						imgResult->byImg[3*(r*iWidthDst+c)+1]=imgIn->byImg[3*(r*iWidthSrc+(iWidthSrc-c-1))+1];
 						imgResult->byImg[3*(r*iWidthDst+c)+0]=imgIn->byImg[3*(r*iWidthSrc+(iWidthSrc-c-1))+0];
+					}
+				}
+				return TRUE;
+			}
+			if(imgIn->iChannel==CHANNEL_1_32BGRA)
+			{
+				for(int r=0; r<iHeightDst; r++)
+				{
+					for(int c=0; c<iWidthDst; c++)
+					{
+						imgResult->byImg[4*(r*iWidthDst+c)+2]=imgIn->byImg[4*(r*iWidthSrc+(iWidthSrc-c-1))+2];
+						imgResult->byImg[4*(r*iWidthDst+c)+1]=imgIn->byImg[4*(r*iWidthSrc+(iWidthSrc-c-1))+1];
+						imgResult->byImg[4*(r*iWidthDst+c)+0]=imgIn->byImg[4*(r*iWidthSrc+(iWidthSrc-c-1))+0];
+						imgResult->byImg[4*(r*iWidthDst+c)+3]=imgIn->byImg[4*(r*iWidthSrc+(iWidthSrc-c-1))+3];
 					}
 				}
 				return TRUE;
