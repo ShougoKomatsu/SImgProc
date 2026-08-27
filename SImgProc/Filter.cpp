@@ -1016,7 +1016,7 @@ BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, c
 		return TRUE;
 	}
 
-	if(imgIn->iChannel==CHANNEL_3_8RGB)
+	if((imgIn->iChannel==CHANNEL_3_8RGB) || (imgIn->iChannel==CHANNEL_4_8RGBA))
 	{
 		int iHistR[256];
 		int iHistG[256];

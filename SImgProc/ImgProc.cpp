@@ -3149,7 +3149,7 @@ BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHi
 		return TRUE;
 	}
 	
-	if(imgRGB->iChannel==CHANNEL_3_8RGB)
+	if((imgRGB->iChannel==CHANNEL_3_8RGB)|| (imgRGB->iChannel==CHANNEL_4_8RGBA))
 	{
 		for(int r=iR0Local; r<=iR1Local; r++)
 		{
