@@ -3117,7 +3117,7 @@ for(int c=0;c<iSearchWidth;c++){}
 */
 
 
-BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHistR, int* iHistG, int* iHistB)
+DLL_IE BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHistR, int* iHistG, int* iHistB)
 {
 	if(iHistR == NULL){return FALSE;}
 	if(iHistG == NULL){return FALSE;}
@@ -3166,7 +3166,7 @@ BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHi
 }
 
 
-BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHist)
+DLL_IE BOOL GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHist)
 {
 	if(iHist == NULL){return FALSE;}
 	int iR0Local = max(0, min(r0, r1));
