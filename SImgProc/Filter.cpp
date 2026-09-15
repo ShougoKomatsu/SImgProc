@@ -1791,7 +1791,7 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			if((imgIn->iChannel==CHANNEL_3_8RGB) || (imgIn->iChannel==CHANNEL_4_8RGBA))
 			{
 				for(int r=0; r<iHeightDst; r++)
 				{
@@ -1810,15 +1810,16 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			if((imgIn->iChannel==CHANNEL_1_24BGR) || (imgIn->iChannel==CHANNEL_1_32BGRA))
 			{
+				int iColorPitch = ((imgIn->iChannel==CHANNEL_1_24BGR) ? 3 : 4);
 				for(int r=0; r<iHeightDst; r++)
 				{
 					for(int c=0; c<iWidthDst; c++)
 					{
-						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
-						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
-						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+0];
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=0; continue;}
@@ -1844,7 +1845,7 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			if((imgIn->iChannel==CHANNEL_3_8RGB) || (imgIn->iChannel==CHANNEL_4_8RGBA))
 			{
 				for(int r=0; r<iHeightDst; r++)
 				{
@@ -1863,15 +1864,16 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			if((imgIn->iChannel==CHANNEL_1_24BGR) || (imgIn->iChannel==CHANNEL_1_32BGRA))
 			{
+				int iColorPitch = ((imgIn->iChannel==CHANNEL_1_24BGR) ? 3 : 4);
 				for(int r=0; r<iHeightDst; r++)
 				{
 					for(int c=0; c<iWidthDst; c++)
 					{
-						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
-						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
-						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+0];
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=128; continue;}
@@ -1897,7 +1899,7 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			if((imgIn->iChannel==CHANNEL_3_8RGB) || (imgIn->iChannel==CHANNEL_4_8RGBA))
 			{
 				for(int r=0; r<iHeightDst; r++)
 				{
@@ -1914,15 +1916,16 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			if((imgIn->iChannel==CHANNEL_1_24BGR) || (imgIn->iChannel==CHANNEL_1_32BGRA))
 			{
+				int iColorPitch = ((imgIn->iChannel==CHANNEL_1_24BGR) ? 3 : 4);
 				for(int r=0; r<iHeightDst; r++)
 				{
 					for(int c=0; c<iWidthDst; c++)
 					{
-						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
-						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
-						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+0];
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==0){imgResult->byImg[r*iWidthDst+c]=0; continue;}
@@ -1946,7 +1949,7 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_3_8RGB)
+			if((imgIn->iChannel==CHANNEL_3_8RGB) || (imgIn->iChannel==CHANNEL_4_8RGBA))
 			{
 				for(int r=0; r<iHeightDst; r++)
 				{
@@ -1961,15 +1964,16 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 				}
 				return TRUE;
 			}
-			if(imgIn->iChannel==CHANNEL_1_24BGR)
+			if((imgIn->iChannel==CHANNEL_1_24BGR) || (imgIn->iChannel==CHANNEL_1_32BGRA))
 			{
+				int iColorPitch = ((imgIn->iChannel==CHANNEL_1_24BGR) ? 3 : 4);
 				for(int r=0; r<iHeightDst; r++)
 				{
 					for(int c=0; c<iWidthDst; c++)
 					{
-						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*3+2];
-						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*3+1];
-						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*3+0];
+						BYTE byR=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+2];
+						BYTE byG=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+1];
+						BYTE byB=imgIn->byImg[(r*iWidthDst+c)*iColorPitch+0];
 						BYTE byMax=max(max(byR,byG),byB);
 						imgResult->byImg[r*iWidthDst+c]=byMax;
 					}
