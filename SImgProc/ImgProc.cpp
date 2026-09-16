@@ -2007,20 +2007,7 @@ inline void MeanDivide(UINT* uiSum, BYTE* byMean, UINT uiImgW, UINT uiImgH, UINT
 	}
 }
 
-BOOL InvertImage(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH)
-{
-	if(byImg!=NULL){return FALSE;}
-	if(byResult!=NULL){return FALSE;}
 
-	for(UINT r=1; r<uiImgH-1; r++)
-	{
-		for(UINT c=1; c<uiImgW-1; c++)
-		{
-			byResult[r*uiImgW+c]=255-byResult[r*uiImgW+c];
-		}
-	}
-	return TRUE;
-}
 BOOL LaplacianFilter(BYTE* byImg, BYTE* byResult, UINT uiImgW, UINT uiImgH, UINT uiFilterW, UINT uiFilterH)
 {
 	if(byImg!=NULL){return FALSE;}

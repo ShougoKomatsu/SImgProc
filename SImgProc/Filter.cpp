@@ -1293,6 +1293,104 @@ BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const in
 	}
 	return FALSE;
 }
+BOOL DLL_IE InvertImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1)	
+{
+	if(imgIn!=NULL){return FALSE;}
+	if(imgResult!=NULL){return FALSE;}
+
+	int iWidth=imgIn->iWidth;
+	int iHeight=imgIn->iHeight;
+	int iChannel = imgIn->iChannel;
+	BYTE* pbySrc = imgIn->byImg;
+	BYTE* pbySrcR= imgIn->byImgR;
+	BYTE* pbySrcG= imgIn->byImgG;
+	BYTE* pbySrcB= imgIn->byImgB;
+	BYTE* pbySrcA= imgIn->byImgA;
+	BYTE* pbyDst;
+	BYTE* pbyDstR;
+	BYTE* pbyDstG;
+	BYTE* pbyDstB;
+	BYTE* pbyDstA;
+	ImgRGB imgRGBTemp;
+	if(imgIn==imgResult)
+	{
+		imgRGBTemp.Assign(imgIn);
+		pbyDst = imgRGBTemp.byImg;
+		pbyDstR = imgRGBTemp.byImgR;
+		pbyDstG = imgRGBTemp.byImgG;
+		pbyDstB = imgRGBTemp.byImgB;
+		pbyDstA = imgRGBTemp.byImgA;
+	}
+	else
+	{
+		imgResult->Assign(imgIn);
+		pbyDst = imgResult->byImg;
+		pbyDstR = imgResult->byImgR;
+		pbyDstG = imgResult->byImgG;
+		pbyDstB = imgResult->byImgB;
+		pbyDstA = imgResult->byImgA;
+	}
+
+	int iR0_Local=MAX(0, MIN(iR0, iR1));
+	int iR1_Local=MIN(iHeight-1, MAX(iR0, iR1));
+	int iC0_Local=MAX(0, MIN(iC0, iC1));
+	int iC1_Local=MIN(iWidth-1, MAX(iC0, iC1));
+
+	switch(iChannel )
+	{
+	case CHANNEL_1_8:
+		{
+			for(UINT r=iR0_Local; r<=iR1_Local; r++)
+			{
+				for(UINT c=iC0_Local; c<=iC1_Local; c++)
+				{
+					pbyDst[r*iWidth+c]=255-pbySrc[r*iWidth+c];
+				}
+			}
+			break;
+		}
+
+	case CHANNEL_3_8RGB:
+	case CHANNEL_4_8RGBA:
+		{
+			for(UINT r=iR0_Local; r<=iR1_Local; r++)
+			{
+				for(UINT c=iC0_Local; c<=iC1_Local; c++)
+				{
+					pbyDstR[r*iWidth+c]=255-pbySrcR[r*iWidth+c];
+					pbyDstG[r*iWidth+c]=255-pbySrcG[r*iWidth+c];
+					pbyDstB[r*iWidth+c]=255-pbySrcB[r*iWidth+c];
+					pbyDstA[r*iWidth+c]=pbySrcA[r*iWidth+c];
+				}
+			}
+			break;
+		}
+
+	case CHANNEL_1_32BGRA:
+	case CHANNEL_1_24BGR:
+		{
+			int iColorPitch = ((iChannel == CHANNEL_1_24BGR) ? 3 : 4);
+			for(UINT r=iR0_Local; r<=iR1_Local; r++)
+			{
+				for(UINT c=iC0_Local; c<=iC1_Local; c++)
+				{
+					pbyDst[(r*iWidth)*iColorPitch+c+0]=255-pbySrc[(r*iWidth)*iColorPitch+c+0];
+					pbyDst[(r*iWidth)*iColorPitch+c+1]=255-pbySrc[(r*iWidth)*iColorPitch+c+1];
+					pbyDst[(r*iWidth)*iColorPitch+c+2]=255-pbySrc[(r*iWidth)*iColorPitch+c+2];
+				}
+			}
+			break;
+		}
+	}
+	if(imgIn==imgResult)
+	{
+		imgRGBTemp.Assign(&imgRGBTemp);
+	}
+	return TRUE;
+
+}
+
+
 BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate rotate)
 {
 	switch(rotate)
