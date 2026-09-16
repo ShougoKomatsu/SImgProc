@@ -1295,8 +1295,8 @@ BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const in
 }
 BOOL DLL_IE InvertImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1)	
 {
-	if(imgIn!=NULL){return FALSE;}
-	if(imgResult!=NULL){return FALSE;}
+	if(imgIn==NULL){return FALSE;}
+	if(imgResult==NULL){return FALSE;}
 
 	int iWidth=imgIn->iWidth;
 	int iHeight=imgIn->iHeight;
@@ -1384,7 +1384,7 @@ BOOL DLL_IE InvertImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, c
 	}
 	if(imgIn==imgResult)
 	{
-		imgRGBTemp.Assign(&imgRGBTemp);
+		imgResult->Assign(&imgRGBTemp);
 	}
 	return TRUE;
 
