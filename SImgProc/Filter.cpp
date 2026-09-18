@@ -1904,20 +1904,20 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 						double dDiv=byMax-byMin;
 						if(byMin==byB)
 						{
-							if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 + (byG-byR)/dDiv);}
-							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 - (byR-byG)/dDiv);}
+							if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 - (byR-byG)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 + (byG-byR)/dDiv);}
 							continue;
 						}
-						if(byMin==byR)
+						else if(byMin==byR)
 						{
-							if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 + (byB-byG)/dDiv);}
-							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 - (byG-byB)/dDiv);}
+							if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 - (byG-byB)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 + (byB-byG)/dDiv);}
 							continue;
 						}
-						if(byMin==byG)
+						else
 						{
-							if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 + (byR-byB)/dDiv);}
-							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 - (byB-byR)/dDiv);}
+							if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 - (byB-byR)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 + (byR-byB)/dDiv);}
 							continue;
 						}
 					}
@@ -1937,9 +1937,25 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=0; continue;}
-						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin); continue;}
-						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin); continue;}
-						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin); continue;}
+						double dDiv=byMax-byMin;
+						if(byMin==byB)
+						{
+							if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 - (byR-byG)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(1 + (byG-byR)/dDiv);}
+							continue;
+						}
+						else if(byMin==byR)
+						{
+							if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 - (byG-byB)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(3 + (byB-byG)/dDiv);}
+							continue;
+						}
+						else
+						{
+							if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 - (byB-byR)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(5 + (byR-byB)/dDiv);}
+							continue;
+						}
 					}
 				}
 				return TRUE;
@@ -1971,9 +1987,25 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=128; continue;}
-						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin)))%256; continue;}
-						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin)))%256; continue;}
-						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin)))%256; continue;}
+						double dDiv=byMax-byMin;
+						if(byMin==byB)
+						{
+							if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(4 - (byR-byG)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(4 + (byG-byR)/dDiv);}
+							continue;
+						}
+						else if(byMin==byR)
+						{
+							if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(6 - (byG-byB)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(0 + (byB-byG)/dDiv);}
+							continue;
+						}
+						else
+						{
+							if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(2 - (byB-byR)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(2 + (byR-byB)/dDiv);}
+							continue;
+						}
 					}
 				}
 				return TRUE;
@@ -1991,9 +2023,25 @@ BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM
 						BYTE byMax=max(max(byR,byG),byB);
 						BYTE byMin=min(min(byR,byG),byB);
 						if(byMax==byMin){imgResult->byImg[r*iWidthDst+c]=128; continue;}
-						if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*0 + 256/3.0*(byG-byB)/(byMax-byMin)))%256; continue;}
-						if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*1 + 256/3.0*(byB-byR)/(byMax-byMin)))%256; continue;}
-						if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = ((int)(128+256/3.0*2 + 256/3.0*(byR-byG)/(byMax-byMin)))%256; continue;}
+						double dDiv=byMax-byMin;
+						if(byMin==byB)
+						{
+							if(byMax==byR){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(4 - (byR-byG)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(4 + (byG-byR)/dDiv);}
+							continue;
+						}
+						else if(byMin==byR)
+						{
+							if(byMax==byG){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(6 - (byG-byB)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(0 + (byB-byG)/dDiv);}
+							continue;
+						}
+						else
+						{
+							if(byMax==byB){imgResult->byImg[r*iWidthDst+c] = 255/6.0*(2 - (byB-byR)/dDiv);}
+							else{imgResult->byImg[r*iWidthDst+c] = 255/6.0*(2 + (byR-byB)/dDiv);}
+							continue;
+						}
 					}
 				}
 				return TRUE;
