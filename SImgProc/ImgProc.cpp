@@ -1251,6 +1251,63 @@ BOOL ImgRGBPyramid::SetPyramid(const ImgRGB* imgRGBIn)
 	return TRUE;
 }
 
+BOOL DLL_IE AddImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult)
+{
+	if(Image1->iWidth != Image2->iWidth){return FALSE;}
+	if(Image1->iHeight != Image2->iHeight){return FALSE;}
+
+	int iImgHeight = Image1->iHeight;
+	int iImgWidth = Image1->iWidth;
+
+	if(Image1->iChannel == CHANNEL_1_8)
+	{
+		if(Image1->iChannel == CHANNEL_1_8)
+		{
+			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_1_8);
+
+			for(int r=0; r<iImgHeight; r++)
+			{
+				for(int c=0; c<iImgWidth; c++)
+				{
+					int iAdd=int(Image1->byImg[r*iImgWidth+c])+int(Image1->byImg[r*iImgWidth+c]);
+					ImageResult->byImg[r*iImgWidth+c]=BYTE(min(255,iAdd));
+				}
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	if(Image1->iChannel == CHANNEL_3_8RGB)
+	{
+		if(Image1->iChannel == CHANNEL_3_8RGB)
+		{
+			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
+
+			for(int r=0; r<iImgHeight; r++)
+			{
+				for(int c=0; c<iImgWidth; c++)
+				{
+					int iSub;
+					double dResult;
+					int iAdd=int(Image1->byImgR[r*iImgWidth+c])+int(Image1->byImgR[r*iImgWidth+c]);
+					ImageResult->byImgR[r*iImgWidth+c]=BYTE(min(255,iAdd));
+					
+					iAdd=int(Image1->byImgG[r*iImgWidth+c])+int(Image1->byImgG[r*iImgWidth+c]);
+					ImageResult->byImgG[r*iImgWidth+c]=BYTE(min(255,iAdd));
+					
+					iAdd=int(Image1->byImgB[r*iImgWidth+c])+int(Image1->byImgB[r*iImgWidth+c]);
+					ImageResult->byImgB[r*iImgWidth+c]=BYTE(min(255,iAdd));
+				}
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+
+	return FALSE;
+}
 
 BOOL DLL_IE SubImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult, double dMult, double dAdd)
 {
