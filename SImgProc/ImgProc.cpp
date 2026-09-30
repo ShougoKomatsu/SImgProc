@@ -1261,48 +1261,62 @@ BOOL DLL_IE AddImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult)
 
 	if(Image1->iChannel == CHANNEL_1_8)
 	{
-		if(Image1->iChannel == CHANNEL_1_8)
-		{
-			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_1_8);
+		ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_1_8);
 
-			for(int r=0; r<iImgHeight; r++)
+		for(int r=0; r<iImgHeight; r++)
+		{
+			for(int c=0; c<iImgWidth; c++)
 			{
-				for(int c=0; c<iImgWidth; c++)
-				{
-					int iAdd=int(Image1->byImg[r*iImgWidth+c])+int(Image1->byImg[r*iImgWidth+c]);
-					ImageResult->byImg[r*iImgWidth+c]=BYTE(min(255,iAdd));
-				}
+				int iAdd=int(Image1->byImg[r*iImgWidth+c])+int(Image1->byImg[r*iImgWidth+c]);
+				ImageResult->byImg[r*iImgWidth+c]=BYTE(min(255,iAdd));
 			}
-			return TRUE;
 		}
-		return FALSE;
+		return TRUE;
 	}
 
+	if(Image1->iChannel == CHANNEL_4_8RGBA)
+	{
+		ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
+
+		for(int r=0; r<iImgHeight; r++)
+		{
+			for(int c=0; c<iImgWidth; c++)
+			{
+				int iSub;
+				double dResult;
+				int iAdd=int(Image1->byImgR[r*iImgWidth+c])+int(Image2->byImgR[r*iImgWidth+c]);
+				ImageResult->byImgR[r*iImgWidth+c]=BYTE(min(255,iAdd));
+
+				iAdd=int(Image1->byImgG[r*iImgWidth+c])+int(Image2->byImgG[r*iImgWidth+c]);
+				ImageResult->byImgG[r*iImgWidth+c]=BYTE(min(255,iAdd));
+
+				iAdd=int(Image1->byImgB[r*iImgWidth+c])+int(Image2->byImgB[r*iImgWidth+c]);
+				ImageResult->byImgB[r*iImgWidth+c]=BYTE(min(255,iAdd));
+			}
+		}
+		return TRUE;
+	}
 	if(Image1->iChannel == CHANNEL_3_8RGB)
 	{
-		if(Image1->iChannel == CHANNEL_3_8RGB)
-		{
-			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
+		ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
 
-			for(int r=0; r<iImgHeight; r++)
+		for(int r=0; r<iImgHeight; r++)
+		{
+			for(int c=0; c<iImgWidth; c++)
 			{
-				for(int c=0; c<iImgWidth; c++)
-				{
-					int iSub;
-					double dResult;
-					int iAdd=int(Image1->byImgR[r*iImgWidth+c])+int(Image1->byImgR[r*iImgWidth+c]);
-					ImageResult->byImgR[r*iImgWidth+c]=BYTE(min(255,iAdd));
-					
-					iAdd=int(Image1->byImgG[r*iImgWidth+c])+int(Image1->byImgG[r*iImgWidth+c]);
-					ImageResult->byImgG[r*iImgWidth+c]=BYTE(min(255,iAdd));
-					
-					iAdd=int(Image1->byImgB[r*iImgWidth+c])+int(Image1->byImgB[r*iImgWidth+c]);
-					ImageResult->byImgB[r*iImgWidth+c]=BYTE(min(255,iAdd));
-				}
+				int iSub;
+				double dResult;
+				int iAdd=int(Image1->byImgR[r*iImgWidth+c])+int(Image2->byImgR[r*iImgWidth+c]);
+				ImageResult->byImgR[r*iImgWidth+c]=BYTE(min(255,iAdd));
+
+				iAdd=int(Image1->byImgG[r*iImgWidth+c])+int(Image2->byImgG[r*iImgWidth+c]);
+				ImageResult->byImgG[r*iImgWidth+c]=BYTE(min(255,iAdd));
+
+				iAdd=int(Image1->byImgB[r*iImgWidth+c])+int(Image2->byImgB[r*iImgWidth+c]);
+				ImageResult->byImgB[r*iImgWidth+c]=BYTE(min(255,iAdd));
 			}
-			return TRUE;
 		}
-		return FALSE;
+		return TRUE;
 	}
 
 
@@ -1318,55 +1332,44 @@ BOOL DLL_IE SubImage(ImgRGB* Image1, ImgRGB* Image2, ImgRGB* ImageResult, double
 	int iImgWidth = Image1->iWidth;
 	if(Image1->iChannel == CHANNEL_1_8)
 	{
-		if(Image1->iChannel == CHANNEL_1_8)
-		{
 			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_1_8);
 
 			for(int r=0; r<iImgHeight; r++)
 			{
 				for(int c=0; c<iImgWidth; c++)
 				{
-					int iSub=int(Image1->byImg[r*iImgWidth+c])-int(Image1->byImg[r*iImgWidth+c]);
+					int iSub=int(Image1->byImg[r*iImgWidth+c])-int(Image2->byImg[r*iImgWidth+c]);
 					double dResult=iSub*dMult+dAdd;
 					ImageResult->byImg[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
 				}
 			}
 		return TRUE;
-		}
-		return FALSE;
 	}
 
-	if(Image1->iChannel == CHANNEL_3_8RGB)
+	if((Image1->iChannel == CHANNEL_3_8RGB) || (Image1->iChannel == CHANNEL_4_8RGBA))
 	{
-		if(Image1->iChannel == CHANNEL_3_8RGB)
+		ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
+
+		for(int r=0; r<iImgHeight; r++)
 		{
-			ImageResult->Set(Image1->iWidth, Image1->iHeight, CHANNEL_3_8RGB);
-
-			for(int r=0; r<iImgHeight; r++)
+			for(int c=0; c<iImgWidth; c++)
 			{
-				for(int c=0; c<iImgWidth; c++)
-				{
-					int iSub;
-					double dResult;
-					iSub=int(Image1->byImgR[r*iImgWidth+c])-int(Image1->byImgR[r*iImgWidth+c]);
-					dResult=iSub*dMult+dAdd;
-					ImageResult->byImgR[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
-					
-					iSub=int(Image1->byImgG[r*iImgWidth+c])-int(Image1->byImgG[r*iImgWidth+c]);
-					dResult=iSub*dMult+dAdd;
-					ImageResult->byImgG[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
-					
-					iSub=int(Image1->byImgB[r*iImgWidth+c])-int(Image1->byImgB[r*iImgWidth+c]);
-					dResult=iSub*dMult+dAdd;
-					ImageResult->byImgB[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
-				}
+				int iSub;
+				double dResult;
+				iSub=int(Image1->byImgR[r*iImgWidth+c])-int(Image2->byImgR[r*iImgWidth+c]);
+				dResult=iSub*dMult+dAdd;
+				ImageResult->byImgR[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+
+				iSub=int(Image1->byImgG[r*iImgWidth+c])-int(Image2->byImgG[r*iImgWidth+c]);
+				dResult=iSub*dMult+dAdd;
+				ImageResult->byImgG[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
+
+				iSub=int(Image1->byImgB[r*iImgWidth+c])-int(Image2->byImgB[r*iImgWidth+c]);
+				dResult=iSub*dMult+dAdd;
+				ImageResult->byImgB[r*iImgWidth+c]=BYTE(MAX(MIN(dResult,255),0));
 			}
-			return TRUE;
 		}
-		return FALSE;
 	}
-
-
 	return FALSE;
 }
 
