@@ -523,7 +523,7 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 		iTotalCs_R=new int [iImgWidth];
 		iTotalCs_G=new int [iImgWidth];
 		iTotalCs_B=new int [iImgWidth];
-		iTotalCs_A=new int [iImgWidth];
+//		iTotalCs_A=new int [iImgWidth];
 		ImgRGB imgR1, imgG1, imgB1, imgA1;
 		ImgRGB imgR2, imgG2, imgB2, imgA2;
 
