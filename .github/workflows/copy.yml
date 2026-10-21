@@ -1,0 +1,121 @@
+name: SImgProc dll sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - SImgProc.dll
+      - SImgProc.lib
+      - SImgProc_d.dll
+      - SImgProc_d.lib
+
+jobs:
+  sync-to-simageviewer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout SImgProc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed binaries
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" == "0000000000000000000000000000000000000000" ]; then
+            files="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}" -- SImgProc.dll SImgProc.lib SImgProc_d.dll SImgProc_d.lib || true)"
+          else
+            files="$(git diff --name-only "$before" "${{ github.sha }}" -- SImgProc.dll SImgProc.lib SImgProc_d.dll SImgProc_d.lib || true)"
+          fi
+
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$files" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$files" ]; then
+            echo "has_change=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_change=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout SImageViewer
+        if: steps.changed.outputs.has_change == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ShougoKomatsu/SImageViewer
+          token: ${{ secrets.SIMAGEVIEWER_TOKEN }}
+          path: viewer
+          fetch-depth: 0
+
+      - name: Create/update branch in SImageViewer
+        if: steps.changed.outputs.has_change == 'true'
+        shell: bash
+        working-directory: viewer
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+          branch="SImgProc更新"
+          if git rev-parse --verify "$branch" >/dev/null 2>&1; then
+            git checkout "$branch"
+            git pull --ff-only origin "$branch" || true
+          else
+            git checkout -b "$branch"
+          fi
+
+      - name: Copy changed binary files
+        if: steps.changed.outputs.has_change == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r f; do
+            [ -n "$f" ] || continue
+            if [ -f "$f" ]; then
+              cp "$f" "viewer/$(basename "$f")"
+            fi
+          done <<< "${{ steps.changed.outputs.files }}"
+
+      - name: Commit and push to SImageViewer
+        if: steps.changed.outputs.has_change == 'true'
+        shell: bash
+        working-directory: viewer
+        env:
+          GH_TOKEN: ${{ secrets.SIMAGEVIEWER_TOKEN }}
+        run: |
+          set -euo pipefail
+          git add -- SImgProc.dll SImgProc.lib SImgProc_d.dll SImgProc_d.lib
+          if git diff --cached --quiet; then
+            echo "No binary changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update SImgProc binaries"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/ShougoKomatsu/SImageViewer.git" HEAD:SImgProc更新
+
+      - name: Create pull request
+        if: steps.changed.outputs.has_change == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SIMAGEVIEWER_TOKEN }}
+        run: |
+          set -euo pipefail
+          if ! gh pr view SImgProc更新 --repo ShougoKomatsu/SImageViewer >/dev/null 2>&1; then
+            gh pr create \
+              --repo ShougoKomatsu/SImageViewer \
+              --base main \
+              --head SImgProc更新 \
+              --title "SImgProc更新" \
+              --body "SImgProc の DLL/LIB 更新を反映します。"
+          fi
