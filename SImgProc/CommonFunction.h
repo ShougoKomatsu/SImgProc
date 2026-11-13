@@ -9,6 +9,7 @@ BOOL Sort(const double* arr, int iLength, double* brr);
 BOOL Index(const double* dIn, int iLength, int* iIndexOut);
 BOOL Index(const int* dIn, int iLength, int* iIndexOut);
 BOOL Index(const UINT* dIn, int iLength, int* iIndexOut);
+BOOL Index(const BYTE* dIn, int iLength, int* iIndexOut);
 
 
 

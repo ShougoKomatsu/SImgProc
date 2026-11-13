@@ -254,6 +254,8 @@ BOOL Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, const 
 	if(imgR->iWidth != imgG->iWidth){return FALSE;}
 	if(imgR->iWidth != imgB->iWidth){return FALSE;}
 		
+	imgOut->Set(imgR->iWidth, imgR->iHeight, CHANNEL_3_8RGB);
+
 	for(int r=0; r<imgR->iHeight; r++)
 	{
 		for(int c=0; c<imgR->iWidth; c++)

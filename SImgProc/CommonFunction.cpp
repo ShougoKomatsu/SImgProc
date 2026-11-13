@@ -23,6 +23,13 @@ inline void SWAP(int* a, int* b)
 	*b=(*a);
 	*a=temp;
 }
+inline void SWAP(BYTE* a, BYTE* b)
+{
+	BYTE temp;
+	temp=(*b);
+	*b=(*a);
+	*a=temp;
+}
 
 long SumVec(const double* dVec, int iLength, double* dOut)
 {
@@ -557,6 +564,113 @@ BOOL Index(const UINT* dIn, int iLength, int* iIndexOut)
 	return TRUE;
 }
 
+BOOL Index(const BYTE* dIn, int iLength, int* iIndexOut)
+{
+	int* iIndex;
+	BYTE* dALocal;
+	dALocal = new BYTE[iLength];
+	iIndex = new int [iLength];
+	
+
+	for(int i=0; i<iLength; i++)
+	{
+		dALocal[i]=dIn[i];
+		iIndex[i]=i;
+	}
+
+	int m=7;
+	int nstack=64;
+	int iIndexR, jstack=-1, indexL=0, n=iLength;
+	int* istack;
+	istack=new int[nstack];
+	iIndexR=n-1;
+
+	while(1)
+	{
+		if(iIndexR-indexL<m)
+		{
+			for(int j=indexL+1; j<=iIndexR; j++)
+			{
+				UINT a=dALocal[j];
+				int b=iIndex[j];
+				int i;
+				for(i=j-1; i>=indexL; i--)
+				{
+					if(dALocal[i]<=a){break;}
+					dALocal[i+1]=dALocal[i];
+					iIndex[i+1]=iIndex[i];
+				}
+				dALocal[i+1]=a;
+				iIndex[i+1]=b;
+			}
+			if(jstack<0){break;}
+			iIndexR=istack[jstack];jstack--;
+			indexL=istack[jstack];jstack--;
+			continue;
+		}
+
+		int iIndexTemp=(indexL+iIndexR)>>1;
+		SWAP(&(dALocal[iIndexTemp]),&(dALocal[indexL+1]));
+		SWAP(&(iIndex[iIndexTemp]),&(iIndex[indexL+1]));
+
+		if(dALocal[indexL] > dALocal[iIndexR])
+		{
+			SWAP(&(dALocal[indexL]), &(dALocal[iIndexR]));
+			SWAP(&(iIndex[indexL]), &(iIndex[iIndexR]));
+		}
+		if(dALocal[indexL+1] > dALocal[iIndexR])
+		{
+			SWAP(&(dALocal[indexL+1]), &(dALocal[iIndexR]));
+			SWAP(&(iIndex[indexL+1]), &(iIndex[iIndexR]));
+		}
+		if(dALocal[indexL] > dALocal[indexL+1])
+		{
+			SWAP(&(dALocal[indexL]), &(dALocal[indexL+1]));
+			SWAP(&(iIndex[indexL]), &(iIndex[indexL+1]));
+		}
+
+
+		int i=indexL+1;
+		int j=iIndexR;
+		UINT a=dALocal[indexL+1];
+		int b=iIndex[indexL+1];
+		while(1)
+		{
+			while(1){i++;if(dALocal[i]>=a){break;}}
+			while(1){j--;if(dALocal[j]<=a){break;}}
+
+			if(j<i){break;}
+
+			SWAP(&(dALocal[i]), &(dALocal[j]));
+			SWAP(&(iIndex[i]), &(iIndex[j]));
+		}
+		dALocal[indexL+1]=dALocal[j];
+		dALocal[j]=a;
+		iIndex[indexL+1]=iIndex[j];
+		iIndex[j]=b;
+		jstack += 2;
+
+		if(jstack>=nstack){return FALSE;}
+		if(iIndexR-i+1 >= j-1)
+		{
+			istack[jstack]=iIndexR;
+			istack[jstack-1]=i;
+			iIndexR=j-1;
+		}
+		else
+		{
+			istack[jstack]=j-1;
+			istack[jstack-1]=indexL;
+			indexL=i;
+		}
+	}
+
+	for(int i=0; i<iLength; i++){iIndexOut[i]=iIndex[i];}
+
+	SAFE_DELETE(iIndex);
+	SAFE_DELETE(dALocal);
+	return TRUE;
+}
 BOOL LUDcmp(const double* dA, const int iRC, double* dLU, int* iIndex)
 {
 
