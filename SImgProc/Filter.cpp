@@ -528,14 +528,16 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 		ImgRGB imgR2, imgG2, imgB2, imgA2;
 
 
-		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,NULL);
+		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,&imgA1);
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgB2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgA2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 
 		memcpy(imgR2.byImg,imgR1.byImg,iImgWidth*iImgHeight);
 		memcpy(imgG2.byImg,imgG1.byImg,iImgWidth*iImgHeight);
 		memcpy(imgB2.byImg,imgB1.byImg,iImgWidth*iImgHeight);
+		memcpy(imgA2.byImg,imgA1.byImg,iImgWidth*iImgHeight);
 
 		if(iStartR != 0)
 		{
@@ -562,7 +564,14 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 				}
 			}
 		}
-		Compose3(&imgR2,&imgG2,&imgB2,NULL,imgResult);
+		if(imgIn->iChannel == CHANNEL_4_8RGBA)
+		{
+			Compose3(&imgR2,&imgG2,&imgB2,&imgA2,imgResult);
+		}
+		else
+		{
+			Compose3(&imgR2,&imgG2,&imgB2,NULL,imgResult);
+		}
 		SAFE_DELETE( uiFilteredOfRC_R);
 		SAFE_DELETE( uiFilteredOfRC_G);
 		SAFE_DELETE( uiFilteredOfRC_B);
