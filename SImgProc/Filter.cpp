@@ -227,16 +227,17 @@ BOOL SumCDirection
 {
 	int iC0Local = max(0, iC0);
 	int iC1Local = min(iImgWidth-1, iC1);
+	iTotalCs[iC0Local]=0;
 
 	int iStartCOffset = -1*min(iC0Local, iHalfWidth);
 	int iEndCOffset = min(iImgWidth-1-iC0Local, iHalfWidth);
 
 	uiSumOfRC[iC0Local] = uiSumOfEachC[iC0Local];
-	for(int cOffset = iStartCOffset+1; cOffset <= iEndCOffset; cOffset++)
+	for(int cOffset = iStartCOffset; cOffset <= iEndCOffset; cOffset++)
 	{
 		uiSumOfRC[iC0Local] += uiSumOfEachC[iC0Local+cOffset];
+	iTotalCs[iC0Local]++;
 	}
-	iTotalCs[iC0Local]=iEndCOffset - iStartCOffset + 1;
 
 	for(int c = iC0Local+1; c <= iC1Local; c++)
 	{
