@@ -240,7 +240,7 @@ BOOL SumCDirection
 
 	for(int c = iC0Local+1; c <= iC1Local; c++)
 	{
-		if(c-iHalfWidth < 0)
+		if(c-iHalfWidth <= 0)
 		{
 			uiSumOfRC[c]=uiSumOfRC[c-1]+uiSumOfEachC[c+iHalfWidth];
 			iTotalCs[c]=iTotalCs[c-1]+1;
@@ -249,13 +249,13 @@ BOOL SumCDirection
 
 		if(c+iHalfWidth <= iImgWidth-1)
 		{
-			uiSumOfRC[c]=uiSumOfRC[c-1]-uiSumOfEachC[c-iHalfWidth];
+			uiSumOfRC[c]=uiSumOfRC[c-1]-uiSumOfEachC[c-iHalfWidth-1];
 			uiSumOfRC[c]+=uiSumOfEachC[c+iHalfWidth];
 			iTotalCs[c]=2*iHalfWidth+1;
 			continue;
 		}
 
-		uiSumOfRC[c]=uiSumOfRC[c]-uiSumOfEachC[c+iHalfWidth];
+		uiSumOfRC[c]=uiSumOfRC[c-1]-uiSumOfEachC[c+iHalfWidth-1];
 		iTotalCs[c]=iTotalCs[c-1]-1;
 	}
 
@@ -440,7 +440,7 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 		ImgRGB imgR1, imgG1, imgB1;
 		ImgRGB imgR2, imgG2, imgB2;
 
-
+			
 		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,NULL);
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
@@ -528,14 +528,16 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 		ImgRGB imgR2, imgG2, imgB2, imgA2;
 
 
-		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,NULL);
+		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,&imgA1);
 		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 		imgB2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
+		imgA2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
 
 		memcpy(imgR2.byImg,imgR1.byImg,iImgWidth*iImgHeight);
 		memcpy(imgG2.byImg,imgG1.byImg,iImgWidth*iImgHeight);
 		memcpy(imgB2.byImg,imgB1.byImg,iImgWidth*iImgHeight);
+		memcpy(imgA2.byImg,imgA1.byImg,iImgWidth*iImgHeight);
 
 		if(iStartR != 0)
 		{
@@ -562,7 +564,7 @@ BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, con
 				}
 			}
 		}
-		Compose3(&imgR2,&imgG2,&imgB2,NULL,imgResult);
+		Compose3(&imgR2,&imgG2,&imgB2,&imgA2,imgResult);
 		SAFE_DELETE( uiFilteredOfRC_R);
 		SAFE_DELETE( uiFilteredOfRC_G);
 		SAFE_DELETE( uiFilteredOfRC_B);
