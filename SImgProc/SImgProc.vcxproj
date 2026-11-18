@@ -135,7 +135,11 @@
     <PostBuildEvent>
       <Message>
       </Message>
-      <Command>copy ..\SImgProc\SImgProc_ex.h ..\SImgProcTest</Command>
+      <Command>copy ..\SImgProc\SImgProc_ex.h ..\SImgProcTest
+
+copy ..\SImgProc\SImgProc_ex.h ..\..\SImageViewer
+copy ..\..\SImgProc\SImgProc_d.dll ..\..\SImageViewer
+copy ..\..\SImgProc\SImgProc_d.lib ..\..\SImageViewer</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
