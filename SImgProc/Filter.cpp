@@ -713,6 +713,85 @@ BOOL Filter_Min(const int iChannel, const ImgRGB* imgR1, const ImgRGB* imgG1, co
 
 	return FALSE;
 }
+BOOL Filter_Median(const int iChannel, const ImgRGB* imgR1, const ImgRGB* imgG1, const ImgRGB* imgB1, const ImgRGB* imgA1, 
+	ImgRGB* imgR2, ImgRGB* imgG2, ImgRGB* imgB2, ImgRGB* imgA2,
+	const int iImgWidth, const int iImgHeight, const int iStartR, const int iStartC, const int iEndR, const int iEndC, 
+	const int iR0, const int iC0, const int iR1, const int iC1,
+	const int iFilterHalfWidth, const int iFilterHalfHeight)
+{
+
+	if((iChannel == CHANNEL_1_24BGR) || (iChannel == CHANNEL_3_8RGB)
+	||(iChannel == CHANNEL_1_24BGR) || (iChannel == CHANNEL_3_8RGB))
+	{
+		BYTE* byR;
+		BYTE* byG;
+		BYTE* byB;
+		int* iIndex;
+		byR=new BYTE[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		byG=new BYTE[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		byB=new BYTE[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		iIndex=new int[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		for(int r=iStartR; r<=iEndR; r++)
+		{
+			for(int c=iStartC; c<=iEndC; c++)
+			{
+				int iPos=0;
+				for(int r_l=max(0, r-iFilterHalfHeight); r_l<=min(iImgHeight-1, r+iFilterHalfHeight); r_l++)
+				{
+					for(int c_l=max(0, c-iFilterHalfWidth); c_l<=min(iImgWidth-1, c+iFilterHalfWidth); c_l++)
+					{
+						byR[iPos]=imgR1->byImg[r_l*iImgWidth+c_l];
+						byG[iPos]=imgG1->byImg[r_l*iImgWidth+c_l];
+						byB[iPos]=imgB1->byImg[r_l*iImgWidth+c_l];
+						iPos++;
+					}
+				}
+				Index(byR, iPos, iIndex);
+				imgR2->byImg[r*iImgWidth+c]=byR[iIndex[iPos/2]];
+				Index(byG, iPos, iIndex);
+				imgG2->byImg[r*iImgWidth+c]=byG[iIndex[iPos/2]];
+				Index(byB, iPos, iIndex);
+				imgB2->byImg[r*iImgWidth+c]=byB[iIndex[iPos/2]];
+			}
+		}
+		SAFE_DELETE( iIndex);
+		SAFE_DELETE( byR);
+		SAFE_DELETE( byG);
+		SAFE_DELETE( byB);
+
+		return TRUE;
+	}
+
+	if(iChannel == CHANNEL_1_8)
+	{
+		BYTE* byR;
+		int* iIndex;
+		byR=new BYTE[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		iIndex=new int[(2*iFilterHalfWidth+1) * (2*iFilterHalfHeight+1)];
+		for(int r=iStartR; r<=iEndR; r++)
+		{
+			for(int c=iStartC; c<=iEndC; c++)
+			{
+				int iPos=0;
+				for(int r_l=max(0, r-iFilterHalfHeight); r_l<=min(iImgHeight-1, r+iFilterHalfHeight); r_l++)
+				{
+					for(int c_l=max(0, c-iFilterHalfWidth); c_l<=min(iImgWidth-1, c+iFilterHalfWidth); c_l++)
+					{
+						byR[iPos]=imgR1->byImg[r_l*iImgWidth+c_l];
+						iPos++;
+					}
+				}
+				Index(byR, iPos, iIndex);
+				imgR2->byImg[r*iImgWidth+c]=byR[iIndex[iPos/2]];
+			}
+		}
+
+		SAFE_DELETE( iIndex);
+		return TRUE;
+	}
+
+	return FALSE;
+}
 BOOL Filter(const int iFilter, const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
 	int iImgWidth=imgIn->iWidth;
@@ -740,15 +819,19 @@ BOOL Filter(const int iFilter, const ImgRGB* imgIn, ImgRGB* imgResult, const int
 
 		if(iFilter==FILTER_MEAN)
 		{
-			BOOL bRet = Filter_Mean(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Mean(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MAX)
 		{
-			BOOL bRet = Filter_Max(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Max(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MIN)
 		{
-			BOOL bRet = Filter_Min(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Min(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
+		}
+		if(iFilter==FILTER_MEDIAN)
+		{
+			BOOL bRet = Filter_Median(imgIn->iChannel, &imgR1, &imgG1, &imgB1, NULL, &imgR2, &imgG2, &imgB2, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		Compose3(&imgR2,&imgG2,&imgB2,NULL, imgResult);
 		return TRUE;
@@ -771,15 +854,19 @@ BOOL Filter(const int iFilter, const ImgRGB* imgIn, ImgRGB* imgResult, const int
 		memcpy(imgA2.byImg,imgA1.byImg,iImgWidth*iImgHeight);
 		if(iFilter==FILTER_MEAN)
 		{
-			BOOL bRet = Filter_Mean(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Mean(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MAX)
 		{
-			BOOL bRet = Filter_Max(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Max(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MIN)
 		{
-			BOOL bRet = Filter_Min(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			BOOL bRet = Filter_Min(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
+		}
+		if(iFilter==FILTER_MEDIAN)
+		{
+			BOOL bRet = Filter_Median(imgIn->iChannel, &imgR1, &imgG1, &imgB1, &imgA2, &imgR2, &imgG2, &imgB2, &imgA2, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 
 		Compose3(&imgR2,&imgG2,&imgB2,&imgA2,imgResult);
@@ -790,15 +877,19 @@ BOOL Filter(const int iFilter, const ImgRGB* imgIn, ImgRGB* imgResult, const int
 	{
 		if(iFilter==FILTER_MEAN)
 		{
-			return Filter_Mean(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			return Filter_Mean(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MAX)
 		{
-			return Filter_Max(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			return Filter_Max(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		if(iFilter==FILTER_MIN)
 		{
-			return Filter_Min(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, (iFilterWidth-1)/2, (iFilterHeight-1)/2);
+			return Filter_Min(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
+		}
+		if(iFilter==FILTER_MEDIAN)
+		{
+			return Filter_Median(imgIn->iChannel, imgIn, NULL, NULL, NULL, imgResult, NULL, NULL, NULL, iImgWidth, iImgHeight, iStartR, iStartC, iEndR, iEndC, iR0, iC0, iR1, iC1, iHalfWidth, iHalfHeight);
 		}
 		return TRUE;
 	}
@@ -823,101 +914,9 @@ BOOL DLL_IE MinImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, cons
 
 BOOL DLL_IE MedianImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
-	int iImgWidth=imgIn->iWidth;
-	int iImgHeight=imgIn->iHeight;
-	int iHalfHeight=(iFilterHeight-1)/2;
-	int iHalfWidth=(iFilterWidth-1)/2;
-
-	int iStartR=max(0, iR0-iHalfHeight);
-	int iStartC=max(0, iC0-iHalfWidth);
-	int iEndR=min(iImgHeight-1, iR1+iHalfHeight);
-	int iEndC=min(iImgWidth-1, iC1+iHalfWidth);
-
-	if((imgIn->iChannel == CHANNEL_1_24BGR) || (imgIn->iChannel == CHANNEL_3_8RGB))
-	{
-
-		ImgRGB imgR1, imgG1, imgB1;
-		ImgRGB imgR2, imgG2, imgB2;
-
-		Decompose3(imgIn,&imgR1,&imgG1,&imgB1,NULL);
-		imgR2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		imgG2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		imgB2.Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-
-		memcpy(imgR2.byImg,imgR1.byImg,iImgWidth*iImgHeight);
-		memcpy(imgG2.byImg,imgG1.byImg,iImgWidth*iImgHeight);
-		memcpy(imgB2.byImg,imgB1.byImg,iImgWidth*iImgHeight);
-		BYTE* byR;
-		BYTE* byG;
-		BYTE* byB;
-		int* iIndex;
-		byR=new BYTE[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		byG=new BYTE[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		byB=new BYTE[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		iIndex=new int[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		for(int r=iStartR; r<=iEndR; r++)
-		{
-			for(int c=iStartC; c<=iEndC; c++)
-			{
-				int iPos=0;
-				for(int r_l=max(0, r-iHalfHeight); r_l<=min(iImgHeight-1, r+iHalfHeight); r_l++)
-				{
-					for(int c_l=max(0, c-iHalfWidth); c_l<=min(iImgWidth-1, c+iHalfWidth); c_l++)
-					{
-						byR[iPos]=imgR1.byImg[r_l*iImgWidth+c_l];
-						byG[iPos]=imgG1.byImg[r_l*iImgWidth+c_l];
-						byB[iPos]=imgB1.byImg[r_l*iImgWidth+c_l];
-						iPos++;
-					}
-				}
-				Index(byR, iPos, iIndex);
-				imgR2.byImg[r*iImgWidth+c]=byR[iIndex[iPos/2]];
-				Index(byG, iPos, iIndex);
-				imgG2.byImg[r*iImgWidth+c]=byG[iIndex[iPos/2]];
-				Index(byB, iPos, iIndex);
-				imgB2.byImg[r*iImgWidth+c]=byB[iIndex[iPos/2]];
-			}
-		}
-		Compose3(&imgR2,&imgG2,&imgB2,NULL,imgResult);
-		SAFE_DELETE( iIndex);
-		SAFE_DELETE( byR);
-		SAFE_DELETE( byG);
-		SAFE_DELETE( byB);
-
-		return TRUE;
-	}
-
-	if(imgIn->iChannel == CHANNEL_1_8)
-	{
-		imgResult->Set(iImgWidth, iImgHeight, CHANNEL_1_8);
-		BYTE* byR;
-		int* iIndex;
-		byR=new BYTE[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		iIndex=new int[(2*iHalfWidth+1) * (2*iHalfHeight+1)];
-		for(int r=iStartR; r<=iEndR; r++)
-		{
-			for(int c=iStartC; c<=iEndC; c++)
-			{
-				int iPos=0;
-				for(int r_l=max(0, r-iHalfHeight); r_l<=min(iImgHeight-1, r+iHalfHeight); r_l++)
-				{
-					for(int c_l=max(0, c-iHalfWidth); c_l<=min(iImgWidth-1, c+iHalfWidth); c_l++)
-					{
-						byR[iPos]=imgIn->byImg[r_l*iImgWidth+c_l];
-						iPos++;
-					}
-				}
-				Index(byR, iPos, iIndex);
-				imgResult->byImg[r*iImgWidth+c]=byR[iIndex[iPos/2]];
-			}
-		}
-
-		SAFE_DELETE( iIndex);
-		return TRUE;
-	}
-
-	return FALSE;
+	return Filter(FILTER_MEDIAN, imgIn, imgResult, iR0, iC0, iR1, iC1, iFilterWidth, iFilterHeight);
 }
+
 void GenScaledMap(const int iMin, const int iMax, BYTE* byMap)
 {
 
