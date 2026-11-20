@@ -721,7 +721,7 @@ BOOL Filter_Median(const int iChannel, const ImgRGB* imgR1, const ImgRGB* imgG1,
 {
 
 	if((iChannel == CHANNEL_1_24BGR) || (iChannel == CHANNEL_3_8RGB)
-	||(iChannel == CHANNEL_1_24BGR) || (iChannel == CHANNEL_3_8RGB))
+	||(iChannel == CHANNEL_1_32BGRA) || (iChannel == CHANNEL_4_8RGBA))
 	{
 		BYTE* byR;
 		BYTE* byG;
