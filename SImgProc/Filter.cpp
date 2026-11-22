@@ -899,7 +899,7 @@ BOOL Filter(const int iFilter, const ImgRGB* imgIn, ImgRGB* imgResult, const int
 }
 BOOL DLL_IE MeanImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
 {
-	return Filter(FILTER_MIN, imgIn, imgResult, iR0, iC0, iR1, iC1, iFilterWidth, iFilterHeight);
+	return Filter(FILTER_MEAN, imgIn, imgResult, iR0, iC0, iR1, iC1, iFilterWidth, iFilterHeight);
 }
 
 BOOL DLL_IE MaxImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int iR0, const int iC0, const int iR1, const int iC1, const int iFilterWidth, const int iFilterHeight)
